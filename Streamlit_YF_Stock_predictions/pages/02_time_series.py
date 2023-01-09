@@ -1,6 +1,6 @@
 # import libraries - yfinance, prophet, streamlit, plotly
 import streamlit as st
-from streamlit_lottie import st_lottie
+# from streamlit_lottie import st_lottie
 from datetime import date
 # import yfinance for stock data
 import yfinance as yf
@@ -12,8 +12,6 @@ from plotly import graph_objs as go
 import pandas as pd
 import numpy as np
 import requests
-# import cufflinks for bollinger bands
-import cufflinks as cf
 import datetime
 
 # Import warnings + watermark
@@ -29,22 +27,10 @@ st.set_page_config(page_title="S&P500 ticker(s) analysis",page_icon="📈",layou
 
 
 # Add cache to store ticker values after first time download in browser
-@st.cache
+@st.cache(suppress_st_warning=True)
 
 # functions
 
-# Create a function to access the json data of the Lottie animation using requests - if successful return 200 - data is good, show animation else return none
-def load_lottieurl(url):
-    """
-    Loads the json data for a Lottie animation using the given URL.
-    Returns None if there was an error.
-    """
-    r = requests.get(url)
-    if r.status_code != 200:
-        return None
-    return r.json()
-#load lottie asset
-lottie_coding=load_lottieurl("https://assets10.lottiefiles.com/packages/lf20_vktpsg4v.json")
 
 # Use local style.css file
 def local_css(file_name):
@@ -57,14 +43,15 @@ def local_css(file_name):
 local_css("./style/style.css")         
 
 # include params & data
+
 # Read ticker symbols from a CSV file
 tickers = pd.read_csv("./Resources/s&p500_tickers_2022.csv")
 
 # Display a selectbox for the user to choose a ticker
-ticker_symbol = st.sidebar.selectbox("Select a ticker from the dropdown menu", tickers)
+ticker = st.sidebar.selectbox("Select a ticker from the dropdown menu", tickers)
 
 # Get data for the selected ticker
-ticker_data = yf.Ticker(ticker_symbol)
+ticker_data = yf.Ticker(ticker)
 
 # wrap header content in a streamlit container
 with st.container():
@@ -75,8 +62,6 @@ with st.container():
             st.header(f"Time Series forecast")
             st.text(f"With Facebook Prophet")
         with col2:
-            # Load asset(s)
-            # st_lottie(lottie_coding,height=150,key="finance")
             st.empty()
 st.write("---")
 
@@ -85,45 +70,31 @@ start_date=st.sidebar.date_input("Start date",value=pd.to_datetime("2007-1-1"))
 end_date=st.sidebar.date_input("End date",value=pd.to_datetime("today"))
 # add historical trading period for 1 day
 ticker_df=ticker_data.history(period="1d",start=start_date,end=end_date)
-# print(ticker_df.head())
-####
-#st.write('---')
+# st.write(ticker_df.head())
 # st.write(ticker_data.info)
 
-# add a streamlit multicheck box to include feature
-# feature_section=st.sidebar.multiselect(label="Features to plot",options=ticker_df)
 
-# Display data table
-show_info_check_box=st.checkbox(label=f"Display {ticker_symbol} company info")
+# Display company information
+show_info_check_box=st.checkbox(label=f"Display {ticker} company info")
 if show_info_check_box:
     # ticker information - logo
     ticker_logo="<img src=%s>" % ticker_data.info["logo_url"]
     st.markdown(ticker_logo,unsafe_allow_html=True)
+    st.markdown(f"<b>Company Name:</b> {ticker_data.info['longName']}", unsafe_allow_html=True)
+    st.markdown(f"<b>Exchange:</b> {ticker_data.info['exchange']}", unsafe_allow_html=True)
+    st.markdown(f"<b>Sector:</b> {ticker_data.info['sector']}", unsafe_allow_html=True)
+    st.markdown(f"<b>Industry:</b> {ticker_data.info['industry']}", unsafe_allow_html=True)
+    st.markdown(f"<b>Full Time Employees:</b> {ticker_data.info['fullTimeEmployees']}", unsafe_allow_html=True)
+    st.markdown(f"<b>Website:</b> <a href='{ticker_data.info['website']}'>{ticker_data.info['website']}</a>", unsafe_allow_html=True)
+    st.markdown(f"<b>Business Summary:</b>",unsafe_allow_html=True)
+    st.info(f"{ticker_data.info['longBusinessSummary']}")
 
-    # ticker information - name
-    ticker_name=ticker_data.info["longName"]
-    st.header(f"{ticker_name}")
 
-    # ticker information - symbol + sector
-    ticker_symbol=ticker_data.info["symbol"]
-    ticker_sector=ticker_data.info["sector"]
-    st.text(f"{ticker_symbol} is part of the {ticker_sector} sector")
-
-    # ticker information - summary
-    ticker_summary=ticker_data.info["longBusinessSummary"]
-    st.info(f"{ticker_summary}")
-
-    # Bollinger bands - trendlines plotted between two standard deviations
-    st.header(f"{ticker_symbol} Bollinger bands")
-    qf=cf.QuantFig(ticker_df,title='First Quant Figure',legend='top',name='GS')
-    qf.add_bollinger_bands()
-    fig = qf.iplot(asFigure=True)
-    st.plotly_chart(fig)
 
 # input a streamlit slider with years of prediction values
 n_years=st.sidebar.slider("Select year(s) for time series forecast",1,5)
 
-# Define a period
+# Define a yearly period
 period=n_years*365
 
 
@@ -136,62 +107,107 @@ def load_data(ticker):
 
 # data load complete message
 data_load_state=st.sidebar.text("Loading data...⌛")  
-data=load_data(ticker_symbol)
+data=load_data(ticker)
 data_load_state.text("Data loading complete ✅")
 
-# Display data table
-raw_data_check_box=st.checkbox(label=f"Display {ticker_symbol} metrics")
-if raw_data_check_box:
-    # st.subheader(f"{ticker_symbol} raw data")
-    # st.write(data)
 
-    # Plot Open vs Close price data
-    def plot_raw_data():
-        fig=go.Figure()
-        fig.add_trace(go.Scatter(x=data["Date"],y=data["Open"],name="stock_open"))
-        fig.add_trace(go.Scatter(x=data["Date"],y=data["Close"],name="stock_close"))
-        fig.layout.update(title_text=(f"{ticker_symbol} raw data plot - Open vs Close price"),xaxis_rangeslider_visible=True)
-        st.plotly_chart(fig)
-    plot_raw_data()
 
-    # create a streamlit linechart for ticker Volume over time
-    st.subheader(f"{ticker_symbol} trading volume over time")
-    st.line_chart(ticker_df.Volume)
+st.write("---")   
+    
+# create a new dataframe from the ticker_df object
+df_plot = pd.DataFrame.from_dict(ticker_df, orient='columns')
 
-st.write("---")
-st.subheader(f"{ticker_symbol} time series forecast data")
-# Forecasting with Prophet
+# select the 'Close' column
+df_plot = df_plot[['Close']]
 
-df_train=data[["Date","Close"]]
-# Adjust for Prophet's x-axis [ds] & y-axis [y]
-df_train=df_train.rename(columns={"Date":"ds","Close":"y"})
+# rename the column to 'y'
+df_plot.columns = ['y']
 
-# Create a facebook prophet Time Series model
-m=Prophet(daily_seasonality=True)
+# add a 'ds' column with the dates, converting it to a datetime object and setting the timezone to None
+df_plot['ds'] = pd.to_datetime(df_plot.index).tz_localize(None)
 
-# Fit model with training dataframe
-m.fit(df_train)
+# Prophet requires a specific column format for the dataframe
+df_plot = df_plot[['ds', 'y']]
 
-# Create future forecast dataframe
-future=m.make_future_dataframe(periods=period)
-forecast=m.predict(future)
+
+# create the Prophet model and fit it to the data
+model = Prophet(daily_seasonality=True)
+model.fit(df_plot)
+
+# create a dataframe with future dates
+future_dates = model.make_future_dataframe(periods=365)
+
+# make predictions for the future dates
+forecast = model.predict(future_dates)
+
+# select the relevant columns for the plot
+plot_df = forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']]
 
 # Display data table
-forecast_data_check_box=st.checkbox(label=f"Display {ticker_symbol} forecast data")
+forecast_data_check_box=st.checkbox(label=f"Display {ticker} forecast data")
 if forecast_data_check_box:
-    st.subheader(f"{ticker_symbol} forecast dataset")
+    st.subheader(f"{ticker} forecast dataset")
     # Show tail of the Forecast data
     st.write(forecast.tail())
-
-    # Plot Forecast data using plotly
-    st.subheader(f"{ticker_symbol} forecast plot")
-    fig1=plot_plotly(m,forecast)
-    st.plotly_chart(fig1)
-
     st.write("---")
+    
+# create a plotly figure
+fig = go.Figure()
 
-    # Plot Forecast components
-    st.subheader(f"{ticker_symbol} forecast components")
-    fig2=m.plot_components(forecast)
-    st.write(fig2)
-    st.write("---")
+# add the predicted values to the figure
+fig.add_trace(go.Scatter(x=plot_df['ds'], y=plot_df['yhat'], name='Prediction'))
+
+# add the uncertainty intervals to the figure
+fig.add_shape(
+        type='rect',
+        xref='x',
+        yref='paper',
+        x0=plot_df['ds'].min(),
+        y0=0,
+        x1=plot_df['ds'].max(),
+        y1=1,
+        fillcolor='#E8E8E8',
+        layer='below',
+        line_width=0
+    )
+fig.add_shape(
+        type='rect',
+        xref='x',
+        yref='y',
+        x0=plot_df['ds'].min(),
+        y0=plot_df['yhat_upper'],
+        x1=plot_df['ds'].max(),
+        y1=plot_df['yhat_lower'],
+        fillcolor='#E8E8E8',
+        layer='below',
+        line_width=0
+    )
+
+# add the actual values to the figure
+fig.add_trace(go.Scatter(x=df_plot['ds'], y=df_plot['y'], name='Actual'))
+
+# set the plot's title and labels
+fig.update_layout(
+    title=f"{ticker} stock price prediction",
+    xaxis_title='Date',
+    yaxis_title='Price (USD)'
+)
+
+# show the plot widget
+st.plotly_chart(fig)
+
+# create a plotly figure for the model's components
+st.subheader(f"{ticker} plot widget")
+fig2 = plot_plotly(model, forecast)
+# show the plot
+st.plotly_chart(fig2)
+
+
+# show the model's plots
+st.subheader(f"{ticker} forecast components")
+st.write(model.plot(forecast))
+
+# show the model's plot_components
+st.write(model.plot_components(forecast))
+    
+    

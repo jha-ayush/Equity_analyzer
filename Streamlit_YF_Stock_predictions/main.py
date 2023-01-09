@@ -522,7 +522,7 @@ with st.container():
         with col1:           
             st.write("###") 
             st.write("###")
-            ratio_choice = st.selectbox("Choose from one of the financial ratios below",("Mean","Std-deviation","Variance","Co-variance","Alpha ratio","Beta ratio","Omega ratio","Sharpe ratio","Calmar ratio","Sortino ratio","Treynor ratio"),label_visibility="visible")
+            ratio_choice = st.selectbox("Choose from one of the financial ratios below (UNDER CONSTRUCTION)",("Mean","Std-deviation","Variance","Co-variance","Alpha ratio","Beta ratio","Omega ratio","Sharpe ratio","Calmar ratio","Sortino ratio","Treynor ratio"),label_visibility="visible")
 
             if ratio_choice == "Mean":
                 pass
