@@ -15,36 +15,21 @@ Create new environment in Terminal
 
 
 ## Technologies
-Python implementation: CPython
+- Python implementation: CPython
+- Python version       : 3.7.13
+- IPython version      : 7.34.0
 
-Python version       : 3.7.13
+- Compiler    : Clang 12.0.0 
+- OS          : Darwin
+- Release     : 22.2.0
+- Machine     : x86_64
+- Processor   : i386
+- CPU cores   : 8
+- Architecture: 64bit
 
-IPython version      : 7.34.0
-
-Compiler    : Clang 12.0.0 
-
-OS          : Darwin
-
-Release     : 22.2.0
-
-Machine     : x86_64
-
-Processor   : i386
-
-CPU cores   : 8
-
-Architecture: 64bit
-
-requests : 2.28.1
-
-cufflinks: 0.17.3
-
-plotly   : 5.11.0
-
-yfinance : 0.2.3
-
-numpy    : 1.21.6
-
-pandas   : 1.3.5
-
-streamlit: 1.15.2
+- yfinance : 0.2.3
+- numpy    : 1.21.6
+- streamlit: 1.16.0
+- requests : 2.28.1
+- pandas   : 1.3.5
+- plotly   : 5.11.0
