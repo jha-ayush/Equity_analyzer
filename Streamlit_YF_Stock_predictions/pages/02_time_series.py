@@ -144,70 +144,74 @@ forecast = model.predict(future_dates)
 plot_df = forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']]
 
 # Display data table
-forecast_data_check_box=st.checkbox(label=f"Display {ticker} forecast data")
+forecast_data_check_box=st.checkbox(label=f"Display {ticker} forecast data & price prediction")
 if forecast_data_check_box:
     st.subheader(f"{ticker} forecast dataset")
     # Show tail of the Forecast data
     st.write(forecast.tail())
     st.write("---")
     
-# create a plotly figure
-fig = go.Figure()
+    # create a plotly figure
+    fig = go.Figure()
 
-# add the predicted values to the figure
-fig.add_trace(go.Scatter(x=plot_df['ds'], y=plot_df['yhat'], name='Prediction'))
+    # add the predicted values to the figure
+    fig.add_trace(go.Scatter(x=plot_df['ds'], y=plot_df['yhat'], name='Prediction'))
 
-# add the uncertainty intervals to the figure
-fig.add_shape(
-        type='rect',
-        xref='x',
-        yref='paper',
-        x0=plot_df['ds'].min(),
-        y0=0,
-        x1=plot_df['ds'].max(),
-        y1=1,
-        fillcolor='#E8E8E8',
-        layer='below',
-        line_width=0
+    # add the uncertainty intervals to the figure
+    fig.add_shape(
+            type='rect',
+            xref='x',
+            yref='paper',
+            x0=plot_df['ds'].min(),
+            y0=0,
+            x1=plot_df['ds'].max(),
+            y1=1,
+            fillcolor='#E8E8E8',
+            layer='below',
+            line_width=0
+        )
+    fig.add_shape(
+            type='rect',
+            xref='x',
+            yref='y',
+            x0=plot_df['ds'].min(),
+            y0=plot_df['yhat_upper'],
+            x1=plot_df['ds'].max(),
+            y1=plot_df['yhat_lower'],
+            fillcolor='#E8E8E8',
+            layer='below',
+            line_width=0
+        )
+
+    # add the actual values to the figure
+    fig.add_trace(go.Scatter(x=df_plot['ds'], y=df_plot['y'], name='Actual'))
+
+    # set the plot's title and labels
+    fig.update_layout(
+        title=f"{ticker} stock price prediction",
+        xaxis_title='Date',
+        yaxis_title='Price (USD)'
     )
-fig.add_shape(
-        type='rect',
-        xref='x',
-        yref='y',
-        x0=plot_df['ds'].min(),
-        y0=plot_df['yhat_upper'],
-        x1=plot_df['ds'].max(),
-        y1=plot_df['yhat_lower'],
-        fillcolor='#E8E8E8',
-        layer='below',
-        line_width=0
-    )
 
-# add the actual values to the figure
-fig.add_trace(go.Scatter(x=df_plot['ds'], y=df_plot['y'], name='Actual'))
+    # show the prediction plot
+    st.plotly_chart(fig)
+    
+# Display Prophet tools & components
+forecast_component_check_box=st.checkbox(label=f"Display {ticker} Prophet forecast components")
+if forecast_component_check_box:
 
-# set the plot's title and labels
-fig.update_layout(
-    title=f"{ticker} stock price prediction",
-    xaxis_title='Date',
-    yaxis_title='Price (USD)'
-)
-
-# show the plot widget
-st.plotly_chart(fig)
-
-# create a plotly figure for the model's components
-st.subheader(f"{ticker} plot widget")
-fig2 = plot_plotly(model, forecast)
-# show the plot
-st.plotly_chart(fig2)
+    # create a plotly figure for the model's components
+    st.subheader(f"{ticker} plot widget")
+    fig2 = plot_plotly(model, forecast)
+    # show the plot
+    st.plotly_chart(fig2)
 
 
-# show the model's plots
-st.subheader(f"{ticker} forecast components")
-st.write(model.plot(forecast))
+    # show the model's plots
+    st.subheader(f"{ticker} forecast components")
+    st.write(model.plot(forecast))
 
-# show the model's plot_components
-st.write(model.plot_components(forecast))
+    # show the model's plot_components
+    st.write(model.plot_components(forecast))
     
     
