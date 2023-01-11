@@ -20,3 +20,6 @@ textColor = '#1E1E1E'
 # Accepted values (serif | sans serif | monospace)
 # Default: "sans serif"
 font="sans serif"
+
+[deprecation]
+showPyplotGlobalUse = false
