@@ -60,7 +60,7 @@ with st.container():
     # tickers=("AAPL","AMT","AMZN","GOOG","IYR","META","NFLX","RTH","SPY","XLE","XOM")
     # pd read csv file for tickers list
     # tickers=pd.read_csv("https://raw.githubusercontent.com/dataprofessor/s-and-p-500-companies/master/data/constituents_symbols.txt")
-    tickers=pd.read_csv("./Resources/ticker_symbols.csv")
+    tickers=pd.read_csv("./Resources/s&p500_tickers_2022.csv")
 
     # add ticker to streamlit sidebar as a selectbox
     ticker_symbol=st.sidebar.selectbox("Select a ticker from the dropdown menu",tickers)

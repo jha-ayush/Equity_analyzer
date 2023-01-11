@@ -1,6 +1,6 @@
 # import libraries - yfinance, prophet, streamlit, plotly
 import streamlit as st
-from streamlit_lottie import st_lottie
+# from streamlit_lottie import st_lottie
 from datetime import date
 # import yfinance for stock data
 import yfinance as yf
@@ -25,7 +25,7 @@ print(watermark(iversions=True, globals_=globals()))
 
 
 # Set page configurations - ALWAYS at the top
-st.set_page_config(page_title="S&P500 ticker(s) analysis",page_icon="📈",layout="centered")
+st.set_page_config(page_title="S&P500 ticker(s) analysis",page_icon="📈",layout="centered",initial_sidebar_state="auto")
 
 
 # Add cache to store ticker values after first time download in browser
@@ -34,17 +34,17 @@ st.set_page_config(page_title="S&P500 ticker(s) analysis",page_icon="📈",layou
 # functions
 
 # Create a function to access the json data of the Lottie animation using requests - if successful return 200 - data is good, show animation else return none
-def load_lottieurl(url):
-    """
-    Loads the json data for a Lottie animation using the given URL.
-    Returns None if there was an error.
-    """
-    r = requests.get(url)
-    if r.status_code != 200:
-        return None
-    return r.json()
-#load lottie asset
-lottie_coding=load_lottieurl("https://assets10.lottiefiles.com/packages/lf20_vktpsg4v.json")
+# def load_lottieurl(url):
+#     """
+#     Loads the json data for a Lottie animation using the given URL.
+#     Returns None if there was an error.
+#     """
+#     r = requests.get(url)
+#     if r.status_code != 200:
+#         return None
+#     return r.json()
+# #load lottie asset
+# lottie_coding=load_lottieurl("https://assets10.lottiefiles.com/packages/lf20_vktpsg4v.json")
 
 # Use local style.css file
 def local_css(file_name):
@@ -97,28 +97,55 @@ sp500=sp500.history(period="1d",start=start_date,end=end_date)
 #st.write('---')
 # st.write(ticker_data.info)
 
-# add a streamlit multicheck box to include feature
-# feature_section=st.sidebar.multiselect(label="Features to plot",options=ticker_df)
 
-# Display data table
-show_info_check_box=st.checkbox(label=f"Display {ticker} company info")
-if show_info_check_box:
-    # ticker information - logo
-    ticker_logo="<img src=%s>" % ticker_data.info["logo_url"]
-    st.markdown(ticker_logo,unsafe_allow_html=True)
+# Display company info
+if st.checkbox(label=f"Display {ticker} company info"):
+    ticker_data = yf.Ticker(ticker).info
 
-    # ticker information - name
-    ticker_name=ticker_data.info["longName"]
-    st.header(f"{ticker_name}")
+    # Check if logo URL is available and display
+    logo_url = ticker_data.get('logo_url')
+    if logo_url:
+        st.markdown(f"<img src={logo_url}>", unsafe_allow_html=True)
+    else:
+        st.warning("Logo image is missing.")
 
-    # ticker information - symbol + sector
-    ticker=ticker_data.info["symbol"]
-    ticker_sector=ticker_data.info["sector"]
-    st.text(f"{ticker} is part of the {ticker_sector} sector")
+    # Check if company name is available and display
+    st.write("###")
+    company_name = ticker_data.get('longName')
+    if company_name:
+        st.markdown(f"<b>Company Name:</b> {company_name}", unsafe_allow_html=True)
+    else:
+        st.warning("Company name is missing.")
 
-    # ticker information - summary
-    ticker_summary=ticker_data.info["longBusinessSummary"]
-    st.info(f"{ticker_summary}")
+    # Check if sector is available and display
+    sector = ticker_data.get('sector')
+    if sector:
+        st.markdown(f"<b>Sector:</b> {sector}", unsafe_allow_html=True)
+    else:
+        st.warning("Sector is missing.")
+
+    # Check if location is available and display
+    city = ticker_data.get('city')
+    country = ticker_data.get('country')
+    if city and country:
+        st.markdown(f"<b>Location:</b> {city}, {country}", unsafe_allow_html=True)
+    else:
+        st.warning("Location is missing.")
+
+    # Check if website is available and display
+    website = ticker_data.get('website')
+    if website:
+        st.markdown(f"<b>Company Website:</b> {website}", unsafe_allow_html=True)
+    else:
+        st.warning("Website is missing.")
+
+    # Check if Business summary is available and display
+    summary = ticker_data.get('longBusinessSummary')
+    if summary:
+        st.info(f"{summary}")
+    else:
+        st.warning("Business summary is missing.")
+
 
 # Bollinger bands - trendlines plotted between two standard deviations
 st.header(f"{ticker} Bollinger bands")
@@ -525,26 +552,37 @@ with st.container():
             ratio_choice = st.selectbox("Choose from one of the financial ratios below (UNDER CONSTRUCTION)",("Mean","Std-deviation","Variance","Co-variance","Alpha ratio","Beta ratio","Omega ratio","Sharpe ratio","Calmar ratio","Sortino ratio","Treynor ratio"),label_visibility="visible")
 
             if ratio_choice == "Mean":
+                st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P500 index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                 pass
             elif ratio_choice == "Std-deviation":
+                st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P500 index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                 pass
             elif ratio_choice == "Variance":
+                st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P500 index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                 pass
             elif ratio_choice == "Co-variance":
+                st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P500 index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                 pass
             elif ratio_choice == "Alpha ratio":
+                st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P500 index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                 pass
             elif ratio_choice == "Beta ratio":
+                st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P500 index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                 pass
             elif ratio_choice == "Omega ratio":
+                st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P500 index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                 pass
             elif ratio_choice == "Sharpe ratio":
+                st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P500 index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                 pass
             elif ratio_choice == "Calmar ratio":
+                st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P500 index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                 pass
             elif ratio_choice == "Sortino ratio":
+                st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P500 index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                 pass
             elif ratio_choice == "Treynor ratio":
+                st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P500 index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                 pass            
             else:
                 st.empty()
