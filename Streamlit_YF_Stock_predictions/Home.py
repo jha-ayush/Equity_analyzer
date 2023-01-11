@@ -33,6 +33,16 @@ st.set_page_config(page_title="S&P500 ticker(s) analysis",page_icon="📈",layou
 
 # functions
 
+# Use local style.css file
+def local_css(file_name):
+    """
+    Use a local style.css file.
+    """
+    with open(file_name) as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+# load css file
+local_css("./style/style.css") 
+
 # Create a function to access the json data of the Lottie animation using requests - if successful return 200 - data is good, show animation else return none
 # def load_lottieurl(url):
 #     """
@@ -45,16 +55,7 @@ st.set_page_config(page_title="S&P500 ticker(s) analysis",page_icon="📈",layou
 #     return r.json()
 # #load lottie asset
 # lottie_coding=load_lottieurl("https://assets10.lottiefiles.com/packages/lf20_vktpsg4v.json")
-
-# Use local style.css file
-def local_css(file_name):
-    """
-    Use a local style.css file.
-    """
-    with open(file_name) as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-# load css file
-local_css("./style/style.css")         
+        
 
 # include params & data
 # Read ticker symbols from a CSV file
@@ -80,7 +81,8 @@ with st.container():
             st.markdown(f"Lorem ipsum Muskehounds are always ready. One for all and all for one, helping everybody")
         with col2:
             # Load asset(s)
-            st_lottie(lottie_coding,height=150,key="finance")
+            # st_lottie(lottie_coding,height=150,key="finance")
+            st.empty()
 st.write("---")
 
 # add start/end dates to streamlit sidebar
