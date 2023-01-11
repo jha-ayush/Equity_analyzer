@@ -1,6 +1,6 @@
 # import libraries - yfinance, prophet, streamlit, plotly
 import streamlit as st
-# from streamlit_lottie import st_lottie
+from streamlit_lottie import st_lottie
 from datetime import date
 # import yfinance for stock data
 import yfinance as yf
@@ -25,13 +25,26 @@ print(watermark(iversions=True, globals_=globals()))
 
 
 # Set page configurations - ALWAYS at the top
-st.set_page_config(page_title="S&P500 ticker(s) analysis",page_icon="📈",layout="centered",initial_sidebar_state="auto")
+st.set_page_config(page_title="S&P Global ticker(s) analysis",page_icon="📈",layout="centered",initial_sidebar_state="auto")
 
 
 # Add cache to store ticker values after first time download in browser
-@st.cache
+@st.cache(suppress_st_warning=True)
 
 # functions
+
+# Create a function to access the json data of the Lottie animation using requests - if successful return 200 - data is good, show animation else return none
+def load_lottieurl(url):
+    """
+    Loads the json data for a Lottie animation using the given URL.
+    Returns None if there was an error.
+    """
+    r = requests.get(url)
+    if r.status_code != 200:
+        return None
+    return r.json()
+#load lottie asset
+lottie_coding=load_lottieurl("https://assets10.lottiefiles.com/packages/lf20_vktpsg4v.json")
 
 # Use local style.css file
 def local_css(file_name):
@@ -41,32 +54,19 @@ def local_css(file_name):
     with open(file_name) as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 # load css file
-local_css("./style/style.css") 
-
-# Create a function to access the json data of the Lottie animation using requests - if successful return 200 - data is good, show animation else return none
-# def load_lottieurl(url):
-#     """
-#     Loads the json data for a Lottie animation using the given URL.
-#     Returns None if there was an error.
-#     """
-#     r = requests.get(url)
-#     if r.status_code != 200:
-#         return None
-#     return r.json()
-# #load lottie asset
-# lottie_coding=load_lottieurl("https://assets10.lottiefiles.com/packages/lf20_vktpsg4v.json")
-        
+local_css("./style/style.css")         
 
 # include params & data
 # Read ticker symbols from a CSV file
-tickers = pd.read_csv("./Resources/s&p500_tickers_2022.csv")
+tickers = pd.read_csv("./Resources/s&p_global_tickers_2022.csv")
 
-# Benchmark ticker - S&P500 index
-sp500=yf.Ticker("^GSPC")
+# Benchmark ticker - S&P Global index 'SPGI'
+benchmark_ticker=yf.Ticker("SPGI")
 
 
 # Display a selectbox for the user to choose a ticker
 ticker = st.sidebar.selectbox("Select a ticker from the dropdown menu",tickers)
+
 
 # Get data for the selected ticker
 ticker_data = yf.Ticker(ticker)
@@ -77,22 +77,21 @@ with st.container():
         col1, col2 = st.columns([3, 2])
         with col1:           
             # Load title/info
-            st.header(f"S&P500 ticker info")
+            st.header(f"S&P Global ticker info")
             st.markdown(f"Lorem ipsum Muskehounds are always ready. One for all and all for one, helping everybody")
         with col2:
             # Load asset(s)
-            # st_lottie(lottie_coding,height=150,key="finance")
-            st.empty()
+            st_lottie(lottie_coding,height=150,key="finance")
 st.write("---")
 
 # add start/end dates to streamlit sidebar
 start_date=st.sidebar.date_input("Start date",value=pd.to_datetime("1997-1-1"))
 end_date=st.sidebar.date_input("End date",value=pd.to_datetime("today"))
-# add historical trading period for 1 day
+# Create a new dataframe - add historical trading period for 1 day
 ticker_df=ticker_data.history(period="1d",start=start_date,end=end_date)
 
-# query S&P500 historical prices
-sp500=sp500.history(period="1d",start=start_date,end=end_date)
+# query S&P Global historical prices
+benchmark_ticker=benchmark_ticker.history(period="1d",start=start_date,end=end_date)
 
 # print(ticker_df.head())
 ####
@@ -147,16 +146,7 @@ if st.checkbox(label=f"Display {ticker} company info"):
         st.info(f"{summary}")
     else:
         st.warning("Business summary is missing.")
-
-
-# Bollinger bands - trendlines plotted between two standard deviations
-st.header(f"{ticker} Bollinger bands")
-qf=cf.QuantFig(ticker_df,title='Bollinger Quant Figure',legend='top',name='GS')
-qf.add_bollinger_bands()
-fig = qf.iplot(asFigure=True)
-st.plotly_chart(fig)
-
-
+        
 
 # Load stock data - define functions
 def load_data(ticker):
@@ -170,24 +160,36 @@ data_load_state=st.sidebar.text("Loading data...⌛")
 data=load_data(ticker)
 data_load_state.text("Data loading complete ✅")
 
+
 # Display data table
 raw_data_check_box=st.checkbox(label=f"Display {ticker} raw dataset")
 if raw_data_check_box:
     st.subheader(f"{ticker} raw data")
-    st.write(data)
+    st.write(data)        
 
-# Plot Open vs Close price data
-def plot_raw_data():
-    fig=go.Figure()
-    fig.add_trace(go.Scatter(x=data["Date"],y=data["Open"],name="stock_open"))
-    fig.add_trace(go.Scatter(x=data["Date"],y=data["Close"],name="stock_close"))
-    fig.layout.update(title_text=(f"{ticker} raw data plot - Open vs Close price"),xaxis_rangeslider_visible=True)
+# Display charts
+charts_check_box=st.checkbox(label=f"Display {ticker} charts")
+if charts_check_box:
+    # Bollinger bands - trendlines plotted between two standard deviations
+    st.header(f"{ticker} Bollinger bands")
+    qf=cf.QuantFig(ticker_df,title='Bollinger Quant Figure',legend='top',name='GS')
+    qf.add_bollinger_bands()
+    fig = qf.iplot(asFigure=True)
     st.plotly_chart(fig)
-plot_raw_data()
 
-# create a streamlit linechart for ticker Volume over time
-st.subheader(f"{ticker} trading volume over time")
-st.line_chart(ticker_df.Volume)
+
+    # Plot Open vs Close price data
+    def plot_raw_data():
+        fig=go.Figure()
+        fig.add_trace(go.Scatter(x=data["Date"],y=data["Open"],name="stock_open"))
+        fig.add_trace(go.Scatter(x=data["Date"],y=data["Close"],name="stock_close"))
+        fig.layout.update(title_text=(f"{ticker} raw data plot - Open vs Close price"),xaxis_rangeslider_visible=True)
+        st.plotly_chart(fig)
+    plot_raw_data()
+
+    # create a streamlit linechart for ticker Volume over time
+    st.subheader(f"{ticker} trading volume over time")
+    st.line_chart(ticker_df.Volume)
 
 # ----------------------------------------------------------------- #
 # Functions - Financial Ratios
@@ -213,59 +215,6 @@ def calculate_daily_returns(ticker, start_date, end_date):
     daily_returns = data['Adj Close'].pct_change()
 
     return daily_returns
-
-# Variance
-def calculate_variance_returns(ticker, start_date, end_date):
-    """
-    Calculate the variance of returns for a given stock ticker.
-    
-    Parameters:
-    ticker (str): The ticker symbol for the stock.
-    start_date (str): The start date in the format 'YYYY-MM-DD'.
-    end_date (str): The end date in the format 'YYYY-MM-DD'.
-    
-    Returns:
-    float: The variance of returns.
-    """
-    
-    # Get stock data
-    data = yf.download(ticker, start=start_date, end=end_date)
-
-    # Calculate returns
-    returns = data['Adj Close'].pct_change()
-
-    # Calculate variance of returns
-    variance = np.var(returns)
-
-    return variance
-
-# Co-variance
-def calculate_covariance_returns(ticker, sp500, start_date, end_date):
-    """
-    Calculate the covariance of returns for two given stock tickers.
-    
-    Parameters:
-    ticker1 (str): The ticker symbol for the first stock.
-    ticker2 (str): The ticker symbol for the second stock.
-    start_date (str): The start date in the format 'YYYY-MM-DD'.
-    end_date (str): The end date in the format 'YYYY-MM-DD'.
-    
-    Returns:
-    float: The covariance of returns.
-    """
-    
-    # Get stock data
-    data1 = yf.download(ticker, start=start_date, end=end_date)
-    data2 = yf.download(sp500, start=start_date, end=end_date)
-
-    # Calculate returns
-    returns1 = data1['Adj Close'].pct_change()
-    returns2 = data2['Adj Close'].pct_change()
-
-    # Calculate covariance of returns
-    covariance = np.cov(returns1, returns2)[0][1]
-
-    return covariance
 
 # Mean
 def calculate_mean_returns(ticker, start_date, end_date):
@@ -317,14 +266,69 @@ def calculate_std_deviation(ticker, start_date, end_date):
 
     return std
 
-# Alpha ratio
-def calculate_alpha_ratio(ticker, sp500, start_date, end_date):
+# Variance
+def calculate_variance_returns(ticker, start_date, end_date):
     """
-    Calculate the alpha ratio for a given stock ticker.
+    Calculate the variance of returns for a given stock ticker.
     
     Parameters:
     ticker (str): The ticker symbol for the stock.
-    benchmark_ticker (str): The S&P500 symbol for the benchmark index.
+    start_date (str): The start date in the format 'YYYY-MM-DD'.
+    end_date (str): The end date in the format 'YYYY-MM-DD'.
+    
+    Returns:
+    float: The variance of returns.
+    """
+    
+    # Get stock data
+    data = yf.download(ticker, start=start_date, end=end_date)
+
+    # Calculate returns
+    returns = data['Adj Close'].pct_change()
+
+    # Calculate variance of returns
+    variance = np.var(returns)
+
+    return variance
+
+# Co-variance
+def calculate_covariance_returns(ticker1, ticker2, start_date, end_date):
+    """
+    Calculate the covariance of returns for two given stock tickers.
+    Can be used for comparison against SPGI as well.
+    
+    Parameters:
+    ticker1 (str): The ticker symbol for the first stock.
+    ticker2 (str): The ticker symbol for the second stock.
+    start_date (str): The start date in the format 'YYYY-MM-DD'.
+    end_date (str): The end date in the format 'YYYY-MM-DD'.
+    
+    Returns:
+    float: The covariance of returns.
+    """
+    
+    # Get stock data
+    data1 = yf.download(ticker1, start=start_date, end=end_date)
+    data2 = yf.download(ticker2, start=start_date, end=end_date)
+
+    # Calculate returns
+    returns1 = data1['Adj Close'].pct_change()
+    returns2 = data2['Adj Close'].pct_change()
+
+    # Calculate covariance of returns
+    covariance = np.cov(returns1, returns2)[0][1]
+
+    return covariance
+
+# Alpha ratio
+def calculate_alpha_ratio(ticker1, benchmark_ticker, start_date, end_date):
+    """
+    Calculate the alpha ratio for a given stock ticker.
+    Here we are using SPGI as the benchmark ticker.
+    
+    Parameters:
+    ticker (str): The ticker symbol for the stock.
+    benchmark_ticker (str): The S&P Global symbol for the benchmark index.
     start_date (str): The start date in the format 'YYYY-MM-DD'.
     end_date (str): The end date in the format 'YYYY-MM-DD'.
     
@@ -333,8 +337,8 @@ def calculate_alpha_ratio(ticker, sp500, start_date, end_date):
     """
     
     # Get stock data
-    stock_data = yf.download(ticker, start=start_date, end=end_date)
-    benchmark_data = yf.download(sp500, start=start_date, end=end_date)
+    stock_data = yf.download(ticker1, start=start_date, end=end_date)
+    benchmark_data = yf.download(benchmark_ticker, start=start_date, end=end_date)
 
     # Calculate returns
     stock_returns = stock_data['Adj Close'].pct_change()
@@ -352,9 +356,10 @@ def calculate_alpha_ratio(ticker, sp500, start_date, end_date):
     return alpha_ratio
 
 # Beta Ratio
-def calculate_beta_ratio(ticker, sp500, start_date, end_date):
+def calculate_beta_ratio(ticker1, benchmark_ticker, start_date, end_date):
     """
     Calculate the beta ratio for a given stock ticker.
+    Here we are using SPGI as the benchmark ticker.
     
     Parameters:
     ticker (str): The ticker symbol for the stock.
@@ -367,8 +372,8 @@ def calculate_beta_ratio(ticker, sp500, start_date, end_date):
     """
     
     # Get stock data
-    stock_data = yf.download(ticker, start=start_date, end=end_date)
-    benchmark_data = yf.download(sp500, start=start_date, end=end_date)
+    stock_data = yf.download(ticker1, start=start_date, end=end_date)
+    benchmark_data = yf.download(benchmark_ticker, start=start_date, end=end_date)
 
     # Calculate returns
     stock_returns = stock_data['Adj Close'].pct_change()
@@ -509,13 +514,14 @@ def calculate_sortino_ratio(ticker, start_date, end_date, threshold=0):
     return sortino_ratio
 
 # Treynor Ratio
-def calculate_treynor_ratio(ticker, sp500, start_date, end_date, risk_free_rate=0):
+def calculate_treynor_ratio(ticker1, benchmark_ticker, start_date, end_date, risk_free_rate=0):
     """
     Calculate the Treynor ratio for a given stock ticker.
+    Here we are using SPGI as the benchmark ticker.
     
     Parameters:
     ticker (str): The ticker symbol for the stock.
-    sp500 (str): The ticker symbol for the S&P 500 index.
+    spgi (str): The ticker symbol for the S&P 500 index.
     start_date (str): The start date in the format 'YYYY-MM-DD'.
     end_date (str): The end date in the format 'YYYY-MM-DD'.
     risk_free_rate (float): The risk-free rate of return. Default is 0.
@@ -524,13 +530,13 @@ def calculate_treynor_ratio(ticker, sp500, start_date, end_date, risk_free_rate=
     float: The Treynor ratio.
     """
     # Get stock data
-    stock_data = get_stock_data(ticker, start_date, end_date)
+    stock_data = get_stock_data(ticker1, start_date, end_date)
     
     # Calculate returns
     returns = calculate_returns(stock_data)
     
     # Calculate beta
-    beta = calculate_beta(ticker, sp500, start_date, end_date)
+    beta = calculate_beta(ticker1, benchmark_ticker, start_date, end_date)
     
     # Calculate mean of returns
     mean = calculate_mean(returns)
@@ -544,52 +550,188 @@ def calculate_treynor_ratio(ticker, sp500, start_date, end_date, risk_free_rate=
 # ----------------------------------------------------------------- #
 
 
-# Choose a financial ratio from dropdown menu        
-with st.container():
-        # 2 columns section:
-        col1, col2 = st.columns([3, 2])
-        with col1:           
-            st.write("###") 
-            st.write("###")
-            ratio_choice = st.selectbox("Choose from one of the financial ratios below (UNDER CONSTRUCTION)",("Mean","Std-deviation","Variance","Co-variance","Alpha ratio","Beta ratio","Omega ratio","Sharpe ratio","Calmar ratio","Sortino ratio","Treynor ratio"),label_visibility="visible")
+# Choose a financial ratio from dropdown menu 
+# Display financial ratios
+fin_ratios_check_box=st.checkbox(label=f"Display {ticker} related financial ratios")
+if fin_ratios_check_box:
+    with st.container():
+            # 2 columns section:
+            col1, col2 = st.columns([3, 2])
+            with col1:           
+                st.write("###") 
+                st.write("###")
+                ratio_choice = st.selectbox("Choose from one of the financial ratios below (UNDER CONSTRUCTION)",("Daily returns","Mean","Std-deviation","Variance","Co-variance","Alpha ratio","Beta ratio","Omega ratio","Sharpe ratio","Calmar ratio","Sortino ratio","Treynor ratio"),label_visibility="visible")
 
-            if ratio_choice == "Mean":
-                st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P500 index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
-                pass
-            elif ratio_choice == "Std-deviation":
-                st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P500 index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
-                pass
-            elif ratio_choice == "Variance":
-                st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P500 index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
-                pass
-            elif ratio_choice == "Co-variance":
-                st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P500 index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
-                pass
-            elif ratio_choice == "Alpha ratio":
-                st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P500 index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
-                pass
-            elif ratio_choice == "Beta ratio":
-                st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P500 index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
-                pass
-            elif ratio_choice == "Omega ratio":
-                st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P500 index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
-                pass
-            elif ratio_choice == "Sharpe ratio":
-                st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P500 index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
-                pass
-            elif ratio_choice == "Calmar ratio":
-                st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P500 index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
-                pass
-            elif ratio_choice == "Sortino ratio":
-                st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P500 index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
-                pass
-            elif ratio_choice == "Treynor ratio":
-                st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P500 index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
-                pass            
-            else:
-                st.empty()
+                if ratio_choice == "Daily returns":
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.info("Daily returns calculates the percentage change in the adjusted closing price for each day, which gives the daily returns")
+                    pass
+                elif ratio_choice == "Mean":
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.info("Mean calcuates the arithmetic mean of the daily returns values")
+                    pass
+                elif ratio_choice == "Std-deviation":
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.info("Std-dev is a statistical measure that shows how the data varies from the mean")
+                    pass
+                elif ratio_choice == "Variance":
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.info("Variance variance is a measure of the spread of the data around the mean to calculate risk. The larger the variance, the more spread out the data is, indicating a greater degree of volatility. A smaller variance value, on the other hand, indicates that the data is more tightly clustered around the mean and thus less volatile.")
+                    pass
+                elif ratio_choice == "Co-variance":
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.info("Covariance is a measure of how two random variables are related and/or change together. A positive covariance indicates that the two variables are positively related, which means that as the value of one variable increases, the value of the other variable also tends to increase. A negative covariance indicates that the two variables are negatively related, which means that as the value of one variable increases, the value of the other variable tends to decrease. A covariance of zero indicates that there is no relationship between the two variables.")
+                    pass
+                elif ratio_choice == "Alpha ratio":
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.info("Alpha ratio is a measure of a stock's performance in relation to its benchmark. A positive alpha value indicates that the stock has performed better than the benchmark (SPGI), while a negative alpha value indicates underperformance.")
+                    pass
+                elif ratio_choice == "Beta ratio":
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.info("Beta ratio is a measure of a stock's volatility in relation to its benchmark index. It compares the volatility of a stock to the volatility of a benchmark index (SPGI), giving an idea of how much more or less volatile a stock is in relation to the benchmark index. A beta of 1 indicates that the stock's volatility is the same as the benchmark, while a beta greater than 1 indicates that the stock is more volatile than the benchmark, meaning its returns are more sensitive to market movements. Conversely, a beta less than 1 indicates that the stock is less volatile than the benchmark, meaning its returns are less sensitive to market movements.")
+                    pass
+                elif ratio_choice == "Omega ratio":
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.info("Omega ratio is a risk-adjusted performance measure that compares a stock's excess returns to its downside risk. The Omega ratio is similar to the Sharpe ratio, but it gives more weight to returns below a certain threshold, whereas the Sharpe ratio gives equal weight to all returns. A higher omega ratio indicates that the stock has a higher level of excess returns for a given level of downside risk.")
+                    pass
+                elif ratio_choice == "Sharpe ratio":
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.info("Sharpe ratio is a measure of a stock's risk-adjusted performance, which compares the stock's excess returns to the volatility of its returns. A higher Sharpe ratio indicates that the stock has a higher level of excess returns for a given level of volatility, which means the stock is a better risk-adjusted performer.")
+                    pass
+                elif ratio_choice == "Calmar ratio":
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.info("Calmar ratio is a measure of a stock's risk-adjusted performance, which compares the stock's compound return to the maximum drawdown. A higher Calmar ratio indicates that the stock has a higher level of returns for a given level of drawdown, which means the stock is a better risk-adjusted performer.")
+                    pass
+                elif ratio_choice == "Sortino ratio":
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.info("Sortino ratio is a measure of a stock's risk-adjusted performance, which compares the stock's return to the downside risk. A higher Sortino ratio indicates that the stock has a higher level of return for a given level of downside risk, which means the stock is a better risk-adjusted performer.")
+                    pass
+                elif ratio_choice == "Treynor ratio":
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.info("Treynor ratio is a measure of risk-adjusted return for a portfolio. Similar to the Sharpe ratio, which also measures risk-adjusted return, but the Treynor ratio uses beta as the measure of systematic risk, while the Sharpe ratio uses the standard deviation of returns. A higher Treynor ratio indicates that the portfolio has generated higher returns for the level of systematic risk taken on, as compared to a portfolio with a lower Treynor ratio.")
+                    pass            
+                else:
+                    st.empty()
+
+#-----------------------------------------------#
+
+# Time Series Forecasting with Facebook Prophet
+
+# Display Prophet section
+prophet_check_box=st.checkbox(label=f"Display {ticker} Prophet time series forecast data for benchmark prediction reference")
+if prophet_check_box:
+    with st.container():
+            # 2 columns section:
+            col1, col2 = st.columns([3, 2])
+            with col1:           
+                st.write("###") 
+                st.write("###")
+                # input a streamlit slider with years of prediction values
+                n_years=st.slider("Select year(s) for time series forecast",1,5)
+                
+    
+                # create a new dataframe from the ticker_df object
+                df_plot = pd.DataFrame.from_dict(ticker_df, orient='columns')
+
+                # select the 'Close' column
+                df_plot = df_plot[['Close']]
+
+                # rename the column to 'y'
+                df_plot.columns = ['y']
+
+                # add a 'ds' column with the dates, converting it to a datetime object and setting the timezone to None
+                df_plot['ds'] = pd.to_datetime(df_plot.index).tz_localize(None)
+
+                # Prophet requires a specific column format for the dataframe
+                df_plot = df_plot[['ds', 'y']]
 
 
+                # create the Prophet model and fit it to the data
+                model = Prophet(daily_seasonality=True)
+                model.fit(df_plot)
+
+                # create a dataframe with future dates
+                future_dates = model.make_future_dataframe(periods=365)
+
+                # make predictions for the future dates
+                forecast = model.predict(future_dates)
+
+                # select the relevant columns for the plot
+                plot_df = forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']]
+
+                # Display data table
+                forecast_data_check_box=st.checkbox(label=f"Display {ticker} forecast data & price prediction")
+                if forecast_data_check_box:
+                    st.subheader(f"{ticker} forecast dataset")
+                    # Show tail of the Forecast data
+                    st.write(forecast.tail())
+                    st.write("---")
+
+                    # create a plotly figure
+                    fig = go.Figure()
+
+                    # add the predicted values to the figure
+                    fig.add_trace(go.Scatter(x=plot_df['ds'], y=plot_df['yhat'], name='Prediction'))
+
+                    # add the uncertainty intervals to the figure
+                    fig.add_shape(
+                            type='rect',
+                            xref='x',
+                            yref='paper',
+                            x0=plot_df['ds'].min(),
+                            y0=0,
+                            x1=plot_df['ds'].max(),
+                            y1=1,
+                            fillcolor='#E8E8E8',
+                            layer='below',
+                            line_width=0
+                        )
+                    fig.add_shape(
+                            type='rect',
+                            xref='x',
+                            yref='y',
+                            x0=plot_df['ds'].min(),
+                            y0=plot_df['yhat_upper'],
+                            x1=plot_df['ds'].max(),
+                            y1=plot_df['yhat_lower'],
+                            fillcolor='#E8E8E8',
+                            layer='below',
+                            line_width=0
+                        )
+
+                    # add the actual values to the figure
+                    fig.add_trace(go.Scatter(x=df_plot['ds'], y=df_plot['y'], name='Actual'))
+
+                    # set the plot's title and labels
+                    fig.update_layout(
+                        title=f"{ticker} stock price prediction",
+                        xaxis_title='Date',
+                        yaxis_title='Price (USD)'
+                    )
+
+                    # show the prediction plot
+                    st.plotly_chart(fig)
+    
+                    # Display Prophet tools & components
+                    forecast_component_check_box=st.checkbox(label=f"Display {ticker} Prophet forecast components")
+                    if forecast_component_check_box:
+
+                        # create a plotly figure for the model's components
+                        st.subheader(f"{ticker} plot widget")
+                        fig2 = plot_plotly(model, forecast)
+                        # show the plot
+                        st.plotly_chart(fig2)
+
+
+                        # show the model's plots
+                        st.subheader(f"{ticker} forecast components")
+                        st.write(model.plot(forecast))
+
+                        # show the model's plot_components
+                        st.write(model.plot_components(forecast))
+                
+
+#-----------------------------------------------#
 
 # Contact Form
 with st.container():
