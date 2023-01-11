@@ -78,7 +78,7 @@ with st.container():
         with col1:           
             # Load title/info
             st.header(f"S&P Global ticker info")
-            st.markdown(f"Lorem ipsum Muskehounds are always ready. One for all and all for one, helping everybody")
+            st.markdown(f"Ne quis facete usu, vis nostro iudicabit ut, et ius ullum constituam. Vim suas molestie an, nam id fuisset lucilius. No duo elit labores prodesset, stet nemore usu ex, vis stet pertinacia efficiendi id. Aliquando signiferumque qui at.")
         with col2:
             # Load asset(s)
             st_lottie(lottie_coding,height=150,key="finance")
@@ -193,6 +193,36 @@ if charts_check_box:
 
 # ----------------------------------------------------------------- #
 # Functions - Financial Ratios
+
+# Returns
+def calculate_returns(ticker, start_date, end_date):
+    """
+    Calculate the daily returns for a given stock ticker.
+
+    Parameters:
+    ticker (str): The ticker symbol for the stock.
+    start_date (str): The start date in the format 'YYYY-MM-DD'.
+    end_date (str): The end date in the format 'YYYY-MM-DD'.
+
+    Returns:
+    pandas.DataFrame: The dataframe having close, returns, and daily returns for the stock in the specified range of time.
+    """
+    # Download the stock data
+    stock_data = yf.download(ticker, start=start_date, end=end_date)
+    
+    # Adding new columns for returns and daily returns
+    stock_data['returns'] = 0.0
+    stock_data['daily_returns'] = 0.0
+    
+    #Calculating the returns for each day
+    stock_data['returns'] = (stock_data['Adj Close'] - stock_data['Adj Close'].shift(1)) / stock_data['Adj Close'].shift(1)
+    stock_data['returns'] = stock_data['returns']*100
+    
+    #Calculating the daily returns for each day
+    stock_data['daily_returns'] = stock_data['Adj Close'].pct_change()
+    stock_data['daily_returns'] = stock_data['daily_returns']*100
+    
+    return stock_data
 
 # Daily Returns
 def calculate_daily_returns(ticker, start_date, end_date):
@@ -559,55 +589,58 @@ if fin_ratios_check_box:
             col1, col2 = st.columns([3, 2])
             with col1:           
                 st.write("###") 
-                st.write("###")
-                ratio_choice = st.selectbox("Choose from one of the financial ratios below (UNDER CONSTRUCTION)",("Daily returns","Mean","Std-deviation","Variance","Co-variance","Alpha ratio","Beta ratio","Omega ratio","Sharpe ratio","Calmar ratio","Sortino ratio","Treynor ratio"),label_visibility="visible")
+                ratio_choice = st.selectbox("Choose from one of the financial ratios below (UNDER CONSTRUCTION)",("Returns","Daily returns","Mean","Std-deviation","Variance","Co-variance","Alpha ratio","Beta ratio","Omega ratio","Sharpe ratio","Calmar ratio","Sortino ratio","Treynor ratio"),label_visibility="visible")
 
-                if ratio_choice == "Daily returns":
-                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                if ratio_choice == "Returns":
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, from the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.info("Returns is a measure of gain or loss on an investment over a certain period of time, usually expressed as a percentage of the initial investment. A positive return indicates a profit, while a negative return indicates a loss.")
+                    pass
+                elif ratio_choice == "Daily returns":
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, from the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                     st.info("Daily returns calculates the percentage change in the adjusted closing price for each day, which gives the daily returns")
                     pass
                 elif ratio_choice == "Mean":
-                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, from the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                     st.info("Mean calcuates the arithmetic mean of the daily returns values")
                     pass
                 elif ratio_choice == "Std-deviation":
-                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, from the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                     st.info("Std-dev is a statistical measure that shows how the data varies from the mean")
                     pass
                 elif ratio_choice == "Variance":
-                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, from the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                     st.info("Variance variance is a measure of the spread of the data around the mean to calculate risk. The larger the variance, the more spread out the data is, indicating a greater degree of volatility. A smaller variance value, on the other hand, indicates that the data is more tightly clustered around the mean and thus less volatile.")
                     pass
                 elif ratio_choice == "Co-variance":
-                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, from the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                     st.info("Covariance is a measure of how two random variables are related and/or change together. A positive covariance indicates that the two variables are positively related, which means that as the value of one variable increases, the value of the other variable also tends to increase. A negative covariance indicates that the two variables are negatively related, which means that as the value of one variable increases, the value of the other variable tends to decrease. A covariance of zero indicates that there is no relationship between the two variables.")
                     pass
                 elif ratio_choice == "Alpha ratio":
-                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, from the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                     st.info("Alpha ratio is a measure of a stock's performance in relation to its benchmark. A positive alpha value indicates that the stock has performed better than the benchmark (SPGI), while a negative alpha value indicates underperformance.")
                     pass
                 elif ratio_choice == "Beta ratio":
-                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, from the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                     st.info("Beta ratio is a measure of a stock's volatility in relation to its benchmark index. It compares the volatility of a stock to the volatility of a benchmark index (SPGI), giving an idea of how much more or less volatile a stock is in relation to the benchmark index. A beta of 1 indicates that the stock's volatility is the same as the benchmark, while a beta greater than 1 indicates that the stock is more volatile than the benchmark, meaning its returns are more sensitive to market movements. Conversely, a beta less than 1 indicates that the stock is less volatile than the benchmark, meaning its returns are less sensitive to market movements.")
                     pass
                 elif ratio_choice == "Omega ratio":
-                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, from the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                     st.info("Omega ratio is a risk-adjusted performance measure that compares a stock's excess returns to its downside risk. The Omega ratio is similar to the Sharpe ratio, but it gives more weight to returns below a certain threshold, whereas the Sharpe ratio gives equal weight to all returns. A higher omega ratio indicates that the stock has a higher level of excess returns for a given level of downside risk.")
                     pass
                 elif ratio_choice == "Sharpe ratio":
-                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, from the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                     st.info("Sharpe ratio is a measure of a stock's risk-adjusted performance, which compares the stock's excess returns to the volatility of its returns. A higher Sharpe ratio indicates that the stock has a higher level of excess returns for a given level of volatility, which means the stock is a better risk-adjusted performer.")
                     pass
                 elif ratio_choice == "Calmar ratio":
-                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, from the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                     st.info("Calmar ratio is a measure of a stock's risk-adjusted performance, which compares the stock's compound return to the maximum drawdown. A higher Calmar ratio indicates that the stock has a higher level of returns for a given level of drawdown, which means the stock is a better risk-adjusted performer.")
                     pass
                 elif ratio_choice == "Sortino ratio":
-                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, from the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                     st.info("Sortino ratio is a measure of a stock's risk-adjusted performance, which compares the stock's return to the downside risk. A higher Sortino ratio indicates that the stock has a higher level of return for a given level of downside risk, which means the stock is a better risk-adjusted performer.")
                     pass
                 elif ratio_choice == "Treynor ratio":
-                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, in the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
+                    st.markdown(f"You've selected the following financial ratio, <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, from the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.<br>This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                     st.info("Treynor ratio is a measure of risk-adjusted return for a portfolio. Similar to the Sharpe ratio, which also measures risk-adjusted return, but the Treynor ratio uses beta as the measure of systematic risk, while the Sharpe ratio uses the standard deviation of returns. A higher Treynor ratio indicates that the portfolio has generated higher returns for the level of systematic risk taken on, as compared to a portfolio with a lower Treynor ratio.")
                     pass            
                 else:
