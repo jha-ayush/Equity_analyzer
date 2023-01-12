@@ -16,6 +16,11 @@ Create new environment in Terminal
 - Run `streamlit run main.py` in Terminal to start up server in `localhost`
 
 
+## Enhancements
+### Clustering
+
+
+
 ## Technologies
 - Python implementation: CPython
 - Python version       : 3.7.13
