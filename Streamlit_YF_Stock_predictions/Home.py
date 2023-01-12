@@ -77,7 +77,7 @@ with st.container():
         col1, col2 = st.columns([3, 2])
         with col1:           
             # Load title/info
-            st.header(f"S&P Global ticker info")
+            st.header(f"S&P Global ticker healthcheck")
             st.markdown(f"Ne quis facete usu, vis nostro iudicabit ut, et ius ullum constituam. Vim suas molestie an, nam id fuisset lucilius. No duo elit labores prodesset, stet nemore usu ex, vis stet pertinacia efficiendi id. Aliquando signiferumque qui at.")
         with col2:
             # Load asset(s)
