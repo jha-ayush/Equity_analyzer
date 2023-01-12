@@ -1,5 +1,7 @@
 # Time Series Analysis
-Stocks/ETFs forecasting time series data using Prophet
+Analysis of tickers within S&P Global
+
+Financial ratios, visualizations, time series forecasting, machine learning
 
 ## Setup
 Create new environment in Terminal
