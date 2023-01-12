@@ -60,7 +60,7 @@ with st.container():
     # tickers=("AAPL","AMT","AMZN","GOOG","IYR","META","NFLX","RTH","SPY","XLE","XOM")
     # pd read csv file for tickers list
     # tickers=pd.read_csv("https://raw.githubusercontent.com/dataprofessor/s-and-p-500-companies/master/data/constituents_symbols.txt")
-    tickers=pd.read_csv("./Resources/s&p500_tickers_2022.csv")
+    tickers=pd.read_csv("./Resources/s&p_global_tickers_2022.csv")
 
     # add ticker to streamlit sidebar as a selectbox
     ticker_symbol=st.sidebar.selectbox("Select a ticker from the dropdown menu",tickers)
@@ -78,23 +78,6 @@ with st.container():
     ####
     #st.write('---')
     # st.write(ticker_data.info)
-
-    # ticker information - logo
-    # ticker_logo="<img src=%s>" % ticker_data.info["logo_url"]
-    # st.markdown(ticker_logo,unsafe_allow_html=True)
-
-    # ticker information - name
-    # ticker_name=ticker_data.info["longName"]
-    # st.header(f"{ticker_name}")
-
-    # ticker information - symbol + sector
-    # ticker_symbol=ticker_data.info["symbol"]
-    # ticker_sector=ticker_data.info["sector"]
-    # st.text(f"{ticker_symbol} is part of the {ticker_sector} sector")
-    
-    # ticker information - summary
-    # ticker_summary=ticker_data.info["longBusinessSummary"]
-    # st.info(f"{ticker_summary}")
 
     # Add cache to store ticker values after first time download in browser
     @st.cache
