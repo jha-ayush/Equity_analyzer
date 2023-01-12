@@ -7,7 +7,7 @@ from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 
 # Set page configurations
-st.set_page_config(page_title="Streamlit Ticker(s) Clustering App", page_icon="📶", layout="centered")
+st.set_page_config(page_title="Streamlit Ticker(s) Clustering App", page_icon="📶", layout="centered",initial_sidebar_state="auto")
 
 # Read ticker symbols from a CSV file
 tickers = pd.read_csv("./Resources/s&p_global_tickers_2022.csv")
@@ -20,6 +20,8 @@ def local_css(file_name):
 # Load CSS file
 local_css("./style/style.css")
 
+st.title(f"PCA/K-means clustering app")
+st.write("---")
 
 # Get the list of tickers from user input
 benchmark_ticker = ['SPGI']
@@ -42,8 +44,7 @@ if ticker and start_date and end_date:
             # 2 columns section:
             col1, col2 = st.columns([4, 1])
             with col1:
-                st.header(f"PCA/K-means clustering plot for {ticker}")
-                st.write("---")
+                st.subheader(f"Plot for {ticker}")
                 # Download the data
                 data = yf.download(ticker, start=start_date, end=end_date)
 
