@@ -10,12 +10,18 @@ import matplotlib.pyplot as plt
 st.set_page_config(page_title="Streamlit Ticker(s) Clustering App", page_icon="📶", layout="centered",initial_sidebar_state="auto")
 
 # Read ticker symbols from a CSV file
-tickers = pd.read_csv("./Resources/s&p_global_tickers_2022.csv")
+try:
+    tickers = pd.read_csv("./Resources/s&p_global_tickers_2022.csv")
+except:
+    logging.error('Cannot find the CSV file')
 
 # Use local CSS file
 def local_css(file_name):
-    with open(file_name) as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    try:
+        with open(file_name) as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    except:
+        logging.error('Cannot find the CSS file')
 
 # Load CSS file
 local_css("./style/style.css")
