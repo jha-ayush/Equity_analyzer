@@ -651,7 +651,7 @@ if fin_ratios_check_box:
 # Time Series Forecasting with Facebook Prophet
 
 # Display Prophet section
-prophet_check_box=st.checkbox(label=f"Display {ticker} Prophet time series forecast data for benchmark prediction reference")
+prophet_check_box=st.checkbox(label=f"Display {ticker} Prophet time series forecast data")
 if prophet_check_box:
     with st.container():
             # 2 columns section:
