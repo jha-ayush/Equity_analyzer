@@ -1,5 +1,5 @@
-# Time Series Analysis
-Analysis of tickers within S&P Global
+# S&P Global ticker(s) healthcheck
+Ticker(s) financial analysis within S&P Global index
 
 Financial ratios, visualizations, time series forecasting, machine learning
 
