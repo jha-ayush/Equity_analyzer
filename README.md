@@ -16,11 +16,6 @@ Create new environment in Terminal
 - Run `streamlit run main.py` in Terminal to start up server in `localhost`
 
 
-## Enhancements
-### Clustering
-
-
-
 ## Technologies
 - Python implementation: CPython
 - Python version       : 3.7.13
@@ -34,9 +29,35 @@ Create new environment in Terminal
 - CPU cores   : 8
 - Architecture: 64bit
 
-- yfinance : 0.2.3
-- numpy    : 1.21.6
-- streamlit: 1.16.0
-- requests : 2.28.1
-- pandas   : 1.3.5
 - plotly   : 5.11.0
+- requests : 2.28.1
+- streamlit: 1.16.0
+- cufflinks: 0.17.3
+- numpy    : 1.21.6
+- pandas   : 1.3.5
+- yfinance : 0.2.3
+
+
+## Enhancements
+### Clustering
+
+## Proposal
+We have created an aggregator data web app to analyze historical S&P Global index market data to predict future prices and trends. This is a continuity from Project 1.
+
+We used `yfinance` data on various Financial analysis tools, Machine Learning models, Algorithmic trading & Neural Networks.
+
+## User story
+
+- As a user, I can choose different models to evaluate multiple scenarios, so I can assess a "Buy" or "Sell".
+
+## Machine Learning models
+
+- Unsupervised Clustering: PCA, Standard Scaler, K-Means
+- Supervised Classifiers: KNN, SVM, Random Forest
+- Supervised Regression: ??
+- Roboadvisors: ??
+- Algorithmic Trading: ??
+- Neural Networks: Tensorflow, Keras
+
+## Next Steps
+- Thoughts, Enhancements on WIP web app, Update to streamlit cloud, 
