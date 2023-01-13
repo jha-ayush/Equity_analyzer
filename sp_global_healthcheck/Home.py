@@ -568,7 +568,7 @@ def calculate_sortino_ratio(ticker, start_date, end_date, threshold=0):
 
     return sortino_ratio
 
-def calculate_treynor_ratio(ticker, start_date, end_date, benchmark_ticker):
+def calculate_treynor_ratio(ticker, start_date, end_date, benchmark_ticker, risk_free_rate=0.3):
     """
     Calculate the Treynor ratio for a given stock ticker.
     Here we are using SPGI as the benchmark ticker.
