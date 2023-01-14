@@ -1,7 +1,7 @@
-# S&P Global ticker(s) healthcheck
-Ticker(s) financial analysis within S&P Global index
+# Stocks analyzer & predictor data app
 
-Financial ratios, visualizations, time series forecasting, machine learning
+
+Financial ratios, visualizations, Time series forecasting, Machine Learning (Supervised & Unsupervised), Algorithmic trading
 
 ## Setup
 Create new environment in Terminal
@@ -55,9 +55,10 @@ We used `yfinance` data on various Financial analysis tools, Machine Learning mo
 - Unsupervised Clustering: PCA, Standard Scaler, K-Means
 - Supervised Classifiers: KNN, SVM, Random Forest
 - Supervised Regression: ??
-- Roboadvisors: ??
 - Algorithmic Trading: ??
-- Neural Networks: Tensorflow, Keras
+
+- Use silhouette score to measure efficacy of each model
 
 ## Next Steps
-- Thoughts, Enhancements on WIP web app, Update to streamlit cloud, 
+- Thoughts, Enhancements on WIP web app, Update to streamlit cloud
+

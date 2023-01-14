@@ -24,7 +24,7 @@ print(watermark(iversions=True, globals_=globals()))
 
 
 # Set page configurations - ALWAYS at the top
-st.set_page_config(page_title="S&P Global ticker(s) analysis",page_icon="📈",layout="centered",initial_sidebar_state="auto")
+st.set_page_config(page_title="Stocks analysis",page_icon="📈",layout="centered",initial_sidebar_state="auto")
 
 
 # Add cache to store ticker values after first time download in browser
@@ -55,13 +55,14 @@ def local_css(file_name):
 # load css file
 local_css("./style/style.css")         
 
-# include params & data
 # Read ticker symbols from a CSV file
-tickers = pd.read_csv("./Resources/s&p_global_tickers_2022.csv")
+try:
+    tickers = pd.read_csv("./Resources/tickers.csv")
+except:
+    logging.error('Cannot find the CSV file')
 
-# Benchmark ticker - S&P Global index 'SPGI'
-benchmark_ticker=yf.Ticker("SPGI")
-
+# Benchmark ticker - S&P Global index '^GSPC'
+benchmark_ticker=yf.Ticker("^GSPC")
 
 # Display a selectbox for the user to choose a ticker
 ticker = st.sidebar.selectbox("Select a ticker from the dropdown menu",tickers)
@@ -76,7 +77,7 @@ with st.container():
         col1, col2 = st.columns([3, 2])
         with col1:           
             # Load title/info
-            st.header(f"S&P Global ticker healthcheck")
+            st.header(f"Stocks analyzer & predictor")
             st.markdown(f"Ne quis facete usu, vis nostro iudicabit ut, et ius ullum constituam. Vim suas molestie an, nam id fuisset lucilius. No duo elit labores prodesset, stet nemore usu ex, vis stet pertinacia efficiendi id. Aliquando signiferumque qui at.")
         with col2:
             # Load asset(s)
@@ -89,7 +90,7 @@ end_date=st.sidebar.date_input("End date",value=pd.to_datetime("today"))
 # Create a new dataframe - add historical trading period for 1 day
 ticker_df=ticker_data.history(period="1d",start=start_date,end=end_date)
 
-# query S&P Global historical prices
+# query S&P index historical prices
 benchmark_ticker=benchmark_ticker.history(period="1d",start=start_date,end=end_date)
 
 # print(ticker_df.head())
@@ -344,7 +345,7 @@ def calculate_variance_returns(ticker, start_date, end_date):
 def calculate_covariance_returns(ticker, benchmark_ticker, start_date, end_date, split_ratio = 0.8):
     """
     Calculate the covariance of returns for two given stock tickers.
-    Here we are using SPGI as the benchmark ticker.
+    Here we are using ^GSPC as the benchmark ticker.
     
     Parameters:
     ticker (str): The ticker symbol for the first stock.
@@ -357,16 +358,16 @@ def calculate_covariance_returns(ticker, benchmark_ticker, start_date, end_date,
     float: The covariance of returns.
     """
 
-    print("FIRST")
+    print("1")
     print(benchmark_ticker)
-    print("LAST")
-    
+    print("2")
     # Get stock data
     data1 = yf.download(ticker, start=start_date, end=end_date)
-    
+    print(f"DATA1: {data1}")
+    print("3")
     data2 = yf.download(benchmark_ticker, start=start_date, end=end_date)
-
-    print(ticker)
+    print("4")
+    print("5")
     
     # split data into training and testing sets
     split_point = int(split_ratio * len(data1))
@@ -386,7 +387,7 @@ def calculate_covariance_returns(ticker, benchmark_ticker, start_date, end_date,
 def calculate_alpha_ratio(ticker, benchmark_ticker, start_date, end_date):
     """
     Calculate the alpha ratio for a given stock ticker.
-    Here we are using SPGI as the benchmark ticker.
+    Here we are using ^GSPC as the benchmark ticker.
     
     Parameters:
     ticker (str): The ticker symbol for the stock.
@@ -421,7 +422,7 @@ def calculate_alpha_ratio(ticker, benchmark_ticker, start_date, end_date):
 def calculate_beta_ratio(ticker, benchmark_ticker, start_date, end_date):
     """
     Calculate the beta ratio for a given stock ticker.
-    Here we are using SPGI as the benchmark ticker.
+    Here we are using ^GSPC as the benchmark ticker.
     
     Parameters:
     ticker (str): The ticker symbol for the stock.
@@ -578,11 +579,11 @@ def calculate_sortino_ratio(ticker, start_date, end_date, threshold=0):
 def calculate_treynor_ratio(ticker, start_date, end_date, benchmark_ticker, risk_free_rate=0.3):
     """
     Calculate the Treynor ratio for a given stock ticker.
-    Here we are using SPGI as the benchmark ticker.
+    Here we are using ^GSPC as the benchmark ticker.
     
     Parameters:
     ticker (str): The ticker symbol for the stock.
-    spgi (str): The ticker symbol for the S&P 500 index.
+    ^GSPC (str): The ticker symbol for the S&P 500 index.
     start_date (str): The start date in the format 'YYYY-MM-DD'.
     end_date (str): The end date in the format 'YYYY-MM-DD'.
     risk_free_rate (float): The risk-free rate of return. Default is 0.
@@ -615,7 +616,7 @@ def calculate_treynor_ratio(ticker, start_date, end_date, benchmark_ticker, risk
 
 
 # Choose a financial ratio from dropdown menu 
-# Display financial ratios
+
 fin_ratios_check_box=st.checkbox(label=f"Display {ticker} related financial ratios")
 if fin_ratios_check_box:
     with st.container():
@@ -654,12 +655,12 @@ if fin_ratios_check_box:
                     st.write(calculate_covariance_returns(ticker, benchmark_ticker, start_date, end_date))
                     st.markdown(f"The value highlights how two tickers move in relation to each other",unsafe_allow_html=True)
                 elif ratio_choice == "Alpha ratio":
-                    st.info("Alpha ratio is a measure of a stock's performance in relation to its benchmark. A positive alpha value indicates that the stock has performed better than the benchmark (SPGI), while a negative alpha value indicates underperformance.")
+                    st.info("Alpha ratio is a measure of a stock's performance in relation to its benchmark. A positive alpha value indicates that the stock has performed better than the benchmark (^GSPC), while a negative alpha value indicates underperformance.")
                     st.markdown(f"You've selected the following financial ratio - <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, from the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.",unsafe_allow_html=True)
                     st.markdown(f"The <b>Alpha ratio</b> value for <b>{ticker}</b> is: <b>{calculate_alpha_ratio(ticker, benchmark_ticker, start_date, end_date)}</b>",unsafe_allow_html=True)
                     st.markdown(f"This highlights some of the following XYZ actions...",unsafe_allow_html=True)
                 elif ratio_choice == "Beta ratio":
-                    st.info("Beta ratio is a measure of a stock's volatility in relation to its benchmark index. It compares the volatility of a stock to the volatility of a benchmark index (SPGI), giving an idea of how much more or less volatile a stock is in relation to the benchmark index. A beta of 1 indicates that the stock's volatility is the same as the benchmark, while a beta greater than 1 indicates that the stock is more volatile than the benchmark, meaning its returns are more sensitive to market movements. Conversely, a beta less than 1 indicates that the stock is less volatile than the benchmark, meaning its returns are less sensitive to market movements.")
+                    st.info("Beta ratio is a measure of a stock's volatility in relation to its benchmark index. It compares the volatility of a stock to the volatility of a benchmark index (^GSPC), giving an idea of how much more or less volatile a stock is in relation to the benchmark index. A beta of 1 indicates that the stock's volatility is the same as the benchmark, while a beta greater than 1 indicates that the stock is more volatile than the benchmark, meaning its returns are more sensitive to market movements. Conversely, a beta less than 1 indicates that the stock is less volatile than the benchmark, meaning its returns are less sensitive to market movements.")
                     st.markdown(f"You've selected the following financial ratio - <b>{ratio_choice}</b>, for the ticker <b>{ticker}</b>, from the S&P Global index, between <b>{start_date}</b> and <b>{end_date}</b>.",unsafe_allow_html=True)
                     st.markdown(f"The <b>Beta ratio</b> value for <b>{ticker}</b> is: <b>{calculate_beta_ratio(ticker, benchmark_ticker, start_date, end_date)}</b>",unsafe_allow_html=True)
                     st.markdown(f"This highlights some of the following XYZ actions...",unsafe_allow_html=True)

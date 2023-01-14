@@ -39,37 +39,18 @@ st.set_page_config(page_title="Streamlit ticker(s) forecast app",page_icon="📶
 # Wrap entire code in a streamlit container
 with st.container():
 
-    # Create a function to access the json data of the Lottie animation using requests - if successful return 200 - data is good, show animation else return none
-    def load_lottieurl(url):
-        r=requests.get(url)
-        if r.status_code !=200:
-            return None
-        return r.json()
-
-    # Use local style.css file
-    def local_css(file_name):
-        with open(file_name) as f:
-            st.markdown(f"<style>{f.read()}</style>",unsafe_allow_html=True)     
-    local_css("./style/style.css") 
-
     # add title
     st.title(f"Explore different Classifier models")
     st.write("---")
 
-    # import ticker values as tuple values for the streamlit selectbox
-    # tickers=("AAPL","AMT","AMZN","GOOG","IYR","META","NFLX","RTH","SPY","XLE","XOM")
-    # pd read csv file for tickers list
-    # tickers=pd.read_csv("https://raw.githubusercontent.com/dataprofessor/s-and-p-500-companies/master/data/constituents_symbols.txt")
-    tickers=pd.read_csv("./Resources/s&p_global_tickers_2022.csv")
+    # Read csv file
+    tickers=pd.read_csv("./Resources/tickers.csv")
 
     # add ticker to streamlit sidebar as a selectbox
     ticker_symbol=st.sidebar.selectbox("Select a ticker from the dropdown menu",tickers)
     ticker_data=yf.Ticker(ticker_symbol) 
 
-
-    # add start/end dates to streamlit sidebar
-    # start_date=st.sidebar.multiselect.date_input("Select a start date",datetime.date(2017,1,1))
-    # end_date=st.sidebar.multiselect.date_input("Select an end date",datetime.date(2022,12,16))
+    # Initiate start & end dates
     start_date=st.sidebar.date_input("Start date",value=pd.to_datetime("2002-01-01"))
     end_date=st.sidebar.date_input("End date",value=pd.to_datetime("today"))
     # add historical trading period for 1 day
