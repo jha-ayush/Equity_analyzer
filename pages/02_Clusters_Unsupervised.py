@@ -200,9 +200,9 @@ if ticker and start_date and end_date:
                                 cluster = [c for c in cluster if not np.isnan(c).any()]
 
                                 # Add a summary of the cluster
-                                st.write(f"Mean value of cluster {i} is:",np.mean(cluster))
-                                st.write(f"Median value of cluster {i} is:",np.median(cluster))
-                                st.write(f"Variance value of cluster {i} is:",np.var(cluster))
+                                st.write(f"Mean value of cluster {i} is:",(np.mean(cluster)))
+                                st.write(f"Median value of cluster {i} is:",(np.median(cluster)))
+                                st.write(f"Variance value of cluster {i} is:",(np.var(cluster)))
         
 
                     st.write("---")
@@ -213,11 +213,6 @@ if ticker and start_date and end_date:
                         st.write("Silhouette score:", silhouette_score(data, labels.ravel()))
                         st.write("Calinski Harabasz score:", calinski_harabasz_score(data, labels.ravel()))
                         st.write("Davies Bouldin score:", davies_bouldin_score(data, labels.ravel()))
-                        # print("test1")
-                        # st.write("Adjusted Rand score:", adjusted_rand_score(data, labels.ravel()))
-                        # print("test2")
-                        # st.write("Adjusted Mutual Info score:", adjusted_mutual_info_score(data, labels.ravel()))
-                        # print("test3")
 
                         
                     #Cluster metrics information
