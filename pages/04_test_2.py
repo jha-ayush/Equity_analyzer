@@ -29,7 +29,7 @@ def main():
     </style>
     """, unsafe_allow_html=True)
     # Create the navigation bar
-    st.header("My App")
+    st.header("Stock analyzer & prediction App")
     st.markdown(
         '''<a href="#page-1" class="nav-link">Home</a> 
         <a href="#page-2" class="nav-link">Unsupervised Clusters</a> 

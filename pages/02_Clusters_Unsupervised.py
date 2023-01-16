@@ -11,7 +11,7 @@ from sklearn.metrics import calinski_harabasz_score
 from sklearn.metrics import davies_bouldin_score
 from sklearn.metrics import adjusted_rand_score
 from sklearn.metrics import adjusted_mutual_info_score
-from sklearn import metrics
+from sklearn.utils import resample
 
 import matplotlib.pyplot as plt
 import logging
@@ -23,8 +23,6 @@ st.set_page_config(page_title="Stocks analysis", page_icon="📶", layout="cente
 # Add cache to store ticker values after first time download in browser
 @st.cache(suppress_st_warning=True)
 
-# Disable warning by disabling the config option
-# @st.set_option('deprecation.showPyplotGlobalUse', False)
 
 # Use local CSS file
 def local_css(file_name):
@@ -59,7 +57,7 @@ start_date = st.sidebar.date_input("Start date", value=pd.to_datetime("1997-1-1"
 end_date = st.sidebar.date_input("End date", value=pd.to_datetime("today"))  
 
 # Get the number of clusters from user input
-n_clusters = st.sidebar.slider("Number of clusters", 2, 10, 4)
+n_clusters = st.sidebar.slider("Number of clusters", 2, 10, 3)
 
 # Get the data that the user wants to use for clustering
 clustering_data = st.sidebar.multiselect("Select data to use for clustering", ['Open', 'High', 'Low','Close','Adj Close','Volume'], default = ['Adj Close'])
@@ -76,29 +74,29 @@ if ticker and start_date and end_date:
                 if len(ticker) < 2:
                     st.error("Please select at least 2 tickers for analysis.")
                 else:
-                    
-                    
                     show_plot_check_box=st.checkbox(label=f"Display clustering plot for {ticker}")
                     if show_plot_check_box:
-                    
                         # Download the data
                         data = yf.download(ticker, start=start_date,end=end_date)
                         # Drop any missing values
                         data.dropna(inplace=True)
                         st.text("Data Loaded ✅")
                         # Selecting columns to be used for clustering
-                        data = data.loc[:, clustering_data]
+                        data = data[clustering_data]
 
+                        # Resample the data
+                        data_resampled = resample(data, n_samples=len(data), random_state=1)
+                        
                         # Scale the data
                         scaler = StandardScaler()
-                        data = scaler.fit_transform(data)
+                        data_scaled = scaler.fit_transform(data_resampled)
                         st.text("Data Scaled ✅")
 
-
+        
                         # Dimensionality reduction
                         if reduction_method == 'PCA':
                             pca = PCA(n_components=2)
-                            data = pca.fit_transform(data)
+                            data = pca.fit_transform(data_scaled)
                             # Get explained variance ratio
                             explained_variance_ratio = pca.explained_variance_ratio_
                             # Calculate confidence percent
@@ -106,23 +104,23 @@ if ticker and start_date and end_date:
                             y_conf = explained_variance_ratio[1]*100
                         elif reduction_method == 't-SNE':
                             tsne = TSNE(n_components=2)
-                            data = tsne.fit_transform(data)
+                            data = tsne.fit_transform(data_scaled)
                             x_conf, y_conf = None, None
                         elif reduction_method == 'MDS':
                             mds = MDS(n_components=2)
-                            data = mds.fit_transform(data)
+                            data = mds.fit_transform(data_scaled)
                             x_conf, y_conf = None, None
                         elif reduction_method == 'Isomap':
                             iso = Isomap(n_components=2)
-                            data = iso.fit_transform(data)
+                            data = iso.fit_transform(data_scaled)
                             x_conf, y_conf = None, None
                         elif reduction_method == 'LLE':
                             lle = LocallyLinearEmbedding(n_components=2)
-                            data = lle.fit_transform(data)
+                            data = lle.fit_transform(data_scaled)
                             x_conf, y_conf = None, None
                         elif reduction_method == 'SE':
                             se = SpectralEmbedding(n_components=2)
-                            data = se.fit_transform(data)
+                            data = se.fit_transform(data_scaled)
                             x_conf, y_conf = None, None
                         else:
                             st.error("Invalid reduction method")
@@ -132,7 +130,7 @@ if ticker and start_date and end_date:
                         kmeans = KMeans(n_clusters=n_clusters, random_state=1).fit(data)
                         st.text("K-means Clustering Completed ✅")
 
-
+                
                         # Get cluster labels for each data point
                         labels = kmeans.labels_
 
@@ -143,6 +141,7 @@ if ticker and start_date and end_date:
                         plt.ylabel(f'PCA2 of {clustering_data} ({y_conf:.2f}% confidence)' if y_conf is not None else 'Second Principal Component')
                         plt.legend(title='Clusters')
                         st.pyplot()
+                        
 
                     #write the final dataframe 
                     # st.write(data)
@@ -153,7 +152,7 @@ if ticker and start_date and end_date:
                     
                     #Number of clusters optimization methods
                     st.write("---")
-                    show_cluster_opt_check_box=st.checkbox(label=f"Display cluster count optimization methods")
+                    show_cluster_opt_check_box=st.checkbox(label=f"Display cluster count optimization method")
                     if show_cluster_opt_check_box:
                     
                         # Elbow Method
@@ -167,44 +166,57 @@ if ticker and start_date and end_date:
                         plt.xlabel('Number of clusters')
                         plt.ylabel('WCSS')
                         st.pyplot()
-                        st.write(f'The optimal number of clusters is the one that corresponds to the "elbow" point in the plot',unsafe_allow_html=True)
+                        st.write(f'The optimal number of clusters is the one that corresponds to the "elbow" point in the plot (default =3).',unsafe_allow_html=True)
 
                         # Silhouette Analysis
-                        silhouette_scores = []
-                        for i in range(2, 11):
-                            kmeans = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=1)
-                            preds = kmeans.fit_predict(data)
-                            silhouette_scores.append(metrics.silhouette_score(data, preds))
-                        plt.plot(range(2, 11), silhouette_scores)
-                        plt.title('Silhouette Analysis')
-                        plt.xlabel('Number of clusters')
-                        plt.ylabel('Silhouette Score')
-                        st.pyplot()
-                        st.write(f'The highest point on the y-axis represents the optimal number of clusters for the given x-axis: <b>{(metrics.silhouette_score(data, preds)):0.4f}</b>',unsafe_allow_html=True)
-
-
+                        # silhouette_scores = []
+                        # for i in range(2, 11):
+                        #     kmeans = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=1)
+                        #     preds = kmeans.fit_predict(data)
+                        #     silhouette_scores.append(metrics.silhouette_score(data, preds))
+                        # plt.plot(range(2, 11), silhouette_scores)
+                        # plt.title('Silhouette Analysis')
+                        # plt.xlabel('Number of clusters')
+                        # plt.ylabel('Silhouette Score')
+                        # st.pyplot()
+                        # st.write(f'The highest point on the y-axis represents the optimal number of clusters for the given x-axis: <b>{(metrics.silhouette_score(data, preds)):0.4f}</b>',unsafe_allow_html=True)
+                        
                     #Cluster metrics information
                     st.write("---")
-                    show_cluster_metrics_check_box=st.checkbox(label=f"Display cluster data metrics")
+                    show_cluster_metrics_check_box = st.checkbox(label=f"Display cluster data metrics")
                     if show_cluster_metrics_check_box:
-                        # Group data points into clusters
                         clusters = [[] for _ in range(kmeans.n_clusters)]
                         for i, label in enumerate(labels):
                             clusters[label].append(data[i])
 
                         # Use Streamlit to display the clusters
                         for i, cluster in enumerate(clusters):
-                            if i < (n_clusters +1):
-                                st.markdown(f'<b>Cluster {i}</b>',unsafe_allow_html=True)
+                            if i < (n_clusters + 1):
+                                st.markdown(f'<b>Cluster {i}</b>', unsafe_allow_html=True)
                                 # Check for missing values and remove them
                                 cluster = [c for c in cluster if not np.isnan(c).any()]
 
                                 # Add a summary of the cluster
-                                st.write(f"Mean value of cluster {i} is:",(np.mean(cluster)))
-                                st.write(f"Median value of cluster {i} is:",(np.median(cluster)))
-                                st.write(f"Variance value of cluster {i} is:",(np.var(cluster)))
-        
+                                st.write(f"Mean value of cluster {i} is:", (np.mean(cluster)))
+                                st.write(f"Median value of cluster {i} is:", (np.median(cluster)))
+                                st.write(f"Variance value of cluster {i} is:", (np.var(cluster)))
+                                # Get the indices of the data points in the current cluster
+                                indices = [j for j, x in enumerate(labels) if x == i]
+                                # Use the indices to access the corresponding ticker symbols
+                                cluster_ticker = [ticker[index] for index in indices]
+                                # Display the ticker symbols for the current cluster
+                                st.write(f"Ticker symbols for cluster {i}:", cluster_ticker)
 
+                                
+
+        
+                    # Monte Carlo Simulation
+                    st.write("---")
+                    show_monte_carlo_checkbox=st.checkbox(label=f"Display Monte Carlo simulation")
+                    if show_monte_carlo_checkbox:
+                        st.info("")
+        
+                    # Evaluation metrics
                     st.write("---")
                     show_evaluation_metrics_check_box=st.checkbox(label=f"Display evaluation metrics")
                     if show_evaluation_metrics_check_box:
