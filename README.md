@@ -100,9 +100,9 @@ Furthermore, we used **Monte Carlo** simulation on resampled data to estimate th
 **DBSCAN** was additionally used along with K-means.
 
 
-- Supervised Classifiers: KNN, SVM, Random Forest
-- Supervised Regression: ??
-- Algorithmic Trading: ??
+### Supervised Classifiers
+### Algorithmic Trading
+### Time Series Analysis
 
 
 ## Next Steps
