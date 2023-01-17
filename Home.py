@@ -78,7 +78,24 @@ def local_css(file_name):
     with open(file_name) as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 # load css file
-local_css("./style/style.css")         
+local_css("./style/style.css")
+
+#-----------------------------------------------#
+
+# wrap header content in a streamlit container
+with st.container():
+        # 2 columns section:
+        col1, col2 = st.columns([3, 2])
+        with col1:           
+            # Load title/info
+            st.title(f"Equity portfolio analyzer")
+            st.markdown(f"Our app utilizes advanced algorithms to analyze and predict the performance of your portfolio, providing valuable insights and recommendations to help optimize your investments.",unsafe_allow_html=True)
+        with col2:
+            # Load asset(s)
+            st_lottie(lottie_coding,height=150,key="finance")
+        st.write("---")    
+                 
+#------------------------------------------------------------------#
 
 # Read ticker symbols from a CSV file
 try:
@@ -112,8 +129,6 @@ benchmark_ticker=benchmark_ticker.history(period="1d",start=start_date,end=end_d
 #st.write('---')
 # st.write(ticker_data.info)
 
-st.write("---")
-
 # Load stock data - define functions
 def load_data(ticker,start_date,end_date):
     data=yf.download(ticker,start_date,end_date)
@@ -128,24 +143,7 @@ data_load_state=st.sidebar.text("Loading data...⌛")
 data=load_data(ticker,start_date,end_date)
 data_load_state.text("Data loading complete ✅")
 
-
-#-----------------------------------------------#
-
-# wrap header content in a streamlit container
-with st.container():
-        # 2 columns section:
-        col1, col2 = st.columns([3, 2])
-        with col1:           
-            # Load title/info
-            st.title(f"Equity portfolio analyzer")
-            st.markdown(f"Ne quis facete usu, vis nostro iudicabit ut, et ius ullum constituam. Vim suas molestie an, nam id fuisset lucilius. No duo elit labores prodesset, stet nemore usu ex, vis stet pertinacia efficiendi id. Aliquando signiferumque qui at.")
-        with col2:
-            # Load asset(s)
-            st_lottie(lottie_coding,height=150,key="finance")
-            
-
-            
-#------------------------------------------------------------------#
+#------------------------------------------------------#
 # Create Navbar tabs            
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["Fin ratios", "Unsupervised", "Supervised", "Time Series", "Algo trading"])
 
@@ -949,8 +947,9 @@ with tab2:
                                 else:
                                     kmeans = KMeans(n_clusters=n_clusters, random_state=1).fit(data_scaled)
                                     st.text("K-means Clustering Completed ✅")
-                                    # print refactored dataframe
-                                    st.write(data)
+                                    # print refactored Scaled dataframe
+                                    st.markdown(f"<b>Display Scaled dataframe</b>",unsafe_allow_html=True)
+                                    st.write(data_scaled)
 
                                     # Elbow Method
                                     wcss = []
