@@ -1,17 +1,16 @@
-# Stocks analyzer & predictor data app
+# Equity portfolio investment advisor
 
-- A user is able to visualize historical stock data along with Financial metrics.
-- A user is able to utilize the web app to verify whether selected stock(s) are a good recommendation to buy, sell or hold for a given period of time
+- A user is able to visualize historical stock data using Financial metrics & get a glimpse on a Time Series analysis using Facebook's Prophet time series package.
+- A user is able to utilize the web app to verify whether selected stock(s) are a good recommendation to buy, sell or hold for a given period of time.
 
-We first resample the imbalanced stock data and apply K-means clustering and optimization (Monte Carlo simulation) to pull information about various metrics. Using unsupervised learning we can identify and figure out the behaviors of the selected stock(s).
+
+We first resample the imbalanced data and apply clustering techniques and optimizations (**Monte Carlo simulation**) to pull information about various metrics. Using unsupervised learning we can identify and figure out the behaviors of the selected stock(s).
 By clustering stocks from Unsupervised Learning, we can layer Supervised Learning on top using Random Forest, SVM & KNN alogrithms to predict whether the stock will go up or down in the future. We can further measure which Supervised model provides the most optimization for the selected stocks.
 
 Further analysis and models can be tested to optimize what is/are the best algorithm(s) for a given user preference
 - Do I want to buy/sell?
 - Do I want to hold a portfolio stock for X time period?
 - How can I allocate pricing around the portfolio stocks with a given amount money?
-
-
 
 
 ## Setup
