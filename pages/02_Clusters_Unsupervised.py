@@ -124,6 +124,19 @@ if ticker and start_date and end_date:
                                 st.error("Please enter a valid number of clusters (minimum 2)")
                             else:
                                 kmeans = KMeans(n_clusters=n_clusters, random_state=1).fit(data_scaled)
+                                st.text("K-means Clustering Completed ✅")
+                                # Elbow Method
+                                wcss = []
+                                for i in range(1, 11):
+                                    kmeans = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=1)
+                                    kmeans.fit(data)
+                                    wcss.append(kmeans.inertia_)
+                                plt.plot(range(1, 11), wcss)
+                                plt.title('Elbow Method')
+                                plt.xlabel('Number of clusters')
+                                plt.ylabel('WCSS')
+                                st.pyplot()
+                                st.write(f'The optimal number of clusters is the one that corresponds to the "elbow" point in the plot (default =3).',unsafe_allow_html=True)
                                 
                         elif clustering_algorithm == "DBSCAN":
                             eps = st.number_input("Enter value of epsilon: ", min_value=0.0001)
@@ -180,7 +193,7 @@ if ticker and start_date and end_date:
 
                         # Run K-means
                         kmeans = KMeans(n_clusters=n_clusters, random_state=1).fit(data)
-                        st.text("K-means Clustering Completed ✅")
+                        
 
                 
                         # Get cluster labels for each data point
@@ -192,26 +205,7 @@ if ticker and start_date and end_date:
                         plt.xlabel(f'PCA1 of {clustering_data} ({x_conf:.2f}% confidence)' if x_conf is not None else 'First Principal Component')
                         plt.ylabel(f'PCA2 of {clustering_data} ({y_conf:.2f}% confidence)' if y_conf is not None else 'Second Principal Component')
                         plt.legend(title='Clusters')
-                        st.pyplot()
-                        
-                    
-                    #Number of clusters optimization methods
-                    st.write("---")
-                    show_cluster_opt_check_box=st.checkbox(label=f"Display cluster count optimization method")
-                    if show_cluster_opt_check_box:
-                    
-                        # Elbow Method
-                        wcss = []
-                        for i in range(1, 11):
-                            kmeans = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=1)
-                            kmeans.fit(data)
-                            wcss.append(kmeans.inertia_)
-                        plt.plot(range(1, 11), wcss)
-                        plt.title('Elbow Method')
-                        plt.xlabel('Number of clusters')
-                        plt.ylabel('WCSS')
-                        st.pyplot()
-                        st.write(f'The optimal number of clusters is the one that corresponds to the "elbow" point in the plot (default =3).',unsafe_allow_html=True)
+                        st.pyplot()                        
 
                         
                     #Cluster metrics information
