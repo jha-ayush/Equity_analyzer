@@ -94,11 +94,11 @@ Use **252 days** for a one year period
 
 ## Machine Learning models
 
-### Unsupervised Clustering: PCA, Standard Scaler, K-Means
-We initially pick at least 2 tickers for data clustering (default ticker in the dropdown menu - S&P 500 `^GSPC` ticker). By grouping the ticker data a user can better understand how the stocks move in conjunction over time. To further improve clustering, we apply the "**Elbow Method**" & "**Silhouette Analysis**" to find the optimum number of clusters (default is set to **3**).
-Furthermore, we used **Monte Carlo** simulation to estimate the probability of different outcomes. By combining the results of **K-means** clustering with Monte Carlo simulation, a user can gain valuable insights into the behavior of a specific stock or portfolio of stocks, and use that information to make more informed investment decisions, although this model cannot predict the future with certainty.
-**Resampling** is a method that can be used in conjunction with Monte Carlo simulation to generate more accurate estimates of the probability of different outcomes. It helps in working with imbalanced data.
-**Bootstrapping** applies the K-means clustering algorithm to each bootstrap sample, which allows you to get a better estimate of the underlying distribution of the data
+### Unsupervised Clustering
+We initially pick at least 2 tickers for data clustering (default ticker in the dropdown menu - S&P 500 `^GSPC` ticker). By grouping the ticker data a user can better understand how the stocks move in conjunction over time. To further improve clustering, we apply the "**Elbow Method**" & "**Silhouette Score**" to find the optimum number of clusters (default is set to **3**).
+Furthermore, we used **Monte Carlo** simulation on resampled data to estimate the probability of different outcomes. By combining the results of **K-means** clustering with Monte Carlo simulation, a user can gain valuable insights into the behavior of a specific stock or portfolio of stocks, and use that information to make more informed investment decisions, although this model cannot predict the future with certainty.
+**DBSCAN** was additionally used along with K-means.
+
 
 - Supervised Classifiers: KNN, SVM, Random Forest
 - Supervised Regression: ??
