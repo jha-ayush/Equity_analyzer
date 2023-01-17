@@ -4,7 +4,7 @@
 - A user is able to utilize the web app to verify whether selected stock(s) are a good recommendation to buy, sell or hold for a given period of time
 
 We first resample the imbalanced stock data and apply K-means clustering and optimization (Monte Carlo simulation) to pull information about various metrics. Using unsupervised learning we can identify and figure out the behaviors of the selected stock(s).
-By further implementing on the clustered stocks from Unsupervised Learning, we can layer Supervised Learning using Random Forest, SVM & KNN alogrithms to predict whether the stock will go up or down in the future. We can further measure which Supervised model provides the most optimization for the selected stocks.
+By clustering stocks from Unsupervised Learning, we can layer Supervised Learning on top using Random Forest, SVM & KNN alogrithms to predict whether the stock will go up or down in the future. We can further measure which Supervised model provides the most optimization for the selected stocks.
 
 Further analysis and models can be tested to optimize what is/are the best algorithm(s) for a given user preference
 - Do I want to buy/sell?
@@ -92,6 +92,7 @@ Furthermore, we used **Monte Carlo** simulation on resampled data to estimate th
 - Streamlit cloud deployment
 - Add the ability to perform the clustering on a subset of the data: The script currently performs the clustering on all the data. Adding the ability to perform the clustering on a subset of the data, such as the last 30 days
 - Add the ability to compare the results of different clustering techniques/parameters: The script currently only shows the results of a single clustering run. Adding the ability to compare the results of different clustering techniques/parameters, such as different number of clusters or different clustering algorithms, would increase the usefulness of the script.
+- Include more error handling
 
 ### Improve algorithm(s)
 - Additional prediction algorthims can be trained
