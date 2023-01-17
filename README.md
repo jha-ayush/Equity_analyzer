@@ -28,27 +28,7 @@ Create new environment in Terminal
 
 
 ## Technologies
-<sub>Python implementation: CPython</sub>
-
-<sub>Python version       : 3.7.13</sub>
-
-<sub>IPython version      : 7.34.0</sub>
-
-
-<sub>Compiler    : Clang 12.0.0</sub> 
-
-<sub>OS          : Darwin</sub>
-
-<sub>Release     : 22.2.0</sub>
-
-<sub>Machine     : x86_64</sub>
-
-<sub>Processor   : i386</sub>
-
-<sub>CPU cores   : 8</sub>
-
-<sub>Architecture: 64bit</sub>
-
+Library versions:
 
 <sub>plotly   : 5.11.0</sub>
 
