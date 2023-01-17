@@ -110,6 +110,8 @@ Furthermore, we used **Monte Carlo** simulation to estimate the probability of d
 ### Technique
 - Figure out way(s) to calcuate amount of money a user can generate if trading with any of the models used in the app
 - Streamlit cloud deployment
+- Add the ability to perform the clustering on a subset of the data: The script currently performs the clustering on all the data. Adding the ability to perform the clustering on a subset of the data, such as the last 30 days
+- Add the ability to compare the results of different clustering techniques/parameters: The script currently only shows the results of a single clustering run. Adding the ability to compare the results of different clustering techniques/parameters, such as different number of clusters or different clustering algorithms, would increase the usefulness of the script.
 
 ### Improve algorithm(s)
 - Additional prediction algorthims can be trained

@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from sklearn.decomposition import PCA # PCA for dimensionality reduction
 from sklearn.cluster import KMeans # KMeans for clustering
+from sklearn.cluster import DBSCAN # DBSCAN for clustering
 from sklearn.manifold import TSNE, MDS, Isomap, LocallyLinearEmbedding, SpectralEmbedding # Other dimensionality reduction techniques
 from sklearn.preprocessing import StandardScaler # Scaling data
 from sklearn.metrics import silhouette_score # To evaluate the clustering
@@ -57,7 +58,7 @@ start_date = st.sidebar.date_input("Start date", value=pd.to_datetime("1997-1-1"
 end_date = st.sidebar.date_input("End date", value=pd.to_datetime("today"))  
 
 # Get the number of clusters from user input
-n_clusters = st.sidebar.slider("Number of clusters", 2, 10, 3)
+# n_clusters = st.sidebar.slider("Number of clusters", 2, 10, 3)
 
 # Get the data that the user wants to use for clustering
 clustering_data = st.sidebar.multiselect("Select data to use for clustering", ['Open', 'High', 'Low','Close','Adj Close','Volume'], default = ['Adj Close'])
@@ -76,11 +77,13 @@ if ticker and start_date and end_date:
                 else:
                     show_plot_check_box=st.checkbox(label=f"Display clustering plot for {ticker}")
                     if show_plot_check_box:
+                        
                         # Download the data
                         data = yf.download(ticker, start=start_date,end=end_date)
                         # Drop any missing values
                         data.dropna(inplace=True)
-                        st.text("Data Loaded ✅")
+                        st.text(f"Data Loaded for {ticker} ✅")
+                        
                         # Selecting columns to be used for clustering
                         data = data[clustering_data]
 
@@ -93,6 +96,55 @@ if ticker and start_date and end_date:
                         st.text("Data Scaled ✅")
 
         
+                        # Monte Carlo simulation
+                        num_simulations = 10 # Default number of MC simulations
+                    
+                        for i in range(num_simulations):
+                            # Dimensionality reduction
+                            if reduction_method == 'PCA':
+                                pca = PCA(n_components=2)
+                                data = pca.fit_transform(data_scaled)
+                                # Get explained variance ratio
+                                explained_variance_ratio = pca.explained_variance_ratio_
+                                # Calculate confidence percent
+                                x_conf = explained_variance_ratio[0]*100
+                                y_conf = explained_variance_ratio[1]*100
+                            else:
+                                st.error("Invalid reduction method")
+        
+        
+                        # add a select box for the user to choose the clustering algorithm
+                        # Choose Clustering Algorithm
+                        clustering_algorithm = st.selectbox("Select Clustering Algorithm", ["K-Means", "DBSCAN"])
+                        
+                        if clustering_algorithm == "K-Means":
+                            n_clusters = st.number_input("Enter number of clusters (default=3): ", min_value=3)
+                            
+                            if n_clusters < 2:
+                                st.error("Please enter a valid number of clusters (minimum 2)")
+                            else:
+                                kmeans = KMeans(n_clusters=n_clusters, random_state=1).fit(data_scaled)
+                                
+                        elif clustering_algorithm == "DBSCAN":
+                            eps = st.number_input("Enter value of epsilon: ", min_value=0.0001)
+                            if eps <= 0:
+                                st.error("Please enter a valid value of epsilon (greater than 0)")
+                            else:
+                                min_samples = st.number_input("Enter value of min_samples: ", min_value=1)
+                                dbscan = DBSCAN(eps=eps, min_samples=min_samples).fit(data_scaled)
+                                n_clusters = len(set(dbscan.labels_)) - (1 if -1 in dbscan.labels_ else 0)
+                            
+                            # Get cluster labels for each data point
+                            labels = kmeans.labels_ if clustering_algorithm == "K-Means" else dbscan.labels_
+
+                            # Plot the data
+                            plt.scatter(data_scaled[:,0], data_scaled[:,1], c=labels, cmap='rainbow')
+                            plt.title(f'{clustering_algorithm} Clustering of {clustering_data} features with {n_clusters} clusters for {ticker}')
+                            plt.legend(title='Clusters')
+                            st.pyplot()
+                            
+                            
+                            
                         # Dimensionality reduction
                         if reduction_method == 'PCA':
                             pca = PCA(n_components=2)
@@ -142,13 +194,6 @@ if ticker and start_date and end_date:
                         plt.legend(title='Clusters')
                         st.pyplot()
                         
-
-                    #write the final dataframe 
-                    # st.write(data)
-
-                    #line chart of the selected ticker
-                    # st.line_chart(data[clustering_data])
-                    # st.line_chart(data)
                     
                     #Number of clusters optimization methods
                     st.write("---")
@@ -168,18 +213,6 @@ if ticker and start_date and end_date:
                         st.pyplot()
                         st.write(f'The optimal number of clusters is the one that corresponds to the "elbow" point in the plot (default =3).',unsafe_allow_html=True)
 
-                        # Silhouette Analysis
-                        # silhouette_scores = []
-                        # for i in range(2, 11):
-                        #     kmeans = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=1)
-                        #     preds = kmeans.fit_predict(data)
-                        #     silhouette_scores.append(metrics.silhouette_score(data, preds))
-                        # plt.plot(range(2, 11), silhouette_scores)
-                        # plt.title('Silhouette Analysis')
-                        # plt.xlabel('Number of clusters')
-                        # plt.ylabel('Silhouette Score')
-                        # st.pyplot()
-                        # st.write(f'The highest point on the y-axis represents the optimal number of clusters for the given x-axis: <b>{(metrics.silhouette_score(data, preds)):0.4f}</b>',unsafe_allow_html=True)
                         
                     #Cluster metrics information
                     st.write("---")
@@ -191,7 +224,7 @@ if ticker and start_date and end_date:
 
                         # Use Streamlit to display the clusters
                         for i, cluster in enumerate(clusters):
-                            if i < (n_clusters + 1):
+                            if i < (n_clusters):
                                 st.markdown(f'<b>Cluster {i}</b>', unsafe_allow_html=True)
                                 # Check for missing values and remove them
                                 cluster = [c for c in cluster if not np.isnan(c).any()]
@@ -200,21 +233,8 @@ if ticker and start_date and end_date:
                                 st.write(f"Mean value of cluster {i} is:", (np.mean(cluster)))
                                 st.write(f"Median value of cluster {i} is:", (np.median(cluster)))
                                 st.write(f"Variance value of cluster {i} is:", (np.var(cluster)))
-                                # Get the indices of the data points in the current cluster
-                                indices = [j for j, x in enumerate(labels) if x == i]
-                                # Use the indices to access the corresponding ticker symbols
-                                cluster_ticker = [ticker[index] for index in indices]
-                                # Display the ticker symbols for the current cluster
-                                st.write(f"Ticker symbols for cluster {i}:", cluster_ticker)
-
                                 
 
-        
-                    # Monte Carlo Simulation
-                    st.write("---")
-                    show_monte_carlo_checkbox=st.checkbox(label=f"Display Monte Carlo simulation")
-                    if show_monte_carlo_checkbox:
-                        st.info("")
         
                     # Evaluation metrics
                     st.write("---")
