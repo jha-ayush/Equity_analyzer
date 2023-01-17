@@ -92,8 +92,7 @@ with st.container():
             st.markdown(f"Our app utilizes advanced algorithms to analyze and predict the performance of your portfolio, providing valuable insights and recommendations to help optimize your investments.",unsafe_allow_html=True)
         with col2:
             # Load asset(s)
-            st_lottie(lottie_coding,height=150,key="finance")
-        st.write("---")    
+            st_lottie(lottie_coding,height=150,key="finance")   
                  
 #------------------------------------------------------------------#
 
@@ -144,7 +143,8 @@ data=load_data(ticker,start_date,end_date)
 data_load_state.text("Data loading complete ✅")
 
 #------------------------------------------------------#
-# Create Navbar tabs            
+# Create Navbar tabs
+st.write("###")
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["Fin ratios", "Unsupervised", "Supervised", "Time Series", "Algo trading"])
 
 with tab1:
