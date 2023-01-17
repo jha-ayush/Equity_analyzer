@@ -82,11 +82,11 @@ Create new environment in Terminal
 - Drop na values
 
 Available columns are:
-- Open - the price the stock opened at
-- High - the highest price during the day
-- Low - the lowest price during the day
-- Close - the closing price on the trading day
-- Volume - how many shares were traded
+- `Open` - the price the stock opened at
+- `High` - the highest price during the day
+- `Low` - the lowest price during the day
+- `Close` - the closing price on the trading day
+- `Volume` - how many shares were traded
 
 Use **252 days** for a one year period
 
