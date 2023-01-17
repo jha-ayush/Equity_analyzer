@@ -86,7 +86,8 @@ if ticker and start_date and end_date:
                         
                         # Selecting columns to be used for clustering
                         data = data[clustering_data]
-
+                        
+                        
                         # Resample the data
                         data_resampled = resample(data, n_samples=len(data), random_state=1)
                         
@@ -125,6 +126,9 @@ if ticker and start_date and end_date:
                             else:
                                 kmeans = KMeans(n_clusters=n_clusters, random_state=1).fit(data_scaled)
                                 st.text("K-means Clustering Completed ✅")
+                                # print refactored dataframe
+                                st.write(data)
+                                
                                 # Elbow Method
                                 wcss = []
                                 for i in range(1, 11):
@@ -149,6 +153,8 @@ if ticker and start_date and end_date:
                             
                             # Get cluster labels for each data point
                             labels = kmeans.labels_ if clustering_algorithm == "K-Means" else dbscan.labels_
+                            
+                            
 
                             # Plot the data
                             plt.scatter(data_scaled[:,0], data_scaled[:,1], c=labels, cmap='rainbow')
