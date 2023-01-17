@@ -878,14 +878,20 @@ with tab1:
 #------------------------------------------------------------------#                      
 # Tab 2 - Unsupervised Learning                    
 with tab2:
-    benchmark_ticker = '^GSPC'
-    ticker = st.multiselect("Select ticker(s) for clustering", tickers.ticker.tolist(), default = [benchmark_ticker,ticker])
+    with st.container():
+                # 2 columns section:
+                col1, col2 = st.columns([4, 1])
+                with col1:
+                    benchmark_ticker = '^GSPC'
+                    ticker = st.multiselect("Select ticker(s) for clustering", tickers.ticker.tolist(), default = [benchmark_ticker,ticker])
 
-    # Get the data that the user wants to use for clustering
-    clustering_data = st.multiselect("Select data to use for clustering", ['Open', 'High', 'Low','Close','Adj Close','Volume'], default = ['Adj Close'])
+                    # Get the data that the user wants to use for clustering
+                    clustering_data = st.multiselect("Select data to use for clustering", ['Open', 'High', 'Low','Close','Adj Close','Volume'], default = ['Adj Close'])
 
-    # Dimensionality reduction technique
-    reduction_method = st.selectbox("Select dimensionality reduction technique", ['PCA','t-SNE','MDS','Isomap','LLE','SE'])
+                    # Dimensionality reduction technique
+                    reduction_method = st.selectbox("Select dimensionality reduction technique", ['PCA','t-SNE','MDS','Isomap','LLE','SE'])
+                with col2:
+                    st.empty()
 
     # Get the data and scale it
     if ticker and start_date and end_date:
