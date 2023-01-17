@@ -147,7 +147,7 @@ with st.container():
             
 #------------------------------------------------------------------#
 # Create Navbar tabs            
-tab1, tab2, tab3, tab4 = st.tabs(["Fin ratios", "Unsupervised", "Supervised", "Algo trading"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["Fin ratios", "Unsupervised", "Supervised", "Time Series", "Algo trading"])
 
 with tab1:
     st.subheader(f"Ticker info & financial ratios")
@@ -1176,10 +1176,25 @@ with tab3:
 
 #-------------------------------------------------------------------#
 
-# Tab 4 - Algo Trading
+# Tab 4 - Time Series
 with tab4:
-    st.header("An owl")
-    st.image("https://static.streamlit.io/examples/owl.jpg", width=200) 
+    st.header("Time Series")
+    # wrap header content in a streamlit container
+    with st.container():
+        # 2 columns section:
+        col1, col2 = st.columns([3, 2])
+        with col1:           
+            # Load title/info
+            st.header(f"Time Series prediction")
+            st.markdown(f"Facebook Prophet, XGBoost")
+        with col2:
+            st.empty()
+    st.write("---")
+    
+# Tab 5 - Algo Trading
+with tab5:
+    st.header("Algo Trading")
+    st.image("https://static.streamlit.io/examples/owl.jpg", width=200)    
 
         
         
