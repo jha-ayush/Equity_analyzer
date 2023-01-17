@@ -69,7 +69,7 @@ Create new environment in Terminal
 ## Method
 - Install new env as described above
 - Install `yfinance`, `streamlit` and other required packages as described above
-- Download & explore historical data in the Company's `info` tab
+- Download & explore historical data from Company's `info` key
 - Data setup that predict future prices using historical prices
 - Test different Machine Learning models to find the optimal model for user's portfolio strategy
 - Improve accuracy
@@ -78,7 +78,7 @@ Create new environment in Terminal
 ## Download data
 - Download stock ticker data from `yfinance`
 - Review data structure & info
-- Data cleanup by removing "Dividens" & "Stock splits" columns
+- Data cleanup by removing "Dividends" & "Stock splits" columns
 - Drop na values
 
 Available columns are:
