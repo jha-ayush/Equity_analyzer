@@ -1107,6 +1107,12 @@ with tab2:
                     if not os.path.exists("results"):
                         os.mkdir("results")
 
+                # Save the results to a file or a database
+                if st.button("Save Results"):
+                    # Check if the "results" folder exists, if not create it
+                    if not os.path.exists("results"):
+                        os.mkdir("results")
+
                     try:
                         # Save the ticker-cluster probability data to a CSV file in the "results" folder
                         file_name = "ticker_cluster_probability_data.csv"
@@ -1116,6 +1122,8 @@ with tab2:
 
                     except Exception as e:
                         st.error("An error occurred while saving the data. Error: " + str(e))
+                                                                       
+
                     
                     # Display the tickers in each cluster
                     
@@ -1127,16 +1135,7 @@ with tab2:
                 with col2:
                     st.empty()
 
-                # Save the results to a file or a database
-                if st.button("Save Results"):
-                    export_file = st.file_uploader("Choose a CSV file", type=["csv"])
-                    if export_file is not None:
-                        with open(export_file, "w") as f:
-                            writer = csv.writer(f)
-                            writer.writerows(clusters)
-                            st.balloons("File exported successfully")
-                                                                       
-
+                
 #-------------------------------------------------------------------#
 
 # Tab 3 - Supervised Learning
