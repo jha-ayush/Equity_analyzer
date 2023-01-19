@@ -124,7 +124,7 @@ ticker_data = yf.Ticker(ticker)
 # add start/end dates to streamlit sidebar
 end_date=value=pd.to_datetime("today")
 # calculate start date as 20 years before end date
-start_date = end_date - pd.DateOffset(years=20)
+start_date = end_date - pd.DateOffset(years=25)
 
 # Create a new dataframe - add historical trading period for 1 day
 ticker_df=ticker_data.history(period="1d",start=start_date,end=end_date)
@@ -149,7 +149,7 @@ def load_data(ticker,start_date,end_date):
 # data load complete message
 data_load_state=st.sidebar.text("Loading data...⌛")  
 data=load_data(ticker,start_date,end_date)
-data_load_state.text("Past 20 years data loaded ✅")
+data_load_state.text("Past 25 years data loaded ✅")
 
 #------------------------------------------------------#
 # Create Navbar tabs
