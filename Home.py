@@ -985,7 +985,7 @@ with tab2:
                         explained_variance = pca.explained_variance_ratio_
 
                         # Create an interactive visualization for the clusters
-                        plt.scatter(df_pca[:, 0], df_pca[:, 1], c=kmeans.labels_, cmap='rainbow')
+                        plt.scatter(df_pca[:, 0], df_pca[:, 1], c=kmeans.labels_, cmap='YlGnBu')
                         plt.title("K-Means scatter plot")
                         plt.xlabel(f"Principal Component 1 (Explained Variance: {explained_variance[0]:.2%})")  # x-label with explained variance
                         plt.ylabel(f"Principal Component 2 (Explained Variance: {explained_variance[1]:.2%})")  # y-label with explained variance
@@ -999,39 +999,6 @@ with tab2:
                         else:
                             st.write("The x-label and y-label shows the first and second principal component respectively.")
                     
-
-                        # Get the cluster labels
-                        # labels = kmeans.labels_ 
-                        # st.write(labels)
-                        
-                        # Add the cluster labels as a new column in the original dataframe
-                        # tickers['cluster'] = labels
-                        # st.write(tickers)
-
-                        # Heatmaps - use the indices of the PCA dataset to extract the corresponding rows of the original tickers dataset, and then use it to create the heatmap
-                        # Create a new dataframe that contains the cluster labels and the PCA dataset
-                        # df_pca_labels = pd.DataFrame(df_pca, columns=['PC1', 'PC2'])
-                        # df_pca_labels['cluster'] = labels
-
-                        # Create a heatmap
-                        # fig = go.Figure(data=[go.Heatmap(z=df_pca_labels['cluster'], x=df_pca_labels['PC1'], y=df_pca_labels['PC2'], colorscale='Viridis')])
-                        
-                        # Add Description
-                        # st.write(f"<b>Description of the heatmap plot</b>",unsafe_allow_html=True)
-                        # st.write("The K-means heatmap shows the distribution of the clusters in the 2D space defined by the first two principal components (PC1 and PC2). The color of each point represents the cluster label assigned by the K-means algorithm, where darker colors represent higher densities of data points within a cluster.")
-
-                    
-                    # Find optimal number of clusters using the elbow method
-                    # if st.button('Find optimal number of clusters'):
-                    #     wcss = []
-                    #     for i in range(2, 11):
-                    #         kmeans = KMeans(n_clusters=i)
-                    #         kmeans.fit(df_pca)
-                    #         wcss.append(kmeans.inertia_)
-                        # plt.plot(range(2, 11), wcss)
-                        # plt.title('Elbow Method')
-                        # plt.xlabel('Number of clusters')
-                        # plt.ylabel('WCSS')
                         
                     # Plot Elbow method for cluster count optimization
                     if st.button('Determine optimum cluster count using the Elbow method'):
@@ -1042,92 +1009,63 @@ with tab2:
                         st.pyplot()
                     
 
-                # Apply K-means to the data with optimal number of clusters
-                if st.button('Re-run K-means with optimal number of clusters'):
-                    optimal_clusters = st.slider("Select the optimal number of clusters:", 2, 10, 4)
-                    st.write(f"Optimum number of clusters: <b>{optimal_clusters}</b>",unsafe_allow_html=True)
-                    kmeans = KMeans(n_clusters=optimal_clusters)
-                    kmeans.fit(df_pca)
-
-                    # Get explained variance for PC1 and PC2
-                    explained_variance = pca.explained_variance_ratio_
-
-                    # Visualize the clusters
-                    plt.scatter(df_pca[:, 0], df_pca[:, 1], c=kmeans.labels_,cmap='rainbow')
-                    plt.xlabel('PC1')
-                    plt.ylabel('PC2')
-                    plt.title(f'Explained variance (PC1, PC2): {explained_variance[0]:.2f}, {explained_variance[1]:.2f}')
-                    st.pyplot()
-
-                    
-                    # st.write(ticker_df)
-                    st.text("K-means re-analysis complete ✅")
-                    
-                    
-                # Apply Monte Carlo simulation with optimal number of clusters
-                if st.button('Run MC simulation for cluster optimization'):
-                    # Create a slider to select the number of simulations
-                    n_simulations = st.slider("Select the number of simulations:", 100, 1000, 500)
-
-                    for n_clusters in optimal_clusters:
-                        simulation_results = []
-                        kmeans = KMeans(n_clusters=n_clusters)
+                    # Apply K-means to the data with optimal number of clusters
+                    if st.button('Re-run K-means with optimal number of clusters'):
+                        optimal_clusters = st.slider("Select the optimal number of clusters:", 2, 10, 4)
+                        st.write(f"Optimum number of clusters: <b>{optimal_clusters}</b>",unsafe_allow_html=True)
+                        kmeans = KMeans(n_clusters=optimal_clusters)
                         kmeans.fit(df_pca)
-                        for i in range(n_simulations):
-                            # Apply random normal perturbation to the PCA transformed data
-                            df_pca_perturbed = df_pca + np.random.normal(0, 0.1, df_pca.shape)
-                            kmeans_perturbed = KMeans(n_clusters=n_clusters)
-                            kmeans_perturbed.fit(df_pca_perturbed)
-                            # Append the perturbed cluster labels to the simulation results
-                            simulation_results.append(kmeans_perturbed.labels_)
 
-                        # Compute the probability of each ticker belonging to each cluster
-                        ticker_cluster_prob = np.mean(np.array(simulation_results), axis=0)
-                        ticker_cluster_prob = pd.DataFrame(ticker_cluster_prob, columns=['cluster_' + str(i) for i in range(n_clusters)], index=df_resampled.index)
+                        # Get explained variance for PC1 and PC2
+                        explained_variance = pca.explained_variance_ratio_
 
-                        # Display the tickers in each cluster
-                        for i in range(n_clusters):
-                            st.write(f"<b>Tickers in cluster {i}</b>", unsafe_allow_html=True)
-                            st.write(ticker_cluster_prob[ticker_cluster_prob['cluster_' + str(i)] > 0.5].index)
-                            st.write(ticker_cluster_prob)
-                            st.text(f"Monte Carlo simulation with {n_clusters} clusters complete ✅")
-                    
-                    # Visualize the ticker-cluster probability data as a heatmap
-                    if st.button('Visualize ticker-cluster probability data'):
-                        plt.figure(figsize=(10, 8))
-                        sns.heatmap(ticker_cluster_prob, cmap='YlGnBu')
-                        plt.xlabel("Clusters")
-                        plt.ylabel("Tickers")
-                        plt.title("Probability of each ticker belonging to each cluster")
+                        # Visualize the clusters
+                        plt.scatter(df_pca[:, 0], df_pca[:, 1], c=kmeans.labels_,cmap='YlGnBu')
+                        plt.xlabel('PC1')
+                        plt.ylabel('PC2')
+                        plt.title(f'Explained variance (PC1, PC2): {explained_variance[0]:.2f}, {explained_variance[1]:.2f}')
                         st.pyplot()
 
 
-                    # Save the results to a file or a database
-                    # Check if the "results" folder exists, if not create it
-                    if st.button("Save Results"):
-                        # Check if the "results" folder exists, if not create it
-                        if not os.path.exists("results"):
-                            os.mkdir("results")
-
-                        try:
-                            # Save the ticker-cluster probability data to a CSV file in the "results" folder
-                            file_name = "ticker_cluster_probability_data.csv"
-                            file_path = os.path.join("results", file_name)
-                            ticker_cluster_prob.to_csv(file_path)
-                            st.success("Data saved to " + file_path)
-
-                        except Exception as e:
-                            st.error("An error occurred while saving the data. Error: " + str(e))
-                                                                       
-
+                        # st.write(ticker_df)
+                        st.text("K-means re-analysis complete ✅")
                     
-                    # Display the tickers in each cluster
-                    
-                    # Show in a table
 
-                    # Ability to Save cluster tickers
-                    
-                    
+                    # Apply Monte Carlo simulation with optimal number of clusters
+                    if st.button('Run MC simulation for cluster optimization'):
+
+                        # Create a slider to select the number of simulations
+                        n_simulations = st.slider("Select the number of simulations:", 100, 1000, 500)
+                        
+                        for n_clusters in optimal_clusters:
+                                # Define the optimal number of clusters using the elbow method
+                                optimal_clusters = optimal_clusters(df_pca, max_clusters=10)
+                                simulation_results = []
+                                kmeans = KMeans(n_clusters=n_clusters)
+                                kmeans.fit(df_pca)
+                                for i in range(n_simulations):
+                                    # Apply random normal perturbation to the PCA transformed data
+                                    df_pca_perturbed = df_pca + np.random.normal(0, 0.1, df_pca.shape)
+                                    kmeans_perturbed = KMeans(n_clusters=n_clusters)
+                                    kmeans_perturbed.fit(df_pca_perturbed)
+                                    # Append the perturbed cluster labels to the simulation results
+                                    simulation_results.append(kmeans_perturbed.labels_)
+
+                                    # Compute the probability of each ticker belonging to each cluster
+                                    ticker_cluster_prob = np.mean(np.array(simulation_results), axis=0)
+                                    ticker_cluster_prob = pd.DataFrame(ticker_cluster_prob, columns=['cluster_' + str(i) for i in range(n_clusters)], index=df_resampled.index)
+
+                                # Display the tickers in each cluster
+                                for i in range(n_clusters):
+                                    st.write(f"<b>Tickers in cluster {i}</b>", unsafe_allow_html=True)
+                                    st.write(ticker_cluster_prob[ticker_cluster_prob['cluster_' + str(i)] > 0.5].index)
+                                    st.write(ticker_cluster_prob)
+                                    st.text(f"Monte Carlo simulation with {n_clusters} clusters complete ✅")
+
+
+
+                            
+                # Empty 2nd column    
                 with col2:
                     st.empty()
 
