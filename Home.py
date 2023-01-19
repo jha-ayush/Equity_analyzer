@@ -14,7 +14,6 @@ import numpy as np
 import requests
 # import cufflinks for bollinger bands
 import cufflinks as cf
-from arch import arch_model
 from datetime import timedelta
 
 import pandas_datareader as pdr
@@ -33,6 +32,18 @@ from sklearn.metrics import davies_bouldin_score
 from sklearn.metrics import adjusted_rand_score
 from sklearn.metrics import adjusted_mutual_info_score
 from sklearn.utils import resample
+
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.datasets import make_regression
+from pandas.tseries.offsets import DateOffset
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.kernel_approximation import RBFSampler
+from sklearn.svm import SVR
+from sklearn import preprocessing
+from sklearn import utils
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import r2_score
 
 from sklearn import datasets
 from sklearn.neighbors import KNeighborsClassifier
@@ -1012,13 +1023,15 @@ with tab2:
 
 # Tab 3 - Supervised Learning
 with tab3:
-    stock_df=pd.DataFrame(data).set_index('Date')
+    stock_df=pd.DataFrame(data)
     #st.write(stock_df)   
     weekly_data=stock_df.resample('W').last()
-    st.write(weekly_data)
+    # st.write(f"Show weekly data")
+    # st.write(weekly_data)
     signals_df = weekly_data.loc[:, ["Open","High","Low","Volume","Close","Adj Close"]]
     signals_df["Actual Returns"] = signals_df["Close"].pct_change()
     signals_df = signals_df.dropna()
+    st.write(f"Show Actual returns of the signal data")
     st.write(signals_df)
 
     X = signals_df[["Open","High","Low","Volume","Adj Close"]]
@@ -1096,6 +1109,6 @@ with tab3:
 
 # Tab 4 - Recommendations
 with tab4:
-    st.selectbox("HELLOOOOO")
+    st.write("HELLOOOOO")
         
         
