@@ -1037,6 +1037,8 @@ with tab2:
                         # Create a slider to select the number of simulations
                         n_simulations = st.slider("Select the number of simulations:", 100, 1000, 500)
                         
+                        st.warning("Hello, we're still working on this feature.")
+                        
                         for n_clusters in optimal_clusters:
                                 # Define the optimal number of clusters using the elbow method
                                 optimal_clusters = optimal_clusters(df_pca, max_clusters=10)
@@ -1061,10 +1063,11 @@ with tab2:
                                     st.write(ticker_cluster_prob[ticker_cluster_prob['cluster_' + str(i)] > 0.5].index)
                                     st.write(ticker_cluster_prob)
                                     st.text(f"Monte Carlo simulation with {n_clusters} clusters complete ✅")
-
-
-
-                            
+                                    
+                    # Add Save file button
+                    if st.button('Save file'):
+                        st.warning("Hello, we're still working on this feature.")
+                                                 
                 # Empty 2nd column    
                 with col2:
                     st.empty()
