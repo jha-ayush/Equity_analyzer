@@ -975,7 +975,7 @@ with tab2:
                     # Apply K-means to the data
                     if st.button('Run K-means'):
                         # Create a slider to select the number of clusters
-                        n_clusters = st.slider("Select number of clusters:", 2, 10, 3)
+                        n_clusters = st.slider("Select number of clusters:", 2, 10, 5)
 
                         # Apply K-means
                         kmeans = KMeans(n_clusters=n_clusters)
@@ -1040,27 +1040,32 @@ with tab2:
                         st.warning("Hello, we're still working on this feature.")
                         
                         for n_clusters in range(2, 11):
-                            # Define the optimal number of clusters using the elbow method
-                            kmeans = KMeans(n_clusters=n_clusters)
-                            kmeans.fit(df_pca)
-                            simulation_results = []
-                            for i in range(n_simulations):
-                                # Apply random normal perturbation to the PCA transformed data
-                                df_pca_perturbed = df_pca + np.random.normal(0, 0.1, df_pca.shape)
-                                kmeans_perturbed = KMeans(n_clusters=n_clusters)
-                                kmeans_perturbed.fit(df_pca_perturbed)
-                                # Append the perturbed cluster labels to the simulation results
-                                simulation_results.append(kmeans_perturbed.labels_)
-                            # Compute the probability of each ticker belonging to each cluster
-                            ticker_cluster_prob = np.mean(np.array(simulation_results), axis=0)
-                            ticker_cluster_prob = pd.DataFrame(ticker_cluster_prob, columns=['cluster_' + str(i) for i in range(n_clusters)], index=df_resampled.index)
-                            # Display the tickers in each cluster
-                            for i in range(n_clusters):
-                                st.write(f"<b>Tickers in cluster {i}</b>", unsafe_allow_html=True)
-                                st.write(ticker_cluster_prob[ticker_cluster_prob['cluster_' + str(i)] > 0.5].index)
-                                st.write(ticker_cluster_prob)
-                                st.text(f"Monte Carlo simulation with {n_clusters} clusters complete ✅")
-                                
+                                # Define the optimal number of clusters using the elbow method
+                                kmeans = KMeans(n_clusters=n_clusters)
+                                kmeans.fit(df_pca)
+                                simulation_results = []
+
+                                # Run the Monte Carlo simulation
+                                for i in range(n_simulations):
+                                    # Apply random normal perturbation to the PCA transformed data
+                                    df_pca_perturbed = df_pca + np.random.normal(0, 0.1, df_pca.shape)
+                                    kmeans_perturbed = KMeans(n_clusters=n_clusters)
+                                    kmeans_perturbed.fit(df_pca_perturbed)
+                                    # Append the perturbed cluster labels to the simulation results
+                                    simulation_results.append(kmeans_perturbed.labels_)
+
+                                # Compute the probability of each ticker belonging to each cluster
+                                ticker_cluster_prob = np.mean(np.array(simulation_results), axis=0)
+                                ticker_cluster_prob = pd.DataFrame(ticker_cluster_prob, columns=['cluster_' + str(i) for i in range(n_clusters)], index=df_resampled.index)
+
+                                # Display the tickers in each cluster
+                                for i in range(n_clusters):
+                                    st.write(f"<b>Tickers in cluster {i}</b>", unsafe_allow_html=True)
+                                    st.write(ticker_cluster_prob[ticker_cluster_prob['cluster_' + str(i)] > 0.5].index)
+                                    st.write(ticker_cluster_prob)
+                                    st.text(f"Monte Carlo simulation with {n_clusters} clusters complete ✅")
+
+            
                     # Save the ticker-cluster probability data to a CSV file
                     if st.button('Save ticker-cluster probability data'):
                         try:
