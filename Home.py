@@ -903,7 +903,7 @@ with tab2:
                 col1, col2 = st.columns([4, 1])
                 with col1:
                     # Create a dataframe for symbols only
-                    st.write("Ticker symbol dataframe")
+                    st.write(f"<b>Ticker symbols dataframe</b>",unsafe_allow_html=True)
                     symbols_df=tickers[['ticker']]
                     st.write(symbols_df)
                     
@@ -1064,50 +1064,46 @@ with tab2:
                     st.text("K-means re-analysis complete ✅")
                     
                     
-                    # Apply Monte Carlo simulation with optimal number of clusters
-                    if st.button('Run MC simulation for cluster optimization'):
-                        # Create a slider to select the number of simulations
-                        n_simulations = st.slider("Select the number of simulations:", 100, 1000, 500)
-                        
-                        for n_clusters in optimal_clusters:
-                            simulation_results = []
-                            kmeans = KMeans(n_clusters=n_clusters)
-                            kmeans.fit(df_pca)
-                            for i in range(n_simulations):
-                                # Apply random normal perturbation to the PCA transformed data
-                                df_pca_perturbed = df_pca + np.random.normal(0, 0.1, df_pca.shape)
-                                kmeans_perturbed = KMeans(n_clusters=n_clusters)
-                                kmeans_perturbed.fit(df_pca_perturbed)
-                                # Append the perturbed cluster labels to the simulation results
-                                simulation_results.append(kmeans_perturbed.labels_)
+                # Apply Monte Carlo simulation with optimal number of clusters
+                if st.button('Run MC simulation for cluster optimization'):
+                    # Create a slider to select the number of simulations
+                    n_simulations = st.slider("Select the number of simulations:", 100, 1000, 500)
 
-                            # Compute the probability of each ticker belonging to each cluster
-                            ticker_cluster_prob = np.mean(np.array(simulation_results), axis=0)
-                            ticker_cluster_prob = pd.DataFrame(ticker_cluster_prob, columns=['cluster_' + str(i) for i in range(n_clusters)], index=df_resampled.index)
+                    for n_clusters in optimal_clusters:
+                        simulation_results = []
+                        kmeans = KMeans(n_clusters=n_clusters)
+                        kmeans.fit(df_pca)
+                        for i in range(n_simulations):
+                            # Apply random normal perturbation to the PCA transformed data
+                            df_pca_perturbed = df_pca + np.random.normal(0, 0.1, df_pca.shape)
+                            kmeans_perturbed = KMeans(n_clusters=n_clusters)
+                            kmeans_perturbed.fit(df_pca_perturbed)
+                            # Append the perturbed cluster labels to the simulation results
+                            simulation_results.append(kmeans_perturbed.labels_)
 
-                            # Display the tickers in each cluster
-                            for i in range(n_clusters):
-                                st.write(f"<b>Tickers in cluster {i}</b>", unsafe_allow_html=True)
-                                st.write(ticker_cluster_prob[ticker_cluster_prob['cluster_' + str(i)] > 0.5].index)
-                                st.write(ticker_cluster_prob)
-                                st.text(f"Monte Carlo simulation with {n_clusters} clusters complete ✅")
+                        # Compute the probability of each ticker belonging to each cluster
+                        ticker_cluster_prob = np.mean(np.array(simulation_results), axis=0)
+                        ticker_cluster_prob = pd.DataFrame(ticker_cluster_prob, columns=['cluster_' + str(i) for i in range(n_clusters)], index=df_resampled.index)
+
+                        # Display the tickers in each cluster
+                        for i in range(n_clusters):
+                            st.write(f"<b>Tickers in cluster {i}</b>", unsafe_allow_html=True)
+                            st.write(ticker_cluster_prob[ticker_cluster_prob['cluster_' + str(i)] > 0.5].index)
+                            st.write(ticker_cluster_prob)
+                            st.text(f"Monte Carlo simulation with {n_clusters} clusters complete ✅")
                     
-                    # Visualize the ticker-cluster probability data as a heatmap
-                    if st.button('Visualize ticker-cluster probability data'):
-                        plt.figure(figsize=(10, 8))
-                        sns.heatmap(ticker_cluster_prob, cmap='YlGnBu')
-                        plt.xlabel("Clusters")
-                        plt.ylabel("Tickers")
-                        plt.title("Probability of each ticker belonging to each cluster")
-                        st.pyplot()
+                # Visualize the ticker-cluster probability data as a heatmap
+                if st.button('Visualize ticker-cluster probability data'):
+                    plt.figure(figsize=(10, 8))
+                    sns.heatmap(ticker_cluster_prob, cmap='YlGnBu')
+                    plt.xlabel("Clusters")
+                    plt.ylabel("Tickers")
+                    plt.title("Probability of each ticker belonging to each cluster")
+                    st.pyplot()
                         
-                        
-                    # Save the ticker-cluster probability data to a CSV file
-                    # Check if the "results" folder exists, if not create it
-                    if not os.path.exists("results"):
-                        os.mkdir("results")
 
                 # Save the results to a file or a database
+                # Check if the "results" folder exists, if not create it
                 if st.button("Save Results"):
                     # Check if the "results" folder exists, if not create it
                     if not os.path.exists("results"):
