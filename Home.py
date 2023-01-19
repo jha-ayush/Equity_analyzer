@@ -1150,19 +1150,22 @@ with tab3:
             st.write(SVM(X,y))
         else:    
             st.write(f'Model is not valid')     
-    st.write(f'Mean of Random Forest model',rf_mean)
-    st.write(f'Mean of KNN model',knn_mean)
-    st.write(f'Mean of SVM model',svm_mean)
-    st.write(f'Model with minimum error is',best_accuracy_model(rf_mean, knn_mean, svm_mean))        
-    st.write(f'R2 of Random Forest model',rf_r2)
-    st.write(f'R2 of KNN Forest model',knn_r2)
-    st.write(f'R2 of SVM model',svm_r2)
-    st.write(f'Model with maximum r2 value is',max(rf_r2, knn_r2, svm_r2))
+            st.write(f'Mean of Random Forest model',rf_mean)
+            st.write(f'Mean of KNN model',knn_mean)
+            st.write(f'Mean of SVM model',svm_mean)
+            st.write(f'Model with minimum error is',best_accuracy_model(rf_mean, knn_mean, svm_mean))        
+            st.write(f'R2 of Random Forest model',rf_r2)
+            st.write(f'R2 of KNN Forest model',knn_r2)
+            st.write(f'R2 of SVM model',svm_r2)
+            st.write(f'Model with maximum r2 value is',max(rf_r2, knn_r2, svm_r2))
 
 #-------------------------------------------------------------------#
 
 # Tab 4 - Recommendations
 with tab4:
-    st.write("HELLOOOOO")
+    st.subheader("Business")
+    st.warning("Fix")
+    st.subheader("Technical")
+    st.warning("Fix")
         
         
