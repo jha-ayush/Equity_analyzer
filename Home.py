@@ -907,7 +907,7 @@ with tab2:
                     # fetch the historical prices data for the symbols
                     symbols_data = yf.download(ticker, start=start_date, end=end_date)
                     # Drop 'Volume' column
-                    symbols_data.drop(columns=['Volume'], inplace=True)
+                    # symbols_data.drop(columns=['Volume'], inplace=True)
 
                     # fetch the Treasury bill rate data
                     treasury_bill = pdr.get_data_fred('TB3MS')
@@ -930,7 +930,7 @@ with tab2:
                     st.write(df_resampled)
                     st.text(f"Monthly data Resampled ✅")
                     
-                    # Use metrics like Sharpe ratio/Sortino to filter out tickers from specific value
+                    # Use metrics like Sharpe ratio to filter out tickers from specific value
                     # Sharpe Ratio
                     st.write(f"Sharpe ratio value is: <b>{calculate_sharpe_ratio(ticker, start_date, end_date, risk_free_rate=0.03)}</b>",unsafe_allow_html=True)
                     
@@ -951,7 +951,7 @@ with tab2:
                     # Apply K-means to the data
                     if st.button('Run K-means'):
                         # Create a slider to select the number of clusters
-                        n_clusters = st.slider("Select the number of clusters:", 2, 10, 3)
+                        n_clusters = st.slider("Select the number of clusters:", 2, 10, 4)
 
                         # Apply K-means
                         kmeans = KMeans(n_clusters=n_clusters)
@@ -966,20 +966,7 @@ with tab2:
                         plt.ylabel(f"Principal Component 2 (Explained Variance: {explained_variance[1]:.2%})")  # y-label with explained variance
                         st.pyplot()
 
-                        # Elbow Method to determine the optimal number of clusters
-                        wcss = []
-                        for i in range(1, 11):
-                            kmeans = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=0)
-                            kmeans.fit(df_pca)
-                            wcss.append(kmeans.inertia_)
-                        plt.plot(range(1, 11), wcss)
-                        plt.title('Elbow Method')
-                        plt.xlabel('Number of clusters')
-                        if 'WCSS' in plt.ylabel: # Check if y-label contains 'WCSS'
-                            plt.ylabel('WCSS (%)')
-                        else:
-                            plt.ylabel('WCSS')
-                        st.pyplot()
+                        
 
                         st.subheader("Description:")
                         st.write("The scatter plot above shows the clusters obtained using K-means clustering with the number of clusters selected by the user. Each point represents a stock and is colored according to the cluster it belongs to. The x-axis represents the first principal component and the y-axis represents the second principal component.")
