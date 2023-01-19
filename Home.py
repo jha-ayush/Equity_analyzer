@@ -8,7 +8,7 @@ import yfinance as yf
 from prophet import Prophet
 from prophet.plot import plot_plotly
 #import plotly for interactive graphs
-from plotly import graph_objs as go
+import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
 import requests
@@ -902,67 +902,80 @@ with tab2:
                 # 2 columns section:
                 col1, col2 = st.columns([4, 1])
                 with col1:
-                    st.markdown(f"Let's clusters the tickers so we can better understand how to improve pricing predictions",unsafe_allow_html=True)
-                    
                     # Create a dataframe for symbols only
                     st.write("Ticker symbol dataframe")
                     symbols_df=tickers[['ticker']]
                     st.write(symbols_df)
                     
+                    st.write(f"Let us view some datapoints and visualizations.",unsafe_allow_html=True)
+                    
                     # Use ticker_df as the original dataframe
-                    st.write("Original dataframe")
+                    st.write(f"<b>Original dataframe</b>",unsafe_allow_html=True)
                     st.write(ticker_data)
                     st.write(ticker_df)
                     st.text(f"Original data loaded ✅")
                     
                     # fetch the historical prices data for the symbols
                     symbols_data = yf.download(ticker, start=start_date, end=end_date)
-                    # Drop 'Volume' column
-                    # symbols_data.drop(columns=['Volume'], inplace=True)
 
-                    # fetch the Treasury bill rate data
+                    # fetch the Treasury bill rate data to calcuate rate_return
                     treasury_bill = pdr.get_data_fred('TB3MS')
 
                     # Use the assign function to add new columns and calculate their values
                     symbols_data = symbols_data.assign(mean=symbols_data['Adj Close'].mean(), std_dev=symbols_data['Adj Close'].std(), sharpe_ratio=(symbols_data['Close'].mean() - treasury_bill['TB3MS'].mean())/data['Adj Close'].std())
-                    st.write("Tickers with metrics info")
+                    st.write(f"<b>Ticker info with metrics</b>",unsafe_allow_html=True)
                     st.write(symbols_data)
 
                     
                     # Cleanup ticker_df data - 'Dividends' & 'Stock Splits'. Store in a new dataframe called `df`
                     ticker_df.drop(columns=['Dividends', 'Stock Splits', 'Volume'], inplace=True)
-                    st.write("Cleaned dataframe")
+                    st.write(f"<b>Cleaned dataframe</b>",unsafe_allow_html=True)
                     st.write(ticker_df)
                     st.text(f"Data Cleanup complete ✅")
                     
                     # Resample ticker data 'Daily' data - Drop Nan values
                     df_resampled = ticker_df.resample('M').mean().dropna()
-                    st.write("Monthly resampled dataframe")
+                    st.write(f"<b>Monthly resampled dataframe</b>",unsafe_allow_html=True)
                     st.write(df_resampled)
                     st.text(f"Monthly data Resampled ✅")
                     
-                    # Use metrics like Sharpe ratio to filter out tickers from specific value
-                    # Sharpe Ratio
+                    # Use metrics like Sharpe ratio to filter out tickers from specific value range
                     st.write(f"Sharpe ratio value is: <b>{calculate_sharpe_ratio(ticker, start_date, end_date, risk_free_rate=0.03)}</b>",unsafe_allow_html=True)
                     
                     # Scale Resampled data
                     scaler = StandardScaler()
                     df_scaled = scaler.fit_transform(df_resampled)
-                    st.write("Scaled dataframe")
+                    st.write(f"<b>Scaled dataframe</b>",unsafe_allow_html=True)
                     st.write(df_scaled)
                     st.text(f"Data Scaled ✅")
                     
                     # Apply PCA analysis
                     pca = PCA(n_components=2)
                     df_pca = pca.fit_transform(df_scaled)
-                    st.write("PCA dataframe")
+                    st.write(f"<b>PCA dataframe</b>",unsafe_allow_html=True)
                     st.write(df_pca)
                     st.text(f"Applied PCA analysis ✅")
+                    
+                    
+                    st.write("---")
+                    st.write(f"View the 'shape' in tuple (row,column) format for each dataset as it goes through data trasformation.",unsafe_allow_html=True)
+                    # Check the shape of the tickers dataframe from the csv
+                    st.write(f"Original <b>tickers</b> dataset data shape: <b>{tickers.shape}</b>",unsafe_allow_html=True)
+                    # Check the shape of the original dataframe from yfinance
+                    st.write(f"Original <b>ticker_df</b> dataset data shape: <b>{ticker_df.shape}</b>",unsafe_allow_html=True)
+                    # Check the shape of the resampled dataframe on ticker_df
+                    st.write(f"Resampled <b>df_resampled</b> dataset data shape: <b>{df_resampled.shape}</b>",unsafe_allow_html=True)
+                    # Check the shape of the resampled dataframe
+                    st.write(f"Scaled <b>df_scaled</b> dataset data shape: <b>{df_scaled.shape}</b>",unsafe_allow_html=True)
+                    # Check the shape of the PCA dataframe
+                    st.write(f"PCA <b>df_pca</b> dataset data shape: <b>{df_pca.shape}</b>",unsafe_allow_html=True)
+                    st.write("---")
+                    
                     
                     # Apply K-means to the data
                     if st.button('Run K-means'):
                         # Create a slider to select the number of clusters
-                        n_clusters = st.slider("Select the number of clusters:", 2, 10, 4)
+                        n_clusters = st.slider("Select number of clusters:", 2, 10, 3)
 
                         # Apply K-means
                         kmeans = KMeans(n_clusters=n_clusters)
@@ -971,34 +984,130 @@ with tab2:
                         # Get explained variance for PC1 and PC2
                         explained_variance = pca.explained_variance_ratio_
 
-                        # Visualize the clusters
+                        # Create an interactive visualization for the clusters
                         plt.scatter(df_pca[:, 0], df_pca[:, 1], c=kmeans.labels_, cmap='rainbow')
+                        plt.title("K-Means scatter plot")
                         plt.xlabel(f"Principal Component 1 (Explained Variance: {explained_variance[0]:.2%})")  # x-label with explained variance
                         plt.ylabel(f"Principal Component 2 (Explained Variance: {explained_variance[1]:.2%})")  # y-label with explained variance
                         st.pyplot()
 
-                        
-
-                        st.subheader("Description:")
-                        st.write("The scatter plot above shows the clusters obtained using K-means clustering with the number of clusters selected by the user. Each point represents a stock and is colored according to the cluster it belongs to. The x-axis represents the first principal component and the y-axis represents the second principal component.")
+                        # Add Description
+                        st.write(f"<b>Description of the scatter plot</b>",unsafe_allow_html=True)
+                        st.write("The K-means scatter plot above shows the clusters obtained using K-means clustering with the number of clusters selected by the user. Each point represents a stock and is colored according to the cluster it belongs to. The x-axis represents the first principal component and the y-axis represents the second principal component.")
                         if hasattr(pca, 'explained_variance_ratio_'):
                             st.write("The x-label and y-label shows the percent of variance explained by each principal component.")
                         else:
                             st.write("The x-label and y-label shows the first and second principal component respectively.")
                     
+
+                        # Get the cluster labels
+                        # labels = kmeans.labels_ 
+                        # st.write(labels)
+                        
+                        # Add the cluster labels as a new column in the original dataframe
+                        # tickers['cluster'] = labels
+                        # st.write(tickers)
+
+                        # Heatmaps - use the indices of the PCA dataset to extract the corresponding rows of the original tickers dataset, and then use it to create the heatmap
+                        # Create a new dataframe that contains the cluster labels and the PCA dataset
+                        # df_pca_labels = pd.DataFrame(df_pca, columns=['PC1', 'PC2'])
+                        # df_pca_labels['cluster'] = labels
+
+                        # Create a heatmap
+                        # fig = go.Figure(data=[go.Heatmap(z=df_pca_labels['cluster'], x=df_pca_labels['PC1'], y=df_pca_labels['PC2'], colorscale='Viridis')])
+                        
+                        # Add Description
+                        # st.write(f"<b>Description of the heatmap plot</b>",unsafe_allow_html=True)
+                        # st.write("The K-means heatmap shows the distribution of the clusters in the 2D space defined by the first two principal components (PC1 and PC2). The color of each point represents the cluster label assigned by the K-means algorithm, where darker colors represent higher densities of data points within a cluster.")
+
                     
-                    # Plot Elbow method for optimum clusters
-                    if st.button('Determine Optimal Clusters using Elbow method'):
+                    # Find optimal number of clusters using the elbow method
+                    # if st.button('Find optimal number of clusters'):
+                    #     wcss = []
+                    #     for i in range(2, 11):
+                    #         kmeans = KMeans(n_clusters=i)
+                    #         kmeans.fit(df_pca)
+                    #         wcss.append(kmeans.inertia_)
+                        # plt.plot(range(2, 11), wcss)
+                        # plt.title('Elbow Method')
+                        # plt.xlabel('Number of clusters')
+                        # plt.ylabel('WCSS')
+                        
+                    # Plot Elbow method for cluster count optimization
+                    if st.button('Determine optimum cluster count using the Elbow method'):
                         model = KMeans()
                         visualizer = KElbowVisualizer(model, k=(2,10))
                         visualizer.fit(df_pca)
                         visualizer.show()
                         st.pyplot()
                     
-                    # Reconfigure K-means with the Elbow number
-                    
-                    # Apply Silhouette, etc metrics to the clusters
+                        optimal_clusters = st.slider("Select the optimal number of clusters:", 2, 10, 4)
+                        st.write(f"Optimum number of clusters: <b>{optimal_clusters}</b>",unsafe_allow_html=True)
 
+                # Apply K-means to the data with optimal number of clusters
+                if st.button('Re-run K-means with optimal number of clusters'):
+                    kmeans = KMeans(n_clusters=optimal_clusters)
+                    kmeans.fit(df_pca)
+
+                    # Get explained variance for PC1 and PC2
+                    explained_variance = pca.explained_variance_ratio_
+
+                    # Visualize the clusters
+                    plt.scatter(df_pca[:, 0], df_pca[:, 1], c=kmeans.labels_,cmap='rainbow')
+                    plt.xlabel('PC1')
+                    plt.ylabel('PC2')
+                    plt.title(f'Explained variance (PC1, PC2): {explained_variance[0]:.2f}, {explained_variance[1]:.2f}')
+                    st.pyplot()
+
+                    # Add cluster labels to the original dataframe
+                    ticker_df['cluster'] = kmeans.labels_
+                    st.write(ticker_df)
+                    st.text("K-means re-analysis complete ✅")
+                    
+                    # Apply Monte Carlo simulation with optimal number of clusters
+                    if st.button('Run MC simulation for cluster optimization'):
+                        # Create a slider to select the number of simulations
+                        n_simulations = st.slider("Select the number of simulations:", 100, 1000, 500)
+                        
+                        for n_clusters in optimal_clusters:
+                            simulation_results = []
+                            kmeans = KMeans(n_clusters=n_clusters)
+                            kmeans.fit(df_pca)
+                            for i in range(n_simulations):
+                                # Apply random normal perturbation to the PCA transformed data
+                                df_pca_perturbed = df_pca + np.random.normal(0, 0.1, df_pca.shape)
+                                kmeans_perturbed = KMeans(n_clusters=n_clusters)
+                                kmeans_perturbed.fit(df_pca_perturbed)
+                                # Append the perturbed cluster labels to the simulation results
+                                simulation_results.append(kmeans_perturbed.labels_)
+
+                            # Compute the probability of each ticker belonging to each cluster
+                            ticker_cluster_prob = np.mean(np.array(simulation_results), axis=0)
+                            ticker_cluster_prob = pd.DataFrame(ticker_cluster_prob, columns=['cluster_' + str(i) for i in range(n_clusters)], index=df_resampled.index)
+
+                            # Display the tickers in each cluster
+                            for i in range(n_clusters):
+                                st.write(f"<b>Tickers in cluster {i}</b>", unsafe_allow_html=True)
+                                st.write(ticker_cluster_prob[ticker_cluster_prob['cluster_' + str(i)] > 0.5].index)
+                                st.write(ticker_cluster_prob)
+                                st.text(f"Monte Carlo simulation with {n_clusters} clusters complete ✅")
+                    
+                    # Visualize the ticker-cluster probability data as a heatmap
+                    if st.button('Visualize ticker-cluster probability data'):
+                        plt.figure(figsize=(10, 8))
+                        sns.heatmap(ticker_cluster_prob, cmap='YlGnBu')
+                        plt.xlabel("Clusters")
+                        plt.ylabel("Tickers")
+                        plt.title("Probability of each ticker belonging to each cluster")
+                        st.pyplot()
+                        
+                        
+                    # Save the ticker-cluster probability data to a CSV file
+                    if st.button('Save ticker-cluster probability data to CSV'):
+                        file_name = "ticker_cluster_probability.csv"
+                        ticker_cluster_prob.to_csv(file_name)
+                        st.write(f"Ticker-cluster probability data saved to {file_name}")
+                    
                     # Display the tickers in each cluster
                     
                     # Show in a table
