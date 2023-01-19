@@ -1092,32 +1092,32 @@ with tab2:
                             st.write(ticker_cluster_prob)
                             st.text(f"Monte Carlo simulation with {n_clusters} clusters complete ✅")
                     
-                # Visualize the ticker-cluster probability data as a heatmap
-                if st.button('Visualize ticker-cluster probability data'):
-                    plt.figure(figsize=(10, 8))
-                    sns.heatmap(ticker_cluster_prob, cmap='YlGnBu')
-                    plt.xlabel("Clusters")
-                    plt.ylabel("Tickers")
-                    plt.title("Probability of each ticker belonging to each cluster")
-                    st.pyplot()
-                        
+                    # Visualize the ticker-cluster probability data as a heatmap
+                    if st.button('Visualize ticker-cluster probability data'):
+                        plt.figure(figsize=(10, 8))
+                        sns.heatmap(ticker_cluster_prob, cmap='YlGnBu')
+                        plt.xlabel("Clusters")
+                        plt.ylabel("Tickers")
+                        plt.title("Probability of each ticker belonging to each cluster")
+                        st.pyplot()
 
-                # Save the results to a file or a database
-                # Check if the "results" folder exists, if not create it
-                if st.button("Save Results"):
+
+                    # Save the results to a file or a database
                     # Check if the "results" folder exists, if not create it
-                    if not os.path.exists("results"):
-                        os.mkdir("results")
+                    if st.button("Save Results"):
+                        # Check if the "results" folder exists, if not create it
+                        if not os.path.exists("results"):
+                            os.mkdir("results")
 
-                    try:
-                        # Save the ticker-cluster probability data to a CSV file in the "results" folder
-                        file_name = "ticker_cluster_probability_data.csv"
-                        file_path = os.path.join("results", file_name)
-                        ticker_cluster_prob.to_csv(file_path)
-                        st.success("Data saved to " + file_path)
+                        try:
+                            # Save the ticker-cluster probability data to a CSV file in the "results" folder
+                            file_name = "ticker_cluster_probability_data.csv"
+                            file_path = os.path.join("results", file_name)
+                            ticker_cluster_prob.to_csv(file_path)
+                            st.success("Data saved to " + file_path)
 
-                    except Exception as e:
-                        st.error("An error occurred while saving the data. Error: " + str(e))
+                        except Exception as e:
+                            st.error("An error occurred while saving the data. Error: " + str(e))
                                                                        
 
                     
