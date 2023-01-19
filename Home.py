@@ -14,12 +14,19 @@ import numpy as np
 import requests
 # import cufflinks for bollinger bands
 import cufflinks as cf
+from arch import arch_model
+from datetime import timedelta
+
+import pandas_datareader as pdr
 
 from sklearn.decomposition import PCA # PCA for dimensionality reduction
 from sklearn.cluster import KMeans # KMeans for clustering
-from sklearn.cluster import DBSCAN # DBSCAN for clustering
-from sklearn.manifold import TSNE, MDS, Isomap, LocallyLinearEmbedding, SpectralEmbedding # Other dimensionality reduction techniques
+
+from yellowbrick.cluster import KElbowVisualizer
+import seaborn as sns
+
 from sklearn.preprocessing import StandardScaler # Scaling data
+from sklearn.preprocessing import MinMaxScaler # MinMax scaler
 from sklearn.metrics import silhouette_score # To evaluate the clustering
 from sklearn.metrics import calinski_harabasz_score
 from sklearn.metrics import davies_bouldin_score
@@ -145,7 +152,7 @@ data_load_state.text("Data loading complete ✅")
 #------------------------------------------------------#
 # Create Navbar tabs
 st.write("###")
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["Fin ratios", "Unsupervised", "Supervised", "Time Series", "Algo trading"])
+tab1, tab2, tab3, tab4= st.tabs(["Fin ratios", "Unsupervised", "Supervised", "Recommendations"])
 
 with tab1:
     st.subheader(f"Ticker info & financial ratios")
@@ -524,7 +531,7 @@ with tab1:
         return omega_ratio
 
     # Sharpe Ratio
-    def calculate_sharpe_ratio(ticker, start_date, end_date, risk_free_rate=0):
+    def calculate_sharpe_ratio(ticker, start_date, end_date, risk_free_rate=0.03):
         """
         Calculate the Sharpe ratio for a given stock ticker.
 
@@ -612,7 +619,7 @@ with tab1:
 
         return sortino_ratio
 
-    def calculate_treynor_ratio(ticker, start_date, end_date, benchmark_ticker, risk_free_rate=0.3):
+    def calculate_treynor_ratio(ticker, start_date, end_date, benchmark_ticker, risk_free_rate=0.03):
         """
         Calculate the Treynor ratio for a given stock ticker.
         Here we are using ^GSPC as the benchmark ticker.
@@ -882,220 +889,133 @@ with tab2:
                 # 2 columns section:
                 col1, col2 = st.columns([4, 1])
                 with col1:
-                    benchmark_ticker = '^GSPC'
-                    ticker = st.multiselect("Select ticker(s) for clustering", tickers.ticker.tolist(), default = [benchmark_ticker,ticker])
+                    st.markdown(f"Let's clusters all the tickers in a list so we can better understand how to improve pricing predictions",unsafe_allow_html=True)
+                    
+                    # Create a dataframe for symbols only
+                    symbols_df=tickers[['ticker']]
+                    st.write(symbols_df)
+                    
+                    # Use ticker_df as the original dataframe
+                    st.write("Original dataframe")
+                    st.write(ticker_data)
+                    st.write(ticker_df)
+                    st.text(f"Original data loaded ✅")
+                    
+                    # fetch the historical prices data for the symbols
+                    symbols_data = yf.download(ticker, start=start_date, end=end_date)
+                    # Drop 'Volume' column
+                    symbols_data.drop(columns=['Volume'], inplace=True)
 
-                    # Get the data that the user wants to use for clustering
-                    clustering_data = st.multiselect("Select data to use for clustering", ['Open', 'High', 'Low','Close','Adj Close','Volume'], default = ['Adj Close'])
+                    # fetch the Treasury bill rate data
+                    treasury_bill = pdr.get_data_fred('TB3MS')
 
-                    # Dimensionality reduction technique
-                    reduction_method = st.selectbox("Select dimensionality reduction technique", ['PCA','t-SNE','MDS','Isomap','LLE','SE'])
+                    # Use the assign function to add new columns and calculate their values
+                    symbols_data = symbols_data.assign(mean=symbols_data['Adj Close'].mean(), std_dev=symbols_data['Adj Close'].std(), sharpe_ratio=(symbols_data['Close'].mean() - treasury_bill['TB3MS'].mean())/data['Adj Close'].std())
+                    st.write("Tickers with metrics info")
+                    st.write(symbols_data)
+
+                    
+                    # Cleanup ticker_df data - 'Dividends' & 'Stock Splits'. Store in a new dataframe called `df`
+                    ticker_df.drop(columns=['Dividends', 'Stock Splits', 'Volume'], inplace=True)
+                    st.write("Cleaned dataframe")
+                    st.write(ticker_df)
+                    st.text(f"Data Cleanup complete ✅")
+                    
+                    # Resample ticker data 'Daily' data - Drop Nan values
+                    df_resampled = ticker_df.resample('M').mean().dropna()
+                    st.write("Monthly resampled dataframe")
+                    st.write(df_resampled)
+                    st.text(f"Monthly data Resampled ✅")
+                    
+                    # Use metrics like Sharpe ratio/Sortino to filter out tickers from specific value
+                    # Sharpe Ratio
+                    st.write(f"Sharpe ratio value is: <b>{calculate_sharpe_ratio(ticker, start_date, end_date, risk_free_rate=0.03)}</b>",unsafe_allow_html=True)
+                    
+
+
+                    
+                    
+                    # Scale Resampled data
+                    scaler = StandardScaler()
+                    df_scaled = scaler.fit_transform(df_resampled)
+                    st.write("Scaled dataframe")
+                    st.write(df_scaled)
+                    st.text(f"Data Scaled ✅")
+                    
+                    # Apply PCA analysis
+                    pca = PCA(n_components=2)
+                    df_pca = pca.fit_transform(df_scaled)
+                    st.write("PCA dataframe")
+                    st.write(df_pca)
+                    st.text(f"Applied PCA analysis ✅")
+                    
+                    # Apply K-means to the data
+                    if st.button('Run K-means'):
+                        k = st.slider('Select the number of clusters', 2, 10)
+                        kmeans = KMeans(n_clusters=k)
+                        kmeans.fit(df_pca)
+                        st.write(f'You have selected <b>{k}</b> number of clusters',unsafe_allow_html=True)
+                        # st.write('Cluster labels:', kmeans.labels_)
+
+                        # Add the cluster labels to the dataframe
+                        df_resampled['cluster_label'] = kmeans.labels_
+
+                        # Group the data by cluster label
+                        clusters = df_resampled.groupby('cluster_label')
+
+                        # Display the number of tickers in each cluster
+                        st.write("Number of tickers in each cluster:")
+                        st.write(clusters['ticker'].size())
+
+                        # Visualize the clusters
+                        plt.scatter(df_pca[:, 0], df_pca[:, 1], c=kmeans.labels_)
+                        if hasattr(pca, 'explained_variance_ratio_'):
+                            plt.xlabel(f'PCA 1 - {pca.explained_variance_ratio_[0]:.2%} Variance Explained')
+                            plt.ylabel(f'PCA 2 - {pca.explained_variance_ratio_[1]:.2%} Variance Explained')
+                        else:
+                            plt.xlabel('PCA 1')
+                            plt.ylabel('PCA 2')
+                        plt.title(f'K-means Clustering with {k} Clusters')
+                        st.pyplot()
+
+                        st.subheader("Description:")
+                        st.write("The scatter plot above shows the clusters obtained using K-means clustering with the number of clusters selected by the user. Each point represents a stock and is colored according to the cluster it belongs to. The x-axis represents the first principal component and the y-axis represents the second principal component.")
+                        if hasattr(pca, 'explained_variance_ratio_'):
+                            st.write("The x-label and y-label shows the percent of variance explained by each principal component.")
+                        else:
+                            st.write("The x-label and y-label shows the first and second principal component respectively.")
+                    
+                    
+                    # Plot Elbow method for optimum clusters
+                    if st.button('Determine Optimal Clusters using Elbow method'):
+                        model = KMeans()
+                        visualizer = KElbowVisualizer(model, k=(2,10))
+                        visualizer.fit(df_pca)
+                        visualizer.show()
+                        st.pyplot()
+                    
+                    # Reconfigure K-means with the Elbow number
+                    
+                    # Apply Silhouette, etc metrics to the clusters
+
+                    # Display the tickers in each cluster
+                    
+                    # Show in a table
+
+                    # Ability to Save cluster tickers
+                    
+                    
                 with col2:
                     st.empty()
 
-    # Get the data and scale it
-    if ticker and start_date and end_date:
-        with st.container():
-                # 2 columns section:
-                col1, col2 = st.columns([4, 1])
-                with col1:
-                    if len(ticker) < 2:
-                        st.error("Please select at least 2 tickers for analysis.")
-                    else:
-                        show_plot_check_box=st.checkbox(label=f"Display clustering plot for {ticker}")
-                        if show_plot_check_box:
-
-                            # Download the data
-                            data = yf.download(ticker, start=start_date,end=end_date)
-                            # Drop any missing values
-                            data.dropna(inplace=True)
-                            st.text(f"Data Loaded for {ticker} ✅")
-
-                            # Selecting columns to be used for clustering
-                            data = data[clustering_data]
-
-
-                            # Resample the data
-                            data_resampled = resample(data, n_samples=len(data), random_state=1)
-
-                            # Scale the data
-                            scaler = StandardScaler()
-                            data_scaled = scaler.fit_transform(data_resampled)
-                            st.text("Data Scaled ✅")
-
-
-                            # Monte Carlo simulation
-                            num_simulations = 10 # Default number of MC simulations
-
-                            for i in range(num_simulations):
-                                # Dimensionality reduction
-                                if reduction_method == 'PCA':
-                                    pca = PCA(n_components=2)
-                                    data = pca.fit_transform(data_scaled)
-                                    # Get explained variance ratio
-                                    explained_variance_ratio = pca.explained_variance_ratio_
-                                    # Calculate confidence percent
-                                    x_conf = explained_variance_ratio[0]*100
-                                    y_conf = explained_variance_ratio[1]*100
-                                else:
-                                    st.error("Invalid reduction method")
-
-
-                            # add a select box for the user to choose the clustering algorithm
-                            # Choose Clustering Algorithm
-                            clustering_algorithm = st.selectbox("Select Clustering Algorithm", ["K-Means", "DBSCAN"])
-
-                            if clustering_algorithm == "K-Means":
-                                n_clusters = st.number_input("Enter number of clusters (default=3): ", min_value=3)
-
-                                if n_clusters < 2:
-                                    st.error("Please enter a valid number of clusters (minimum 2)")
-                                else:
-                                    kmeans = KMeans(n_clusters=n_clusters, random_state=1).fit(data_scaled)
-                                    st.text("K-means Clustering Completed ✅")
-                                    # print refactored Scaled dataframe
-                                    st.markdown(f"<b>Display Scaled dataframe</b>",unsafe_allow_html=True)
-                                    st.write(data_scaled)
-
-                                    # Elbow Method
-                                    wcss = []
-                                    for i in range(1, 11):
-                                        kmeans = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=1)
-                                        kmeans.fit(data)
-                                        wcss.append(kmeans.inertia_)
-                                    plt.plot(range(1, 11), wcss)
-                                    plt.title('Elbow Method')
-                                    plt.xlabel('Number of clusters')
-                                    plt.ylabel('WCSS')
-                                    st.pyplot()
-                                    st.write(f'The optimal number of clusters is the one that corresponds to the "elbow" point in the plot (default =3).',unsafe_allow_html=True)
-
-                            elif clustering_algorithm == "DBSCAN":
-                                eps = st.number_input("Enter value of epsilon: ", min_value=0.0001)
-                                if eps <= 0:
-                                    st.error("Please enter a valid value of epsilon (greater than 0)")
-                                else:
-                                    min_samples = st.number_input("Enter value of min_samples: ", min_value=1)
-                                    dbscan = DBSCAN(eps=eps, min_samples=min_samples).fit(data_scaled)
-                                    n_clusters = len(set(dbscan.labels_)) - (1 if -1 in dbscan.labels_ else 0)
-
-                                # Get cluster labels for each data point
-                                labels = kmeans.labels_ if clustering_algorithm == "K-Means" else dbscan.labels_
-
-
-
-                                # Plot the data
-                                plt.scatter(data_scaled[:,0], data_scaled[:,1], c=labels, cmap='rainbow')
-                                plt.title(f'{clustering_algorithm} Clustering of {clustering_data} features with {n_clusters} clusters for {ticker}')
-                                plt.legend(title='Clusters')
-                                st.pyplot()
-
-
-
-                            # Dimensionality reduction
-                            if reduction_method == 'PCA':
-                                pca = PCA(n_components=2)
-                                data = pca.fit_transform(data_scaled)
-                                # Get explained variance ratio
-                                explained_variance_ratio = pca.explained_variance_ratio_
-                                # Calculate confidence percent
-                                x_conf = explained_variance_ratio[0]*100
-                                y_conf = explained_variance_ratio[1]*100
-                            elif reduction_method == 't-SNE':
-                                tsne = TSNE(n_components=2)
-                                data = tsne.fit_transform(data_scaled)
-                                x_conf, y_conf = None, None
-                            elif reduction_method == 'MDS':
-                                mds = MDS(n_components=2)
-                                data = mds.fit_transform(data_scaled)
-                                x_conf, y_conf = None, None
-                            elif reduction_method == 'Isomap':
-                                iso = Isomap(n_components=2)
-                                data = iso.fit_transform(data_scaled)
-                                x_conf, y_conf = None, None
-                            elif reduction_method == 'LLE':
-                                lle = LocallyLinearEmbedding(n_components=2)
-                                data = lle.fit_transform(data_scaled)
-                                x_conf, y_conf = None, None
-                            elif reduction_method == 'SE':
-                                se = SpectralEmbedding(n_components=2)
-                                data = se.fit_transform(data_scaled)
-                                x_conf, y_conf = None, None
-                            else:
-                                st.error("Invalid reduction method")
-
-
-                            # Run K-means
-                            kmeans = KMeans(n_clusters=n_clusters, random_state=1).fit(data)
-
-
-
-                            # Get cluster labels for each data point
-                            labels = kmeans.labels_
-
-                            # Plot the data
-                            plt.scatter(data[:,0], data[:,1], c=kmeans.labels_, cmap='rainbow')
-                            plt.title(f'{reduction_method} reduction of {clustering_data} features with {n_clusters} clusters for {ticker}')
-                            plt.xlabel(f'PCA1 of {clustering_data} ({x_conf:.2f}% confidence)' if x_conf is not None else 'First Principal Component')
-                            plt.ylabel(f'PCA2 of {clustering_data} ({y_conf:.2f}% confidence)' if y_conf is not None else 'Second Principal Component')
-                            plt.legend(title='Clusters')
-                            st.pyplot()                        
-
-
-                        #Cluster metrics information
-                        st.write("---")
-                        show_cluster_metrics_check_box = st.checkbox(label=f"Display cluster data metrics")
-                        if show_cluster_metrics_check_box:
-                            clusters = [[] for _ in range(kmeans.n_clusters)]
-                            for i, label in enumerate(labels):
-                                clusters[label].append(data[i])
-
-                            # Use Streamlit to display the clusters
-                            for i, cluster in enumerate(clusters):
-                                if i < (n_clusters):
-                                    st.markdown(f'<b>Cluster {i}</b>', unsafe_allow_html=True)
-                                    # Check for missing values and remove them
-                                    cluster = [c for c in cluster if not np.isnan(c).any()]
-
-                                    # Add a summary of the cluster
-                                    st.write(f"Mean value of cluster {i} is:", (np.mean(cluster)))
-                                    st.write(f"Median value of cluster {i} is:", (np.median(cluster)))
-                                    st.write(f"Variance value of cluster {i} is:", (np.var(cluster)))
-
-
-
-                        # Evaluation metrics
-                        st.write("---")
-                        show_evaluation_metrics_check_box=st.checkbox(label=f"Display evaluation metrics")
-                        if show_evaluation_metrics_check_box:
-
-                            # Evaluation Metrics
-                            st.write("Silhouette score:", silhouette_score(data, labels.ravel()))
-                            st.write("Calinski Harabasz score:", calinski_harabasz_score(data, labels.ravel()))
-                            st.write("Davies Bouldin score:", davies_bouldin_score(data, labels.ravel()))
-
-
-                        #Cluster metrics information
-                        st.write("---")
-                        save_result_check_box=st.checkbox(label=f"Display save options")
-                        if save_result_check_box:
-
-                            # Provide a summary of the results
-                            if st.button('Summary'):
-                                st.write("Add the code to provide a summary of the results.")    
-
-                            # Compare the results of different dimensionality reduction techniques and clustering algorithms
-                            if st.button('Compare Results'):
-                                st.write("Add the code to compare the results of different dimensionality reduction techniques and clustering algorithms.")
-
-                            # Save the results to a file or a database
-                            if st.button("Save Results"):
-                                export_file = st.file_uploader("Choose a CSV file", type=["csv"])
-                                if export_file is not None:
-                                    with open(export_file, "w") as f:
-                                        writer = csv.writer(f)
-                                        writer.writerows(clusters)
-                                    st.balloons("File exported successfully")
+                # Save the results to a file or a database
+                if st.button("Save Results"):
+                    export_file = st.file_uploader("Choose a CSV file", type=["csv"])
+                    if export_file is not None:
+                        with open(export_file, "w") as f:
+                            writer = csv.writer(f)
+                            writer.writerows(clusters)
+                            st.balloons("File exported successfully")
         
                                                                         
 
@@ -1103,104 +1023,90 @@ with tab2:
 
 # Tab 3 - Supervised Learning
 with tab3:
-    # Assign feature set to variable X
-    # X = ticker_df[['Open', 'Close', 'Adj Close']]
+    stock_df=pd.DataFrame(data).set_index('Date')
+    #st.write(stock_df)   
+    weekly_data=stock_df.resample('W').last()
+    st.write(weekly_data)
+    signals_df = weekly_data.loc[:, ["Open","High","Low","Volume","Close","Adj Close"]]
+    signals_df["Actual Returns"] = signals_df["Close"].pct_change()
+    signals_df = signals_df.dropna()
+    st.write(signals_df)
 
-    # Assign target variable to variable y
-    # y = ticker_df['target']
+    X = signals_df[["Open","High","Low","Volume","Adj Close"]]
+    y = signals_df['Close']
+    
+    rf_mean = 0
+    knn_mean = 0
+    svm_mean = 0
+    rf_r2 = 0
+    knn_r2 = 0
+    svm_r2 = 0
 
-    classifier_name=st.selectbox("Select a classifier model from the dropdown menu", ("KNN", "SVM", "Random Forest"))
+    #Random Foresh Regressor
+    def random_forest(X,y):
+        global rf_mean
+        global rf_r2
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+        regressor = RandomForestRegressor()
+        regressor.fit(X_train, y_train)
+        y_pred = regressor.predict(X_test)
+        rf_mean=mean_squared_error(y_test, y_pred)
+        rf_r2=r2_score(y_test, y_pred)
+        return y_pred
 
-    st.text(f"You have selected the following classifier for {ticker}:")
-    st.subheader(f"{classifier_name}")
+    #KNN 
+    def KNN(X,y):
+        global knn_mean
+        global knn_r2
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+        knn = KNeighborsRegressor(n_neighbors=2)
+        knn.fit(X_train, y_train)
+        y_pred = knn.predict(X_test)
+        knn_mean=mean_squared_error(y_test, y_pred)
+        knn_r2=r2_score(y_test, y_pred)
+        return y_pred
 
-    # Get different params for each of the classifiers
-    def add_parameter_ui(clf_name):
-        params=dict()
-        st.text(f"Select parameters from the slider below for {classifier_name}:")
-        if clf_name=="KNN":
-            K=st.slider("K",1,15)
-            params["K"]=K
-        elif clf_name=="SVM":
-            C=st.slider("C",0.01,10.0) 
-            params["C"]=C 
-        else:
-            max_depth=st.slider("max_depth",2,15)
-            n_estimators=st.slider("n_estimators",1,100) 
-            params["max_depth"]=max_depth
-            params["n_estimators"]=n_estimators     
-        return params
+    #SVM
+    def SVM(X,y):    
+        global svm_mean
+        global svm_r2
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+        svr = SVR(kernel='linear', gamma=0.1)
+        svr.fit(X_train, y_train)
+        y_pred = svr.predict(X_test)
+        svm_mean=mean_squared_error(y_test, y_pred)
+        svm_r2=r2_score(y_test, y_pred)
+        return y_pred  
 
-    # call add_parameter_ui function with the classifier name
-    params=add_parameter_ui(classifier_name)
+    def best_accuracy_model(rf_mean, knn_mean, svm_mean):
+        mean = [rf_mean, knn_mean, svm_mean]
+        Best_Model = min(mean)
+        return Best_Model
 
-    # Create a function for each classifier
-    def get_classifier(clf_name,params):
-        if clf_name=="KNN":
-            clf=KNeighborsClassifier(n_neighbors=params["K"])
-        elif clf_name=="SVM":
-            clf=SVC(C=params["C"]) 
-        else:
-            clf=RandomForestClassifier(n_estimators=params["n_estimators"],max_depth=params["max_depth"],random_state=1)     
-        return clf
 
-    # call the function
-    clf=get_classifier(classifier_name,params)
-
-    # data classification using train_test_spit
-    X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.25,random_state=1) 
-
-    # train classifier by using fit()
-    clf.fit(X_train,y_train)
-
-    # call predict method
-    y_pred=clf.predict(X_test)
-
-    # create accuracy
-    acc=accuracy_score(y_test,y_pred)
-    st.text(f"Classifier Type:")
-    st.write(f"{classifier_name}")
-    st.text(f"Accuracy score:")
-    st.write(f"{acc}")
-
-    # PLOT using PCA method and specify number of dimensions
-    pca=PCA(2)
-    X_projected=pca.fit_transform(X)
-
-    x1=X_projected[:,0]
-    x2=X_projected[:,1]
-
-    fig=plt.figure()
-    plt.scatter(x1,x2,c=y,alpha=0.8,cmap="rainbow")
-    plt.xlabel("Principal component 1")
-    plt.ylabel("Principal component 2")
-    plt.colorbar()
-
-    #plt.show()
-    st.pyplot() 
+    if __name__ =="__main__":
+        model = st.selectbox("Choose from one of the models below",("random_forest","KNN","SVM"),label_visibility="visible")
+        if model == 'random_forest':
+            st.write(random_forest(X,y))
+        elif model == 'KNN':        
+            st.write(KNN(X,y))
+        elif model == 'SVM':        
+            st.write(SVM(X,y))
+        else:    
+            st.write(f'Model is not valid')     
+    st.write(f'Mean of Random Forest model',rf_mean)
+    st.write(f'Mean of KNN model',knn_mean)
+    st.write(f'Mean of SVM model',svm_mean)
+    st.write(f'Model with minimum error is',best_accuracy_model(rf_mean, knn_mean, svm_mean))        
+    st.write(f'R2 of Random Forest model',rf_r2)
+    st.write(f'R2 of KNN Forest model',knn_r2)
+    st.write(f'R2 of SVM model',svm_r2)
+    st.write(f'Model with maximum r2 value is',max(rf_r2, knn_r2, svm_r2))
 
 #-------------------------------------------------------------------#
 
-# Tab 4 - Time Series
+# Tab 4 - Recommendations
 with tab4:
-    st.header("Time Series")
-    # wrap header content in a streamlit container
-    with st.container():
-        # 2 columns section:
-        col1, col2 = st.columns([3, 2])
-        with col1:           
-            # Load title/info
-            st.header(f"Time Series prediction")
-            st.markdown(f"Facebook Prophet, XGBoost")
-        with col2:
-            st.empty()
-    st.write("---")
-    
-# Tab 5 - Algo Trading
-with tab5:
-    st.header("Algo Trading")
-    st.image("https://static.streamlit.io/examples/owl.jpg", width=200)    
-
-        
+    st.selectbox("HELLOOOOO")
         
         
