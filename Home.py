@@ -121,7 +121,7 @@ ticker_data = yf.Ticker(ticker)
 #------------------------------------------------------------------#    
             
 
-# add start/end dates to streamlit sidebar
+# add start/end dates
 end_date=value=pd.to_datetime("today")
 # calculate start date as 20 years before end date
 start_date = end_date - pd.DateOffset(years=25)
