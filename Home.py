@@ -122,7 +122,7 @@ ticker_data = yf.Ticker(ticker)
             
 
 # add start/end dates to streamlit sidebar
-start_date=st.sidebar.date_input("Start date",value=pd.to_datetime("1997-1-1"))
+start_date=st.sidebar.date_input("Start date",value=pd.to_datetime("2007-1-1"))
 end_date=st.sidebar.date_input("End date",value=pd.to_datetime("today"))
 # Create a new dataframe - add historical trading period for 1 day
 ticker_df=ticker_data.history(period="1d",start=start_date,end=end_date)
@@ -155,6 +155,7 @@ st.write("###")
 tab1, tab2, tab3, tab4= st.tabs(["Fin ratios", "Unsupervised", "Supervised", "Recommendations"])
 
 with tab1:
+    st.write(f"Select different boxes to view of an individual ticker over the selected period of time.",unsafe_allow_html=True)
     st.subheader(f"Ticker info & financial ratios")
     #---------------------------------------------#
     # Display company info
@@ -737,7 +738,6 @@ with tab1:
                     
 #----------------------------------------------------#
     # Time Series Forecasting with Facebook Prophet
-    st.write("---")
     # Display Prophet section
     st.subheader("Time series forecast")
     prophet_check_box=st.checkbox(label=f"Display {ticker} Prophet time series forecast data")
@@ -889,9 +889,10 @@ with tab2:
                 # 2 columns section:
                 col1, col2 = st.columns([4, 1])
                 with col1:
-                    st.markdown(f"Let's clusters all the tickers in a list so we can better understand how to improve pricing predictions",unsafe_allow_html=True)
+                    st.markdown(f"Let's clusters the tickers so we can better understand how to improve pricing predictions",unsafe_allow_html=True)
                     
                     # Create a dataframe for symbols only
+                    st.write("Ticker symbol dataframe")
                     symbols_df=tickers[['ticker']]
                     st.write(symbols_df)
                     
@@ -930,10 +931,6 @@ with tab2:
                     # Use metrics like Sharpe ratio/Sortino to filter out tickers from specific value
                     # Sharpe Ratio
                     st.write(f"Sharpe ratio value is: <b>{calculate_sharpe_ratio(ticker, start_date, end_date, risk_free_rate=0.03)}</b>",unsafe_allow_html=True)
-                    
-
-
-                    
                     
                     # Scale Resampled data
                     scaler = StandardScaler()
@@ -1016,8 +1013,7 @@ with tab2:
                             writer = csv.writer(f)
                             writer.writerows(clusters)
                             st.balloons("File exported successfully")
-        
-                                                                        
+                                                                       
 
 #-------------------------------------------------------------------#
 
