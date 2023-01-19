@@ -122,8 +122,10 @@ ticker_data = yf.Ticker(ticker)
             
 
 # add start/end dates to streamlit sidebar
-start_date=st.sidebar.date_input("Start date",value=pd.to_datetime("2007-1-1"))
-end_date=st.sidebar.date_input("End date",value=pd.to_datetime("today"))
+end_date=value=pd.to_datetime("today")
+# calculate start date as 20 years before end date
+start_date = end_date - pd.DateOffset(years=20)
+
 # Create a new dataframe - add historical trading period for 1 day
 ticker_df=ticker_data.history(period="1d",start=start_date,end=end_date)
 
@@ -147,7 +149,7 @@ def load_data(ticker,start_date,end_date):
 # data load complete message
 data_load_state=st.sidebar.text("Loading data...⌛")  
 data=load_data(ticker,start_date,end_date)
-data_load_state.text("Data loading complete ✅")
+data_load_state.text("Past 20 years data loaded ✅")
 
 #------------------------------------------------------#
 # Create Navbar tabs
@@ -948,31 +950,35 @@ with tab2:
                     
                     # Apply K-means to the data
                     if st.button('Run K-means'):
-                        k = st.slider('Select the number of clusters', 2, 10)
-                        kmeans = KMeans(n_clusters=k)
+                        # Create a slider to select the number of clusters
+                        n_clusters = st.slider("Select the number of clusters:", 2, 10, 3)
+
+                        # Apply K-means
+                        kmeans = KMeans(n_clusters=n_clusters)
                         kmeans.fit(df_pca)
-                        st.write(f'You have selected <b>{k}</b> number of clusters',unsafe_allow_html=True)
-                        # st.write('Cluster labels:', kmeans.labels_)
 
-                        # Add the cluster labels to the dataframe
-                        df_resampled['cluster_label'] = kmeans.labels_
-
-                        # Group the data by cluster label
-                        clusters = df_resampled.groupby('cluster_label')
-
-                        # Display the number of tickers in each cluster
-                        st.write("Number of tickers in each cluster:")
-                        st.write(clusters['ticker'].size())
+                        # Get explained variance for PC1 and PC2
+                        explained_variance = pca.explained_variance_ratio_
 
                         # Visualize the clusters
-                        plt.scatter(df_pca[:, 0], df_pca[:, 1], c=kmeans.labels_)
-                        if hasattr(pca, 'explained_variance_ratio_'):
-                            plt.xlabel(f'PCA 1 - {pca.explained_variance_ratio_[0]:.2%} Variance Explained')
-                            plt.ylabel(f'PCA 2 - {pca.explained_variance_ratio_[1]:.2%} Variance Explained')
+                        plt.scatter(df_pca[:, 0], df_pca[:, 1], c=kmeans.labels_, cmap='rainbow')
+                        plt.xlabel(f"Principal Component 1 (Explained Variance: {explained_variance[0]:.2%})")  # x-label with explained variance
+                        plt.ylabel(f"Principal Component 2 (Explained Variance: {explained_variance[1]:.2%})")  # y-label with explained variance
+                        st.pyplot()
+
+                        # Elbow Method to determine the optimal number of clusters
+                        wcss = []
+                        for i in range(1, 11):
+                            kmeans = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=0)
+                            kmeans.fit(df_pca)
+                            wcss.append(kmeans.inertia_)
+                        plt.plot(range(1, 11), wcss)
+                        plt.title('Elbow Method')
+                        plt.xlabel('Number of clusters')
+                        if 'WCSS' in plt.ylabel: # Check if y-label contains 'WCSS'
+                            plt.ylabel('WCSS (%)')
                         else:
-                            plt.xlabel('PCA 1')
-                            plt.ylabel('PCA 2')
-                        plt.title(f'K-means Clustering with {k} Clusters')
+                            plt.ylabel('WCSS')
                         st.pyplot()
 
                         st.subheader("Description:")
