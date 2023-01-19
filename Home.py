@@ -1041,11 +1041,11 @@ with tab2:
                         visualizer.show()
                         st.pyplot()
                     
-                        optimal_clusters = st.slider("Select the optimal number of clusters:", 2, 10, 4)
-                        st.write(f"Optimum number of clusters: <b>{optimal_clusters}</b>",unsafe_allow_html=True)
 
                 # Apply K-means to the data with optimal number of clusters
                 if st.button('Re-run K-means with optimal number of clusters'):
+                    optimal_clusters = st.slider("Select the optimal number of clusters:", 2, 10, 4)
+                    st.write(f"Optimum number of clusters: <b>{optimal_clusters}</b>",unsafe_allow_html=True)
                     kmeans = KMeans(n_clusters=optimal_clusters)
                     kmeans.fit(df_pca)
 
@@ -1059,10 +1059,10 @@ with tab2:
                     plt.title(f'Explained variance (PC1, PC2): {explained_variance[0]:.2f}, {explained_variance[1]:.2f}')
                     st.pyplot()
 
-                    # Add cluster labels to the original dataframe
-                    ticker_df['cluster'] = kmeans.labels_
-                    st.write(ticker_df)
+                    
+                    # st.write(ticker_df)
                     st.text("K-means re-analysis complete ✅")
+                    
                     
                     # Apply Monte Carlo simulation with optimal number of clusters
                     if st.button('Run MC simulation for cluster optimization'):
@@ -1103,10 +1103,19 @@ with tab2:
                         
                         
                     # Save the ticker-cluster probability data to a CSV file
-                    if st.button('Save ticker-cluster probability data to CSV'):
-                        file_name = "ticker_cluster_probability.csv"
-                        ticker_cluster_prob.to_csv(file_name)
-                        st.write(f"Ticker-cluster probability data saved to {file_name}")
+                    # Check if the "results" folder exists, if not create it
+                    if not os.path.exists("results"):
+                        os.mkdir("results")
+
+                    try:
+                        # Save the ticker-cluster probability data to a CSV file in the "results" folder
+                        file_name = "ticker_cluster_probability_data.csv"
+                        file_path = os.path.join("results", file_name)
+                        ticker_cluster_prob.to_csv(file_path)
+                        st.success("Data saved to " + file_path)
+
+                    except Exception as e:
+                        st.error("An error occurred while saving the data. Error: " + str(e))
                     
                     # Display the tickers in each cluster
                     
