@@ -1,12 +1,10 @@
 # Equity portfolio investment advisor
 
-Utilizing financial ratio metrics and state-of-the-art machine learning techniques such as supervised and unsupervised learning, the Analyzer provides users with valuable insights into the stock market, allowing for informed decision making in regards to buying, selling, or holding stocks.
+Utilizing financial ratio metrics and state-of-the-art machine learning techniques such as unsupervised and supervised learning, the Analyzer provides users with valuable insights into the stock market, allowing for informed decision making in regards to buying, selling, or holding stocks.
 
 The user interface of the Equity Analyzer is intuitive and user-friendly, making it accessible for individuals of all levels of financial expertise. Its advanced features allow for the identification of profitable investments and the avoidance of costly mistakes.
 
-The business case for the Equity Analyzer is clear, as it empowers investors of all experience levels to make informed decisions regarding their stock portfolio. 
-
-The Equity Analyzer serves as an essential tool for maximizing returns on stock investments and staying ahead of the competition.
+The business case for the Equity Analyzer is clear, as it empowers investors of all experience levels to make informed decisions regarding their stock portfolio.
 
 
 ## Setup
