@@ -1,16 +1,12 @@
 # Equity portfolio investment advisor
 
-- A user is able to visualize historical stock data using Financial metrics & get a glimpse on a Time Series analysis using Facebook's Prophet time series package.
-- A user is able to utilize the web app to verify whether selected stock(s) are a good recommendation to buy, sell or hold for a given period of time.
+Utilizing financial ratio metrics and state-of-the-art machine learning techniques such as supervised and unsupervised learning, the Analyzer provides users with valuable insights into the stock market, allowing for informed decision making in regards to buying, selling, or holding stocks.
 
+The user interface of the Equity Analyzer is intuitive and user-friendly, making it accessible for individuals of all levels of financial expertise. Its advanced features allow for the identification of profitable investments and the avoidance of costly mistakes.
 
-We first resample the imbalanced data and apply clustering techniques and optimizations (**Monte Carlo simulation**) to pull information about various metrics. Using unsupervised learning we can identify and figure out the behaviors of the selected stock(s).
-By clustering stocks from Unsupervised Learning, we can layer Supervised Learning on top using Random Forest, SVM & KNN alogrithms to predict whether the stock will go up or down in the future. We can further measure which Supervised model provides the most optimization for the selected stocks.
+The business case for the Equity Analyzer is clear, as it empowers investors of all experience levels to make informed decisions regarding their stock portfolio. 
 
-Further analysis and models can be tested to optimize what is/are the best algorithm(s) for a given user preference
-- Do I want to buy/sell?
-- Do I want to hold a portfolio stock for X time period?
-- How can I allocate pricing around the portfolio stocks with a given amount money?
+The Equity Analyzer serves as an essential tool for maximizing returns on stock investments and staying ahead of the competition.
 
 
 ## Setup
