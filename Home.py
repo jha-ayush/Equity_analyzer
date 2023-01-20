@@ -985,7 +985,7 @@ with tab2:
                         explained_variance = pca.explained_variance_ratio_
 
                         # Create an interactive visualization for the clusters
-                        plt.scatter(df_pca[:, 0], df_pca[:, 1], c=kmeans.labels_, cmap='YlGnBu')
+                        plt.scatter(df_pca[:, 0], df_pca[:, 1], c=kmeans.labels_, cmap='rainbow')
                         plt.title("K-Means scatter plot")
                         plt.xlabel(f"Principal Component 1 (Explained Variance: {explained_variance[0]:.2%})")  # x-label with explained variance
                         plt.ylabel(f"Principal Component 2 (Explained Variance: {explained_variance[1]:.2%})")  # y-label with explained variance
@@ -1020,7 +1020,7 @@ with tab2:
                         explained_variance = pca.explained_variance_ratio_
 
                         # Visualize the clusters
-                        plt.scatter(df_pca[:, 0], df_pca[:, 1], c=kmeans.labels_,cmap='YlGnBu')
+                        plt.scatter(df_pca[:, 0], df_pca[:, 1], c=kmeans.labels_,cmap='rainbow')
                         plt.xlabel('PC1')
                         plt.ylabel('PC2')
                         plt.title(f'Explained variance (PC1, PC2): {explained_variance[0]:.2f}, {explained_variance[1]:.2f}')
