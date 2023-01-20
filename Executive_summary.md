@@ -1,9 +1,10 @@
 # Executive summary
 
-The Equity portfolio investment advisor is a web application that allows users to analyze historical stock data and make informed investment decisions through algorithm trading. The application provides various functionalities such as visualization of financial metrics and time series analysis using Facebook’s Prophet package.
-The application utilizes unsupervisedlearning techniques to identify and understand the behavior of selected stocks. Clustering is applied on the data to group similar stocks together and the optimum number of clusters is determined using the Elbow method and Silhouette Score. Monte Carlo simulation is then applied on the resampled data to estimate the probability of different outcomes.
-Supervised learning is layered on top of the unsupervised techniques to predict whether a stock will go up or down in the future. Random Forest, SVM and KNN algorithms are used to classify the stocks and the application measures which model provides the most optimization for the selected stocks.
-Moreover, Algorithm Trading is implemented in the application where long and short strategies are used, trading signals are generated to determine the entry and exit points for the algorithm. The application uses a single trading signal to make decisions which can be adjusted according to user’s preference.
-Users can also use the application to determine the best investment strategy. The application provides the ability to decide whether to buy, sell or hold a stock for a given period of time and how to allocate pricing around the portfolio stocks with a given amount of money.
-To run the application, users will need to create a new environment in Terminal and install the necessary packages as described in the setup instructions. The application is built using various technologies and libraries such as plotly, requests, streamlit, cufflinks, numpy, pandas and yfinance.???
-In summary, the Equity portfolio investment advisor is a comprehensive web application that provides various functionalities to analyze historical stock data, make informed investment decisions and optimize investment strategies through unsupervised, supervised and Algorithm trading.
+The Equity portfolio investment advisor web app allows users to analyze historical stock data from `yfinance` to make informed investment decisions through various financial means. The application provides various functionalities such as visualization of financial metrics and time series analysis using Facebook’s Prophet package.
+
+The application utilizes Unsupervised Learning techniques to identify and understand the behavior of selected stocks. Monte Carlo simulation is applied on the resampled clustered data to estimate the probability of different outcomes.
+
+Supervised learning is layered on top of the Unsupervised techniques to predict whether a stock will go up or down in the future. Random Forest, SVM and KNN algorithms are used to classify the stocks and the application measures which model provides the most optimization for the selected stocks.
+
+
+In summary, the Equity portfolio investment advisor app provides various functionalities to analyze historical stock data, make informed investment decisions and optimize investment strategies through unsupervised, supervised and Algorithm trading.
