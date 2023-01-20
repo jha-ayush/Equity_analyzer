@@ -17,7 +17,7 @@ Create new environment in Terminal
 
 ## Run in localhost
 - cd into the app folder where `main.py` sits
-- Run `streamlit run main.py` in Terminal to start up server in `localhost`
+- Run `streamlit run Home.py` in Terminal to start up server in `localhost`
 
 
 ## Technologies
