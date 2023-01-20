@@ -160,7 +160,7 @@ def load_data(ticker,start_date,end_date):
 # data load complete message
 data_load_state=st.sidebar.text("Loading data...⌛")  
 data=load_data(ticker,start_date,end_date)
-data_load_state.text("Past 25 years data loaded ✅")
+data_load_state.text("25 years history loaded ✅")
 
 #------------------------------------------------------#
 # Create Navbar tabs
