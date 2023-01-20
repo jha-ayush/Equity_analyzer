@@ -958,7 +958,7 @@ with tab2:
                     
                     
                     st.write("---")
-                    st.write(f"View the 'shape' in tuple (row,column) format for each dataset as it goes through data trasformation.",unsafe_allow_html=True)
+                    st.write(f"View the 'shape' in tuple (row,column) format for <b>{ticker}</b> as it goes through data trasformation.",unsafe_allow_html=True)
                     # Check the shape of the tickers dataframe from the csv
                     st.write(f"Original <b>tickers</b> dataset data shape: <b>{tickers.shape}</b>",unsafe_allow_html=True)
                     # Check the shape of the original dataframe from yfinance
