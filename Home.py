@@ -24,6 +24,8 @@ from sklearn.cluster import KMeans # KMeans for clustering
 from yellowbrick.cluster import KElbowVisualizer
 import seaborn as sns
 
+from scipy.stats import gmean
+
 from sklearn.preprocessing import StandardScaler # Scaling data
 from sklearn.preprocessing import MinMaxScaler # MinMax scaler
 from sklearn.metrics import silhouette_score # To evaluate the clustering
@@ -129,8 +131,7 @@ ticker = st.sidebar.selectbox("Select a ticker from the dropdown menu",tickers)
 # Get data for the selected ticker
 ticker_data = yf.Ticker(ticker)
 
-#------------------------------------------------------------------#    
-            
+#------------------------------------------------------------------#           
 
 # add start/end dates
 end_date=value=pd.to_datetime("today")
@@ -173,65 +174,69 @@ with tab1:
     #---------------------------------------------#
     # Display company info
     if st.checkbox(label=f"Display {ticker} company info"):
-        ticker_data = yf.Ticker(ticker).info
+        try:
+            ticker_data = yf.Ticker(ticker).info
+            if isinstance(ticker_data, dict):
+                logo_url = ticker_data.get('logo_url', '')
+                if logo_url:
+                    st.markdown(f"<img src={logo_url}>", unsafe_allow_html=True)
+                else:
+                    st.warning("Logo image is missing.")
 
-        # Check if logo URL is available and display
-        logo_url = ticker_data.get('logo_url')
-        if logo_url:
-            st.markdown(f"<img src={logo_url}>", unsafe_allow_html=True)
-        else:
-            st.warning("Logo image is missing.")
+                # Check if company name is available and display
+                st.write("###")
+                company_name = ticker_data.get('longName', '')
+                if company_name:
+                    st.markdown(f"<b>Company Name:</b> {company_name}", unsafe_allow_html=True)
+                else:
+                    st.warning("Company name is missing.")
 
-        # Check if company name is available and display
-        st.write("###")
-        company_name = ticker_data.get('longName')
-        if company_name:
-            st.markdown(f"<b>Company Name:</b> {company_name}", unsafe_allow_html=True)
-        else:
-            st.warning("Company name is missing.")
+                # Check if quoteType is available and display
+                quoteType = ticker_data.get('quoteType', '')
+                if quoteType:
+                    st.markdown(f"<b>Quote type:</b> {quoteType}", unsafe_allow_html=True)
+                else:
+                    st.warning("Quote type is missing.")        
 
-        # Check if quoteType is available and display
-        quoteType = ticker_data.get('quoteType')
-        if quoteType:
-            st.markdown(f"<b>Quote type:</b> {quoteType}", unsafe_allow_html=True)
-        else:
-            st.warning("Quote type is missing.")        
+                # Check if sector is available and display
+                sector = ticker_data.get('sector', '')
+                if sector:
+                    st.markdown(f"<b>Sector:</b> {sector}", unsafe_allow_html=True)
+                else:
+                    st.warning("Sector is missing.")
 
-        # Check if sector is available and display
-        sector = ticker_data.get('sector')
-        if sector:
-            st.markdown(f"<b>Sector:</b> {sector}", unsafe_allow_html=True)
-        else:
-            st.warning("Sector is missing.")
+                # Check if industry is available and display
+                industry = ticker_data.get('industry', '')
+                if industry:
+                    st.markdown(f"<b>Industry:</b> {industry}", unsafe_allow_html=True)
+                else:
+                    st.warning("Industry is missing.")        
 
-        # Check if industry is available and display
-        industry = ticker_data.get('industry')
-        if industry:
-            st.markdown(f"<b>Industry:</b> {industry}", unsafe_allow_html=True)
-        else:
-            st.warning("Industry is missing.")        
+                # Check if location is available and display
+                city = ticker_data.get('city', '')
+                country = ticker_data.get('country', '')
+                if city and country:
+                    st.markdown(f"<b>Location:</b> {city}, {country}", unsafe_allow_html=True)
+                else:
+                    st.warning("Location is missing.")
+                
+                # Check if website is available and display
+                website = ticker_data.get('website', '')
+                if website:
+                    st.markdown(f"<b>Company Website:</b> {website}", unsafe_allow_html=True)
+                else:
+                    st.warning("Website is missing.")
 
-        # Check if location is available and display
-        city = ticker_data.get('city')
-        country = ticker_data.get('country')
-        if city and country:
-            st.markdown(f"<b>Location:</b> {city}, {country}", unsafe_allow_html=True)
-        else:
-            st.warning("Location is missing.")
-
-        # Check if website is available and display
-        website = ticker_data.get('website')
-        if website:
-            st.markdown(f"<b>Company Website:</b> {website}", unsafe_allow_html=True)
-        else:
-            st.warning("Website is missing.")
-
-        # Check if Business summary is available and display
-        summary = ticker_data.get('longBusinessSummary')
-        if summary:
-            st.info(f"{summary}")
-        else:
-            st.warning("Business summary is missing.")
+                # Check if Business summary is available and display
+                summary = ticker_data.get('longBusinessSummary', '')
+                if summary:
+                    st.info(f"{summary}")
+                else:
+                    st.warning("Business summary is missing.")
+            else:
+                st.warning("Data returned is not in the correct format.")
+        except Exception as e:
+            st.error(f"An error occurred: {str(e)}")
         #---------------------------------------------#
         
     # Display data table
@@ -902,36 +907,86 @@ with tab2:
                 # 2 columns section:
                 col1, col2 = st.columns([4, 1])
                 with col1:
-                    # Create a dataframe for symbols only
+                    # Create a dataframe for the csv file
                     st.write(f"<b>Ticker symbols dataframe</b>",unsafe_allow_html=True)
-                    symbols_df=tickers[['ticker']]
+                    symbols_df=pd.read_csv('./Resources/tickers.csv')
                     st.write(symbols_df)
+
+                    # Get the count of unique sectors
+                    sector_count = symbols_df['sector'].nunique()
+                    st.write(f"Total number of sectors: ",sector_count)
+                    sector_counts = symbols_df['sector'].value_counts()
+                    
+                    # Get the list of unique sectors
+                    sectors = symbols_df['sector'].unique()
+                    st.write("List of all sectors:")
+                    st.write(sectors)
+                    
+                    # Group the data by sector and count the number of companies in each sector
+                    sector_counts = symbols_df['sector'].value_counts()
+
+                    # Create a new DataFrame with the sector counts
+                    sectors_df = pd.DataFrame({'sector': sector_counts.index, 'count': sector_counts.values})
+
+                    st.write("Sector and number of companies in each sector: ")
+                    # Display the new DataFrame in a table using streamlit
+                    st.table(sectors_df)
+                    
+                    
+
+                    # Download symbols data
+                    symbols_data = yf.download(ticker, start=start_date, end=end_date)
+                    
+
                     
                     st.write(f"Let us view some datapoints and visualizations.",unsafe_allow_html=True)
                     
                     # Use ticker_df as the original dataframe
-                    st.write(f"<b>Original dataframe</b>",unsafe_allow_html=True)
+                    st.write(f"<b>Original dataframe for {ticker}</b>",unsafe_allow_html=True)
                     st.write(ticker_data)
                     st.write(ticker_df)
-                    st.text(f"Original data loaded ✅")
-                    
-                    # fetch the historical prices data for the symbols
-                    symbols_data = yf.download(ticker, start=start_date, end=end_date)
-
-                    # fetch the Treasury bill rate data to calcuate rate_return
-                    treasury_bill = pdr.get_data_fred('TB3MS')
-
-                    # Use the assign function to add new columns and calculate their values
-                    symbols_data = symbols_data.assign(mean=symbols_data['Adj Close'].mean(), std_dev=symbols_data['Adj Close'].std(), sharpe_ratio=(symbols_data['Close'].mean() - treasury_bill['TB3MS'].mean())/data['Adj Close'].std())
-                    st.write(f"<b>Ticker info with metrics</b>",unsafe_allow_html=True)
-                    st.write(symbols_data)
+                    st.text(f"Original data loaded ✅")  
 
                     
-                    # Cleanup ticker_df data - 'Dividends' & 'Stock Splits'. Store in a new dataframe called `df`
-                    ticker_df.drop(columns=['Dividends', 'Stock Splits', 'Volume'], inplace=True)
-                    st.write(f"<b>Cleaned dataframe</b>",unsafe_allow_html=True)
-                    st.write(ticker_df)
-                    st.text(f"Data Cleanup complete ✅")
+                    # Group the data by sector
+                    sectors_df = tickers.groupby('sector')
+                    st.write(f"Grouped by sectors",(sectors_df.groups))
+
+                    # Initialize an empty list to store the DataFrames for each sector
+                    sector_data = []
+
+                    # Iterate over the groups
+                    for sector, tickers in sectors_df:
+                        # Select the top 50 tickers for each sector
+                        top_tickers = tickers.head(50)
+                        # Initialize an empty list to store the stock data for each ticker
+                        stock_data = []
+                        # Iterate over the tickers
+                        for ticker in top_tickers['ticker']:
+                            # Get the stock data for the current ticker
+                            stock = yf.Ticker(ticker).info
+                            # Append the stock data to the list
+                            stock_data.append(stock)
+                        # Create a DataFrame from the stock data
+                        sector_df = pd.DataFrame(stock_data)
+                        # Add a column to the DataFrame with the sector name
+                        sector_df['sector'] = sector
+                        # Append the DataFrame to the list
+                        sector_data.append(sector_df)
+
+                    # Concatenate all the DataFrames into one final DataFrame
+                    final_df = pd.concat(sector_data)
+
+                    # Select the columns you want to show in the table
+                    final_df = final_df[['Open','High','Low','Close','sector']]
+
+                    st.write("Stock Data : ")
+                    # Display the final DataFrame in a table using streamlit
+                    st.table(final_df)
+
+                    
+                    
+                    
                     
                     # Resample ticker data 'Daily' data - Drop Nan values
                     df_resampled = ticker_df.resample('M').mean().dropna()
@@ -985,7 +1040,7 @@ with tab2:
                         explained_variance = pca.explained_variance_ratio_
 
                         # Create an interactive visualization for the clusters
-                        plt.scatter(df_pca[:, 0], df_pca[:, 1], c=kmeans.labels_, cmap='rainbow')
+                        plt.scatter(ticker_df[:, 0], df_pca[:, 1], c=kmeans.labels_, cmap='rainbow')
                         plt.title("K-Means scatter plot")
                         plt.xlabel(f"Principal Component 1 (Explained Variance: {explained_variance[0]:.2%})")  # x-label with explained variance
                         plt.ylabel(f"Principal Component 2 (Explained Variance: {explained_variance[1]:.2%})")  # y-label with explained variance
@@ -1146,31 +1201,43 @@ with tab3:
         svm_r2=r2_score(y_test, y_pred)
         return y_pred  
 
-    def best_accuracy_model(rf_mean, knn_mean, svm_mean):
-        mean = [rf_mean, knn_mean, svm_mean]
+    def best_accuracy_model(rf_mean, knn_mean):
+        mean = [rf_mean, knn_mean]
         Best_Model = min(mean)
         return Best_Model
 
 
     if __name__ =="__main__":
-        model = st.selectbox("Choose from one of the models below",("random_forest","KNN","SVM"),label_visibility="visible")
-        if model == 'random_forest':
-            st.write(random_forest(X,y))
+        
+        rf_func = random_forest(X,y)
+        knn_func = KNN(X,y)
+        
+        model = st.selectbox("Choose from one of the models below",("Random Forest","KNN"),label_visibility="visible")
+        if model == 'Random Forest':
+            st.write(rf_func)
+            st.write(f"",unsafe_allow_html=True)
         elif model == 'KNN':        
-            st.write(KNN(X,y))
-        elif model == 'SVM':        
-            st.write(SVM(X,y))
+            st.write(knn_func)
+            st.write(f"",unsafe_allow_html=True)
+        #elif model == 'SVM':        
+            #st.write(SVM(X,y))
         else:    
-            st.write(f'Model is not valid')     
-            st.write(f'Mean of Random Forest model',rf_mean)
-            st.write(f'Mean of KNN model',knn_mean)
-            st.write(f'Mean of SVM model',svm_mean)
-            st.write(f'Model with minimum error is',best_accuracy_model(rf_mean, knn_mean, svm_mean))        
-            st.write(f'R2 of Random Forest model',rf_r2)
-            st.write(f'R2 of KNN Forest model',knn_r2)
-            st.write(f'R2 of SVM model',svm_r2)
-            st.write(f'Model with maximum r2 value is',max(rf_r2, knn_r2, svm_r2))
+            st.write(f'Model is not valid') 
+            
+            
+        st.write(f'Mean error of Random Forest model',rf_mean)
+        st.write(f'Mean error of KNN model',knn_mean)
+        #st.write(f'Mean of SVM model',svm_mean)
 
+        st.write(f'Model with minimum error is',best_accuracy_model(rf_mean, knn_mean)) 
+        st.write(f"Mean Error is a evaluation method to measure the efficiency of the model. Lower the mean error value, model is more efficient. R2 is an evaluation method to measure the efficiency of the model. Higher the R2 value, the more efficient the model is.",unsafe_allow_html=True)
+
+        st.write(f'R2 of Random Forest model',rf_r2)
+        st.write(f'R2 of KNN Forest model',knn_r2)
+        #st.write(f'R2 of SVM model',svm_r2)
+
+        st.write(f'Model with maximum r2 value is',max(rf_r2, knn_r2))            
+            
 #-------------------------------------------------------------------#
 
 # Tab 4 - Recommendations
