@@ -22,6 +22,8 @@ from sklearn.decomposition import PCA # PCA for dimensionality reduction
 from sklearn.cluster import KMeans # KMeans for clustering
 from sklearn.metrics import silhouette_score # Silhouette score
 
+from graphviz import Digraph # Create flowcharts
+
 from yellowbrick.cluster import KElbowVisualizer
 import seaborn as sns
 
@@ -123,46 +125,7 @@ try:
 except:
     logging.error('Cannot find the CSV file')
 
-# Benchmark ticker - S&P Global index '^GSPC'
-benchmark_ticker=yf.Ticker("^GSPC")
 
-# Display a selectbox for the user to choose a ticker
-ticker = st.selectbox("Select a ticker from the dropdown menu",tickers)
-
-# Get data for the selected ticker
-ticker_data = yf.Ticker(ticker)
-
-#------------------------------------------------------------------#           
-
-# add start/end dates
-end_date=value=pd.to_datetime("today")
-# calculate start date as 20 years before end date
-start_date = end_date - pd.DateOffset(years=25)
-
-# Create a new dataframe - add historical trading period for 1 day
-ticker_df=ticker_data.history(period="1d",start=start_date,end=end_date)
-
-# query S&P index historical prices
-benchmark_ticker=benchmark_ticker.history(period="1d",start=start_date,end=end_date)
-
-# print(ticker_df.head())
-####
-#st.write('---')
-# st.write(ticker_data.info)
-
-# Load stock data - define functions
-def load_data(ticker,start_date,end_date):
-    data=yf.download(ticker,start_date,end_date)
-    # convert the index to a datetime format
-    data.index = pd.to_datetime(data.index)
-    # use the .rename() function to rename the index to 'Date'
-    data = data.rename_axis('Date')
-    return data
-
-# data load complete message
-data_load_state=st.text("Loading data...⌛")  
-data=load_data(ticker,start_date,end_date)
-data_load_state.text("25 years historical data loaded ✅")
 
 #------------------------------------------------------#
 # Create Navbar tabs
@@ -171,6 +134,51 @@ tab1, tab2, tab3, tab4= st.tabs(["Fin ratios", "Unsupervised", "Supervised", "Re
 
 with tab1:
     st.write(f"Select different boxes to view of an individual ticker over the selected period of time.",unsafe_allow_html=True)
+    
+    
+    # Benchmark ticker - S&P Global index '^GSPC'
+    benchmark_ticker=yf.Ticker("^GSPC")
+
+    # Display a selectbox for the user to choose a ticker
+    ticker = st.selectbox("Select a ticker from the dropdown menu",tickers)
+
+    # Get data for the selected ticker
+    ticker_data = yf.Ticker(ticker)
+
+    #------------------------------------------------------------------#           
+
+    # add start/end dates
+    end_date=value=pd.to_datetime("today")
+    # calculate start date as 20 years before end date
+    start_date = end_date - pd.DateOffset(years=25)
+
+    # Create a new dataframe - add historical trading period for 1 day
+    ticker_df=ticker_data.history(period="1d",start=start_date,end=end_date)
+
+    # query S&P index historical prices
+    benchmark_ticker=benchmark_ticker.history(period="1d",start=start_date,end=end_date)
+
+    # print(ticker_df.head())
+    ####
+    #st.write('---')
+    # st.write(ticker_data.info)
+
+    # Load stock data - define functions
+    def load_data(ticker,start_date,end_date):
+        data=yf.download(ticker,start_date,end_date)
+        # convert the index to a datetime format
+        data.index = pd.to_datetime(data.index)
+        # use the .rename() function to rename the index to 'Date'
+        data = data.rename_axis('Date')
+        return data
+
+    # data load complete message
+    data_load_state=st.text("Loading data...⌛")  
+    data=load_data(ticker,start_date,end_date)
+    data_load_state.text("25 years historical data loaded ✅")
+    
+    
+    
     st.subheader(f"Ticker info & financial ratios")
     #---------------------------------------------#
     # Display company info
@@ -1102,9 +1110,50 @@ with tab2:
                             st.error("Error saving ticker-cluster probability data to CSV file. ❌ Please try again! ")
                             st.exception(e)
                             
+                    
+                    # Save the ticker-cluster probability data to a CSV file
+                    if st.button('Save flowchart'):
+                        # Create a new flowchart
+                        flowchart = Digraph()
+
+                        # Add start node
+                        flowchart.node('Start')
+
+                        # Add a read CSV node
+                        flowchart.node('Read S&P500 tickers CSV')
+
+                        # Add a new column node
+                        flowchart.node('Map ticker to yfinance historical data')
+
+                        # Add a remove columns node
+                        flowchart.node('Data Cleanup & wrangling')
+
+                        # Add a sort dataframe node
+                        flowchart.node('Tab 1: Display single ticker info, raw data, Bollinger bands,Financial ratios, Prophet Time Series Forecast, Message Us')
+
+                        # Add a group by sector node
+                        flowchart.node('Tab 2: Unsupervised Learning using K-Means/Silhoutte score to get optimized clusters for Top 10 tickers (by marketcap) in the Top 10 sectors (by count), using daily returns. Data is saved as a csv in the "results" folder')
+
+                        # Add a create dictionary node
+                        flowchart.node('Tab 3: Supervised Learning')
+
+                        # Add end node
+                        flowchart.node('End')
+
+                        # Connect the nodes with arrows
+                        flowchart.edge('Start', 'Read S&P500 tickers CSV')
+                        flowchart.edge('Read S&P500 tickers CSV', 'Map ticker to yfinance historical data')
+                        flowchart.edge('Map ticker to yfinance historical data', 'Data Cleanup & wrangling')
+                        flowchart.edge('Data Cleanup & wrangling', 'Tab 1: Display single ticker info, raw data, Bollinger bands,Financial ratios, Prophet Time Series Forecast, Message Us')
+                        flowchart.edge('Tab 1: Display single ticker info, raw data, Bollinger bands,Financial ratios, Prophet Time Series Forecast, Message Us', 'Tab 2: Unsupervised Learning using K-Means/Silhoutte score to get optimized clusters for Top 10 tickers (by marketcap) in the Top 10 sectors (by count), using daily returns. Data is saved as a csv in the "results" folder')
+                        flowchart.edge('Tab 2: Unsupervised Learning using K-Means/Silhoutte score to get optimized clusters for Top 10 tickers (by marketcap) in the Top 10 sectors (by count), using daily returns. Data is saved as a csv in the "results" folder', 'Tab 3: Supervised Learning')
+                        flowchart.edge('Tab 3: Supervised Learning', 'End')
+
+                        # Render the flowchart
+                        flowchart.render('./results/flowchart.png', view=True)
+                        st.balloons()
+                        
                             
-                            
-    
                         
                                                  
                 # Empty 2nd column    
