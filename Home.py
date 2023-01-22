@@ -127,7 +127,7 @@ except:
 benchmark_ticker=yf.Ticker("^GSPC")
 
 # Display a selectbox for the user to choose a ticker
-ticker = st.sidebar.selectbox("Select a ticker from the dropdown menu",tickers)
+ticker = st.selectbox("Select a ticker from the dropdown menu",tickers)
 
 # Get data for the selected ticker
 ticker_data = yf.Ticker(ticker)
@@ -160,9 +160,9 @@ def load_data(ticker,start_date,end_date):
     return data
 
 # data load complete message
-data_load_state=st.sidebar.text("Loading data...⌛")  
+data_load_state=st.text("Loading data...⌛")  
 data=load_data(ticker,start_date,end_date)
-data_load_state.text("25 years history loaded ✅")
+data_load_state.text("25 years historical data loaded ✅")
 
 #------------------------------------------------------#
 # Create Navbar tabs
@@ -963,7 +963,7 @@ with tab2:
                     grouped_tickers_check_box=st.checkbox(label=f"Display tickers grouped in sectors")
                     if grouped_tickers_check_box:
                         #Display ticker sectors     
-                        st.write(f"<b>Grouped tickers by sectors</b>",(sectors_df.groups),unsafe_allow_html=True)
+                        st.write(f"<b>Grouped tickers (int values) by sectors</b>",(sectors_df.groups),unsafe_allow_html=True)
                         # Create a dictionary that maps sector names to ticker symbols
                         sector_ticker_map = {"Financials": "XLF", "Energy": "XLE", "Information Technology": "XLK", "Consumer Staples": "XLP", "Health Care": "XLV", "Consumer Discretionary": "XLY", "Communications Services": "XLC", "Industrials": "XLI", "Materials": "XLB", "Real Estate": "XLRE", "Utilities": "XLU"}
                         # Use the map() function to replace the sector names with the corresponding ticker symbols
@@ -1051,7 +1051,7 @@ with tab2:
                     
                     
                     # Save the ticker-cluster probability data to a CSV file
-                    if st.button('Optimize & run K-means algorithm'):
+                    if st.button('Optimize with Silhouette score & run K-means algorithm'):
                         
                         # Select the columns from top_10_companies_df that will be used for clustering
                         X = top_10_companies_df[['daily_return', 'market_cap']]
@@ -1072,7 +1072,7 @@ with tab2:
                             # Find the index of the highest silhouette score
                             optimal_number_of_clusters = np.argmax(silhouette_scores) + 2
                             # Show silhouette scores
-                            st.write(silhouette_scores)
+                            # st.write(silhouette_scores)
 
 
                         # Re-initialize the model with the optimal number of clusters
@@ -1083,6 +1083,7 @@ with tab2:
                         top_10_companies_df['cluster'] = kmeans.predict(X)
 
                         # Create a new DataFrame with the cluster labels
+                        st.write(f"<b>Tickers with cluster labels</b>",unsafe_allow_html=True)
                         cluster_df = top_10_companies_df[['ticker', 'name', 'cluster']]
 
                         # Display the table
