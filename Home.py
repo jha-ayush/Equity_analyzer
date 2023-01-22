@@ -878,35 +878,50 @@ with tab1:
                             st.write(model.plot_components(forecast))
                                 
 #-----------------------------------------------#
+# Download flowchart
 
-    # Contact Form
-    with st.container():
-        st.write("---")
-        st.subheader("Message us")
-        st.write("##")
+# Save the ticker-cluster probability data to a CSV file
+    st.write("---")
+    if st.button('Save workflow flowchart'):
+        # Create a new flowchart
+        flowchart = Digraph()
 
-        # Documention: https://formsubmit.co/ !!! CHANGE EMAIL ADDRESS !!!
-        contact_form = """
-        <form action="https://formsubmit.co/jha.ayush85@gmail.com" method="POST">
-            <input type="hidden" name="_captcha" value="false">
-            <input type="text" name="name" placeholder="Your name" required>
-            <input type="email" name="email" placeholder="Your email" required>
-            <textarea name="message" placeholder="Your message here" required></textarea>
-            <button type="submit">Send</button>
-        </form>
-        """
-    # Display form
-    with st.container():    
-        left_column, mid_column, right_column = st.columns(3)
-        with left_column:
-            st.markdown(contact_form, unsafe_allow_html=True)
-            # Display balloons
-            # st.balloons()
-            # st.snow()
-        with mid_column:
-            st.empty()
-        with right_column:
-            st.empty()
+        # Add start node
+        flowchart.node('Start')
+
+        # Add a read CSV node
+        flowchart.node('Read S&P500 tickers CSV')
+
+        # Add a new column node
+        flowchart.node('Map ticker to yfinance historical data')
+
+        # Add a remove columns node
+        flowchart.node('Data Cleanup & wrangling')
+
+        # Add a sort dataframe node
+        flowchart.node('Tab 1: Display single ticker info, raw data, Bollinger bands,Financial ratios, Prophet Time Series Forecast, Message Us')
+
+        # Add a group by sector node
+        flowchart.node('Tab 2: Unsupervised Learning using K-Means/Silhoutte score to get optimized clusters for Top 10 tickers (by marketcap) in the Top 10 sectors (by count), using daily returns. Data is saved as a csv in the "results" folder. Monte Carlo simulation is applied to the clustered data.')
+
+        # Add a create dictionary node
+        flowchart.node('Tab 3: Supervised Learning')
+
+        # Add end node
+        flowchart.node('End')
+
+        # Connect the nodes with arrows
+        flowchart.edge('Start', 'Read S&P500 tickers CSV')
+        flowchart.edge('Read S&P500 tickers CSV', 'Map ticker to yfinance historical data')
+        flowchart.edge('Map ticker to yfinance historical data', 'Data Cleanup & wrangling')
+        flowchart.edge('Data Cleanup & wrangling', 'Tab 1: Display single ticker info, raw data, Bollinger bands,Financial ratios, Prophet Time Series Forecast, Message Us')
+        flowchart.edge('Tab 1: Display single ticker info, raw data, Bollinger bands,Financial ratios, Prophet Time Series Forecast, Message Us', 'Tab 2: Unsupervised Learning using K-Means/Silhoutte score to get optimized clusters for Top 10 tickers (by marketcap) in the Top 10 sectors (by count), using daily returns. Data is saved as a csv in the "results" folder. Monte Carlo simulation is applied to the clustered data.')
+        flowchart.edge('Tab 2: Unsupervised Learning using K-Means/Silhoutte score to get optimized clusters for Top 10 tickers (by marketcap) in the Top 10 sectors (by count), using daily returns. Data is saved as a csv in the "results" folder. Monte Carlo simulation is applied to the clustered data.', 'Tab 3: Supervised Learning')
+        flowchart.edge('Tab 3: Supervised Learning', 'End')
+
+        # Render the flowchart
+        flowchart.render('./results/flowchart.png', view=True)
+        st.balloons()
 
 
 #------------------------------------------------------------------#                      
@@ -1110,51 +1125,6 @@ with tab2:
                             st.error("Error saving ticker-cluster probability data to CSV file. ❌ Please try again! ")
                             st.exception(e)
                             
-                    
-                    # Save the ticker-cluster probability data to a CSV file
-                    if st.button('Save flowchart'):
-                        # Create a new flowchart
-                        flowchart = Digraph()
-
-                        # Add start node
-                        flowchart.node('Start')
-
-                        # Add a read CSV node
-                        flowchart.node('Read S&P500 tickers CSV')
-
-                        # Add a new column node
-                        flowchart.node('Map ticker to yfinance historical data')
-
-                        # Add a remove columns node
-                        flowchart.node('Data Cleanup & wrangling')
-
-                        # Add a sort dataframe node
-                        flowchart.node('Tab 1: Display single ticker info, raw data, Bollinger bands,Financial ratios, Prophet Time Series Forecast, Message Us')
-
-                        # Add a group by sector node
-                        flowchart.node('Tab 2: Unsupervised Learning using K-Means/Silhoutte score to get optimized clusters for Top 10 tickers (by marketcap) in the Top 10 sectors (by count), using daily returns. Data is saved as a csv in the "results" folder')
-
-                        # Add a create dictionary node
-                        flowchart.node('Tab 3: Supervised Learning')
-
-                        # Add end node
-                        flowchart.node('End')
-
-                        # Connect the nodes with arrows
-                        flowchart.edge('Start', 'Read S&P500 tickers CSV')
-                        flowchart.edge('Read S&P500 tickers CSV', 'Map ticker to yfinance historical data')
-                        flowchart.edge('Map ticker to yfinance historical data', 'Data Cleanup & wrangling')
-                        flowchart.edge('Data Cleanup & wrangling', 'Tab 1: Display single ticker info, raw data, Bollinger bands,Financial ratios, Prophet Time Series Forecast, Message Us')
-                        flowchart.edge('Tab 1: Display single ticker info, raw data, Bollinger bands,Financial ratios, Prophet Time Series Forecast, Message Us', 'Tab 2: Unsupervised Learning using K-Means/Silhoutte score to get optimized clusters for Top 10 tickers (by marketcap) in the Top 10 sectors (by count), using daily returns. Data is saved as a csv in the "results" folder')
-                        flowchart.edge('Tab 2: Unsupervised Learning using K-Means/Silhoutte score to get optimized clusters for Top 10 tickers (by marketcap) in the Top 10 sectors (by count), using daily returns. Data is saved as a csv in the "results" folder', 'Tab 3: Supervised Learning')
-                        flowchart.edge('Tab 3: Supervised Learning', 'End')
-
-                        # Render the flowchart
-                        flowchart.render('./results/flowchart.png', view=True)
-                        st.balloons()
-                        
-                            
-                        
                                                  
                 # Empty 2nd column    
                 with col2:
@@ -1267,5 +1237,35 @@ with tab4:
     st.warning("Fix")
     st.subheader("Technical")
     st.warning("Fix")
+    
+    #-----------------------------------------------#
+    # Contact Form
+    with st.container():
+        st.write("---")
+        st.subheader("Message us")
+        st.write("##")
+
+        # Documention: https://formsubmit.co/ !!! CHANGE EMAIL ADDRESS !!!
+        contact_form = """
+        <form action="https://formsubmit.co/jha.ayush85@gmail.com" method="POST">
+            <input type="hidden" name="_captcha" value="false">
+            <input type="text" name="name" placeholder="Your name" required>
+            <input type="email" name="email" placeholder="Your email" required>
+            <textarea name="message" placeholder="Your message here" required></textarea>
+            <button type="submit">Send</button>
+        </form>
+        """
+    # Display form
+    with st.container():    
+        left_column, mid_column, right_column = st.columns(3)
+        with left_column:
+            st.markdown(contact_form, unsafe_allow_html=True)
+            # Display balloons
+            # st.balloons()
+            # st.snow()
+        with mid_column:
+            st.empty()
+        with right_column:
+            st.empty()
         
         

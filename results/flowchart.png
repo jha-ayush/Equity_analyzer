@@ -4,14 +4,14 @@ digraph {
 	"Map ticker to yfinance historical data"
 	"Data Cleanup & wrangling"
 	"Tab 1: Display single ticker info, raw data, Bollinger bands,Financial ratios, Prophet Time Series Forecast, Message Us"
-	"Tab 2: Unsupervised Learning using K-Means/Silhoutte score to get optimized clusters for Top 10 tickers (by marketcap) in the Top 10 sectors (by count), using daily returns. Data is saved as a csv in the \"results\" folder"
+	"Tab 2: Unsupervised Learning using K-Means/Silhoutte score to get optimized clusters for Top 10 tickers (by marketcap) in the Top 10 sectors (by count), using daily returns. Data is saved as a csv in the \"results\" folder. Monte Carlo simulation is applied to the clustered data."
 	"Tab 3: Supervised Learning"
 	End
 	Start -> "Read S&P500 tickers CSV"
 	"Read S&P500 tickers CSV" -> "Map ticker to yfinance historical data"
 	"Map ticker to yfinance historical data" -> "Data Cleanup & wrangling"
 	"Data Cleanup & wrangling" -> "Tab 1":" Display single ticker info, raw data, Bollinger bands,Financial ratios, Prophet Time Series Forecast, Message Us"
-	"Tab 1":" Display single ticker info, raw data, Bollinger bands,Financial ratios, Prophet Time Series Forecast, Message Us" -> "Tab 2":" Unsupervised Learning using K-Means/Silhoutte score to get optimized clusters for Top 10 tickers (by marketcap) in the Top 10 sectors (by count), using daily returns. Data is saved as a csv in the \"results\" folder"
-	"Tab 2":" Unsupervised Learning using K-Means/Silhoutte score to get optimized clusters for Top 10 tickers (by marketcap) in the Top 10 sectors (by count), using daily returns. Data is saved as a csv in the \"results\" folder" -> "Tab 3":" Supervised Learning"
+	"Tab 1":" Display single ticker info, raw data, Bollinger bands,Financial ratios, Prophet Time Series Forecast, Message Us" -> "Tab 2":" Unsupervised Learning using K-Means/Silhoutte score to get optimized clusters for Top 10 tickers (by marketcap) in the Top 10 sectors (by count), using daily returns. Data is saved as a csv in the \"results\" folder. Monte Carlo simulation is applied to the clustered data."
+	"Tab 2":" Unsupervised Learning using K-Means/Silhoutte score to get optimized clusters for Top 10 tickers (by marketcap) in the Top 10 sectors (by count), using daily returns. Data is saved as a csv in the \"results\" folder. Monte Carlo simulation is applied to the clustered data." -> "Tab 3":" Supervised Learning"
 	"Tab 3":" Supervised Learning" -> End
 }
