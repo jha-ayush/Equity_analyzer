@@ -974,11 +974,38 @@ with tab2:
                     grouped_df = symbols_df.groupby('sector').size().reset_index(name='counts')
 
                     # Use the plot() function to create a bar chart of the groups
-                    st.text("Visualization of number of tickers in each sector")
+                    st.write(f"<b>Number of tickers in each sector</b>",unsafe_allow_html=True)
                     grouped_df.plot(kind='bar', x='sector', y='counts',color='green')
 
                     # Show the plot
                     st.pyplot()
+                    
+                    # Show Top 5 sectors
+                    top_5_sectors = sectors_df.sort_values(by='count', ascending=False).head(5)
+                    st.write(f"<b>Top 5 sectors by number of companies</b>",unsafe_allow_html=True)
+                    st.table(top_5_sectors)
+                    # Find data types/info
+                    # st.write(symbols_df.dtypes)
+                    
+                    # Group the symbols_df dataframe by the 'sector' column
+                    grouped_df = symbols_df.groupby('sector')
+
+                    # Create an empty list to store the top 10 companies from each sector
+                    top_10_companies = []
+
+                    
+                    # Iterate over the sectors
+                    for sector, group in grouped_df:
+                        # Select the top 10 companies from the current sector based on market cap
+                        top_10_companies.append(group.nlargest(10, 'market_cap'))
+
+                    # Concatenate all the top 10 company dataframes into a single dataframe
+                    top_10_companies_df = pd.concat(top_10_companies)
+
+                    
+                    
+
+
 
 
 
