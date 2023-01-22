@@ -20,6 +20,7 @@ import pandas_datareader as pdr
 
 from sklearn.decomposition import PCA # PCA for dimensionality reduction
 from sklearn.cluster import KMeans # KMeans for clustering
+from sklearn.metrics import silhouette_score # Silhouette score
 
 from yellowbrick.cluster import KElbowVisualizer
 import seaborn as sns
@@ -909,7 +910,10 @@ with tab2:
                 with col1:
                     # Create a dataframe for the csv file
                     st.write(f"<b>Ticker symbols dataframe</b>",unsafe_allow_html=True)
-                    symbols_df=pd.read_csv('./Resources/tickers.csv')
+                    try:
+                        symbols_df = pd.read_csv("./Resources/tickers.csv")
+                    except:
+                        logging.error('Cannot find the CSV file')
                     st.write(symbols_df)
                     
                     # Add new column "Market Cap"
@@ -943,7 +947,7 @@ with tab2:
                     # "XLU" represents the Utilities Select Sector SPDR Fund which tracks the performance of the utilities sector of the S&P 500 index.
                     
                     
-                    sectors = ["XLF - Financials","XLE - Energy","XLK - Information Technology","XLP - Consumer Staples","XLV - Health Care","XLY - Consumer Discretionary","XLC - Communications Services","XLI - Industrials","XLB -Materials ","XLRE - Real Estate","XLU - Utilities"]
+                    sectors = ["XLF - Financials","XLE - Energy","XLK - Information Technology","XLP - Consumer Staples","XLV - Health Care","XLY - Consumer Discretionary","XLC - Communications Services","XLI - Industrials","XLB - Materials","XLRE - Real Estate","XLU - Utilities"]
                     st.write(f"<b>Sector tickers list</b>",unsafe_allow_html=True)
                     st.write(sectors)
                     
@@ -961,6 +965,7 @@ with tab2:
                     symbols_df["sector"] = symbols_df["sector"].map(sector_ticker_map)
                     
                     # Display dataframe with sector ticker info
+                    st.write(f"<b>Tickers with Market Cap</b>",unsafe_allow_html=True)
                     st.write(symbols_df)
                     
                     # Create a new DataFrame with the sector counts
@@ -993,6 +998,17 @@ with tab2:
                     # Create an empty list to store the top 10 companies from each sector
                     top_10_companies = []
 
+                    # Conver Market Cap objectype to int
+                    symbols_df["market_cap"] = symbols_df["market_cap"].str.replace(',','')
+                    symbols_df["market_cap"] = symbols_df["market_cap"].str.replace('$','')
+                    
+                    # Convert market_cap to numeric
+                    symbols_df["market_cap"] = pd.to_numeric(symbols_df["market_cap"])
+                    # st.write(symbols_df)
+
+
+
+                    
                     
                     # Iterate over the sectors
                     for sector, group in grouped_df:
@@ -1001,12 +1017,51 @@ with tab2:
 
                     # Concatenate all the top 10 company dataframes into a single dataframe
                     top_10_companies_df = pd.concat(top_10_companies)
+                    st.write(f"<b>Top 10 companies by Market Cap in each sector</b>",unsafe_allow_html=True)
+                    st.write(f"<b>Total companies: ",{top_10_companies_df.shape},unsafe_allow_html=True)
+                    st.write(top_10_companies_df)
 
                     
                     
+                    # Shift the market_cap values up by 1 position
+                    top_10_companies_df['market_cap_shifted'] = top_10_companies_df['market_cap'].shift(1)
+
+                    # Calculate the daily return using the shifted values
+                    top_10_companies_df['daily_return'] = (top_10_companies_df['market_cap'] - top_10_companies_df['market_cap_shifted']) / top_10_companies_df['market_cap_shifted']
+
+                    # Drop the shifted column
+                    top_10_companies_df.drop(columns=['market_cap_shifted'], inplace=True)
+                    
+                    # Drop the rows with missing values
+                    top_10_companies_df.dropna(inplace=True)
+
+                    st.write(f"<b>Total companies with daily returns: ",{top_10_companies_df.shape},unsafe_allow_html=True)
+                    st.write(top_10_companies_df)
 
 
+                    
+                    # Select the columns from top_10_companies_df that will be used for clustering
+                    X = top_10_companies_df[['daily_return', 'market_cap']]
 
+                    # Initialize an empty list to store the silhouette scores
+                    silhouette_scores = []
+
+                    # Loop through a range of possible number of clusters
+                    for n_clusters in range(2, 11):
+                        # Initialize the KMeans model
+                        kmeans = KMeans(n_clusters=n_clusters)
+                        # Fit the model to the data
+                        kmeans.fit(X)
+                        # Predict the cluster labels for each data point
+                        labels = kmeans.predict(X)
+                        # Append the silhouette score to the list
+                        silhouette_scores.append(silhouette_score(X, labels))
+
+                    # Plot the silhouette scores
+                    plt.plot(range(2, 11), silhouette_scores)
+                    plt.xlabel('Number of clusters')
+                    plt.ylabel('Silhouette score')
+                    plt.show()
 
 
 
