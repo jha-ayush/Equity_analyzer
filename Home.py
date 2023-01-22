@@ -914,11 +914,10 @@ with tab2:
                     st.write(ticker_df)
                     
                     # Add new column "Market Cap"
-                    ticker_df["Market Cap"] = ticker_df["Close"] * ticker_df["Volume"]
+                    ticker_df["Market Cap (Close*Volume)"] = ticker_df["Close"] * ticker_df["Volume"]
                     # Remove 'Dividends' & 'Stock Splits' from `ticker_df`
                     ticker_df.drop(columns=["Dividends", "Stock Splits"], inplace=True)
-                    # Display cleaned up dataframe
-                    st.write(ticker_df)
+                    st.write(ticker_df.columns)
 
                     
                     # Group the data by sector and count the number of companies in each sector
@@ -948,13 +947,40 @@ with tab2:
                     # "XLU" represents the Utilities Select Sector SPDR Fund which tracks the performance of the utilities sector of the S&P 500 index.
                     
                     
-                    sectors = ["XLF - Financials","XLE - Energy","XLK - Information Technology","XLP - Consumer Staples","XLV - Health Care","XLY - Consumer Discretionary","XLC - Communications Services","XLI - Industrials","XLB -Materials ","XLRE - Real Estate","XLU - Utilities"]
+                    sectors = ["XLF - Financials","XLE - Energy","XLK - Information Technology","XLP - Consumer Staples","XLV - Health Care","XLY - Consumer Discretionary","XLC - Communications Services","XLI - Industrials","XLB - Materials","XLRE - Real Estate","XLU - Utilities"]
                     st.write(f"<b>Sector tickers list</b>",unsafe_allow_html=True)
                     st.write(sectors)
                     
                     # Group the data by sector
                     sectors_df = tickers.groupby('sector')
                     st.write(f"<b>Grouped tickers by sectors</b>",(sectors_df.groups),unsafe_allow_html=True)
+                    
+                    # Group the data by sector
+                    sectors_df = ticker_df.groupby('sector')
+
+                    # Create dataframe with sectors and market cap
+                    sectors_market_cap = sectors_df['Market Cap'].sum().reset_index()
+
+                    # Sort the sectors by market capitalization
+                    sectors_market_cap.sort_values(by='Market Cap', ascending=False, inplace=True)
+                    
+                    # Add Returns column
+                    ticker_df = ticker_df.assign(returns = (ticker_df['Close'] - ticker_df['Open'])/ticker_df['Open'])
+                    
+                    # Add Daily Returns column
+                    ticker_df = ticker_df.assign(daily_returns = ticker_df['Close'].pct_change().dropna())
+                    
+                    # Add Omega Ratio column
+                    ticker_df = ticker_df.assign(omega_ratio = (ticker_df['returns'] - ticker_df['risk_free_rate'])/ticker_df['downside_returns'])
+                    
+                    # Add Sortino Ratio colum
+                    ticker_df = ticker_df.assign(sortino_ratio = (ticker_df['returns'] - ticker_df['risk_free_rate']) / np.sqrt(ticker_df['downside_deviation']))
+
+
+
+
+                    # Display the sorted data in a table
+                    st.table(sectors_market_cap)
 
             
                     # Save the ticker-cluster probability data to a CSV file
