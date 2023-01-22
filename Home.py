@@ -948,17 +948,13 @@ with tab2:
                     # "XLU" represents the Utilities Select Sector SPDR Fund which tracks the performance of the utilities sector of the S&P 500 index.
                     
                     
-                    sectors = ["XLF","XLE","XLK","XLP","XLV","XLY","XLC","XLI","XLB","XLRE","XLU"]
+                    sectors = ["XLF - Financials","XLE - Energy","XLK - Information Technology","XLP - Consumer Staples","XLV - Health Care","XLY - Consumer Discretionary","XLC - Communications Services","XLI - Industrials","XLB -Materials ","XLRE - Real Estate","XLU - Utilities"]
                     st.write(f"<b>Sector tickers list</b>",unsafe_allow_html=True)
                     st.write(sectors)
                     
                     # Group the data by sector
                     sectors_df = tickers.groupby('sector')
                     st.write(f"<b>Grouped tickers by sectors</b>",(sectors_df.groups),unsafe_allow_html=True)
-                    
-                    
-                    
-
 
             
                     # Save the ticker-cluster probability data to a CSV file
