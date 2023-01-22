@@ -1,0 +1,100 @@
+ticker,name,cluster
+APD,Air Products And Chemicals Inc,0
+SHW,Sherwin Williams,0
+FCX,"Freeport-McMoRan, Inc.",0
+CTVA,"Corteva, Inc.",0
+ECL,Ecolab Inc,0
+NEM,Newmont Corporation,0
+DOW,Dow Inc.,0
+NUE,Nucor Corp,0
+DD,"DuPont de Nemours, Inc.",0
+XOM,Exxon Mobil Corp,0
+CVX,Chevron Corp,0
+COP,ConocoPhillips,0
+SLB,Schlumberger Nv,0
+EOG,EOG Resources Inc,0
+OXY,Occidental Petroleum Corp,0
+MPC,Marathon Petroleum Corp,0
+PXD,Pioneer Natural Resource,0
+VLO,Valero Energy Corp,0
+PSX,Phillips 66,0
+BRK.B,Berkshire Hathaway Inc. Class B,0
+JPM,JP Morgan Chase & Co,0
+BAC,Bank of America Corp,0
+WFC,Wells Fargo,0
+MS,Morgan Stanley,0
+SCHW,Charles Schwab Corporation,0
+SPGI,S&P Global Inc,0
+GS,Goldman Sachs Group Inc,0
+AXP,American Express,0
+BLK,Blackrock Inc,0
+UPS,United Parcel Service Inc Class B,0
+RTX,Raytheon Technologies Corporation,0
+HON,Honeywell International Inc,0
+CAT,Caterpillar Inc,0
+UNP,Union Pacific Corp,0
+DE,Deere & Company,0
+BA,Boeing,0
+LMT,Lockheed Martin Corp,0
+GE,General Electric,0
+ITW,Illinois Tool Inc,0
+AAPL,Apple Inc,1
+MSFT,Microsoft Corp,1
+NVDA,Nvidia Corp,0
+V,Visa Inc Class A,0
+MA,Mastercard Inc Class A,0
+AVGO,Broadcom Inc.,0
+ORCL,Oracle Corp,0
+CSCO,Cisco Systems Inc,0
+ACN,Accenture Plc Class A,0
+TXN,Texas Instrument Inc,0
+WMT,Walmart Stores Inc,0
+PG,Procter & Gamble,0
+KO,Coca-Cola,0
+PEP,Pepsico Inc,0
+COST,Costco Wholesale Corp,0
+PM,Philip Morris International Inc,0
+EL,Estee Lauder Inc Class A,0
+MDLZ,Mondelez International Inc,0
+MO,Altria Group Inc,0
+CL,Colgate-Palmolive,0
+PLD,"Prologis, Inc",0
+AMT,American Tower Corporation,0
+EQIX,"Equinix, Inc.",0
+CCI,Crown Castle International Corp.,0
+PSA,Public Storage,0
+O,Realty Income Corporation,0
+SPG,"Simon Property Group, Inc",0
+WELL,Welltower Inc,0
+SBAC,SBA Communications Corporation,0
+VICI,VICI Properties Inc,0
+NEE,Nextera Energy Inc,0
+DUK,Duke Energy Corp,0
+SO,Southern Co,0
+D,Dominion Energy Inc,0
+SRE,Sempra Energy,0
+AEP,American Electric Power Inc,0
+EXC,Exelon Corp,0
+XEL,Xcel Energy Inc,0
+ED,Consolidated Edison Inc,0
+PCG,Pacific Gas & Electric Co.,0
+UNH,Unitedhealth Group Inc,0
+JNJ,Johnson & Johnson,0
+LLY,Eli Lilly,0
+MRK,Merck & Co Inc,0
+ABBV,Abbvie Inc,0
+PFE,Pfizer Inc,0
+TMO,Thermo Fisher Scientific Inc,0
+DHR,Danaher Corp,0
+ABT,Abbott Laboratories,0
+BMY,Bristol Myers Squibb,0
+AMZN,Amazon.Com Inc.,1
+TSLA,Tesla Inc,0
+HD,Home Depot Inc,0
+NKE,Nike Inc Class B,0
+MCD,Mcdonalds Corp,0
+LOW,Lowes Companies Inc,0
+SBUX,Starbucks Corp,0
+TJX,"TJX Companies, Inc.",0
+BKNG,Booking Holdings Inc,0
+TGT,Target Corp,0

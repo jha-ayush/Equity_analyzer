@@ -1056,27 +1056,41 @@ with tab2:
                         labels = kmeans.predict(X)
                         # Append the silhouette score to the list
                         silhouette_scores.append(silhouette_score(X, labels))
+                        # Find the index of the highest silhouette score
+                        optimal_number_of_clusters = np.argmax(silhouette_scores) + 2
+                        # Show silhouette scores
+                        st.write(silhouette_scores)
 
-                    # Plot the silhouette scores
-                    plt.plot(range(2, 11), silhouette_scores)
-                    plt.xlabel('Number of clusters')
-                    plt.ylabel('Silhouette score')
-                    plt.show()
+                        # Plot the silhouette scores
+                        # plt.plot(range(2, 11), silhouette_scores)
+                        # plt.xlabel('Number of clusters')
+                        # plt.ylabel('Silhouette score')
+                        # plt.show()
+                        
+                    # Re-initialize the model with the optimal number of clusters
+                    kmeans = KMeans(n_clusters=optimal_number_of_clusters)
+                    # Fit the model to the data
+                    kmeans.fit(X)
+                    # Assign each company to a cluster
+                    top_10_companies_df['cluster'] = kmeans.predict(X)
 
+                    # Create a new DataFrame with the cluster labels
+                    cluster_df = top_10_companies_df[['ticker', 'name', 'cluster']]
 
-
-
+                    # Display the table
+                    st.table(cluster_df)
+                    
+                    
             
                     # Save the ticker-cluster probability data to a CSV file
                     if st.button('Save ticker-cluster probability data'):
                         try:
-                            # Create a folder called "results" if it doesn't exist
-                            os.makedirs("results", exist_ok=True)
-                            file_path = "results/ticker_cluster_prob.csv"
-                            ticker_cluster_prob.to_csv(file_path)
-                            st.success("Ticker-cluster probability data saved to CSV file successfully!")
+                            # Save to folder 'results'
+                            cluster_df.to_csv('./results/cluster_df.csv', index=False)
+                            st.success("Ticker-cluster probability data saved to CSV file successfully! ✅ ")
+                            st.balloons()
                         except Exception as e:
-                            st.error("Error saving ticker-cluster probability data to CSV file. Please try again.")
+                            st.error("Error saving ticker-cluster probability data to CSV file. ❌ Please try again! ")
                             st.exception(e)
     
                         
