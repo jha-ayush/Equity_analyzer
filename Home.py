@@ -1234,9 +1234,13 @@ with tab3:
 # Tab 4 - Recommendations
 with tab4:
     st.subheader("Business")
-    st.warning("Fix")
+    st.warning("Fix 1")
+    st.warning("Fix 2")
+    st.warning("Fix 3")
     st.subheader("Technical")
-    st.warning("Fix")
+    st.warning("Fix 1")
+    st.warning("Fix 2")
+    st.warning("Fix 3")
     
     #-----------------------------------------------#
     # Contact Form
