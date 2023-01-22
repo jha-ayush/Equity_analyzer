@@ -911,16 +911,15 @@ with tab2:
                     st.write(f"<b>Ticker symbols dataframe</b>",unsafe_allow_html=True)
                     symbols_df=pd.read_csv('./Resources/tickers.csv')
                     st.write(symbols_df)
-
-                    # Get the count of unique sectors
-                    sector_count = symbols_df['sector'].nunique()
-                    st.write(f"Total number of sectors: ",sector_count)
-                    sector_counts = symbols_df['sector'].value_counts()
+                    st.write(ticker_df)
                     
-                    # Get the list of unique sectors
-                    sectors = symbols_df['sector'].unique()
-                    st.write("List of all sectors:")
-                    st.write(sectors)
+                    # Add new column "Market Cap"
+                    ticker_df["Market Cap"] = ticker_df["Close"] * ticker_df["Volume"]
+                    # Remove 'Dividends' & 'Stock Splits' from `ticker_df`
+                    ticker_df.drop(columns=["Dividends", "Stock Splits"], inplace=True)
+                    # Display cleaned up dataframe
+                    st.write(ticker_df)
+
                     
                     # Group the data by sector and count the number of companies in each sector
                     sector_counts = symbols_df['sector'].value_counts()
@@ -928,197 +927,38 @@ with tab2:
                     # Create a new DataFrame with the sector counts
                     sectors_df = pd.DataFrame({'sector': sector_counts.index, 'count': sector_counts.values})
 
-                    st.write("Sector and number of companies in each sector: ")
+                    st.write(f"<b>Sectors and number of companies in each sector</b>",unsafe_allow_html=True)
                     # Display the new DataFrame in a table using streamlit
                     st.table(sectors_df)
-                    
-                    
 
                     # Download symbols data
-                    symbols_data = yf.download(ticker, start=start_date, end=end_date)
-                    
+                    symbols_data = yf.download(ticker, start=start_date, end=end_date) 
 
+                    # Define the sectors
+                    # "XLF" represents the Financial Select Sector SPDR Fund which tracks the performance of the financial sector of the S&P 500 index.
+                    # "XLE" represents the Energy Select Sector SPDR Fund which tracks the performance of the energy sector of the S&P 500 index.
+                    # "XLK" represents the Technology Select Sector SPDR Fund which tracks the performance of the technology sector of the S&P 500 index.
+                    # "XLP" represents the Consumer Staples Select Sector SPDR Fund which tracks the performance of the consumer staples sector of the S&P 500 index.
+                    # "XLV" represents the Health Care Select Sector SPDR Fund which tracks the performance of the healthcare sector of the S&P 500 index.
+                    # "XLY" represents the Consumer Discretionary Select Sector SPDR Fund which tracks the performance of the consumer discretionary sector of the S&P 500 index.
+                    # "XLC" represents the Communications Services Select Sector SPDR Fund which tracks the performance of the communications services sector of the S&P 500 index.
+                    # "XLI" represents the Industrials Select Sector SPDR Fund which tracks the performance of the industrials sector of the S&P 500 index.
+                    # "XLB" represents the Materials Select Sector SPDR Fund which tracks the performance of the materials sector of the S&P 500 index.
+                    # "XLRE" represents the Real Estate Select Sector SPDR Fund which tracks the performance of the real estate sector of the S&P 500 index.
+                    # "XLU" represents the Utilities Select Sector SPDR Fund which tracks the performance of the utilities sector of the S&P 500 index.
                     
-                    st.write(f"Let us view some datapoints and visualizations.",unsafe_allow_html=True)
                     
-                    # Use ticker_df as the original dataframe
-                    st.write(f"<b>Original dataframe for {ticker}</b>",unsafe_allow_html=True)
-                    st.write(ticker_data)
-                    st.write(ticker_df)
-                    st.text(f"Original data loaded ✅")  
-
+                    sectors = ["XLF","XLE","XLK","XLP","XLV","XLY","XLC","XLI","XLB","XLRE","XLU"]
+                    st.write(f"<b>Sector tickers list</b>",unsafe_allow_html=True)
+                    st.write(sectors)
                     
                     # Group the data by sector
                     sectors_df = tickers.groupby('sector')
-                    st.write(f"Grouped by sectors",(sectors_df.groups))
-
-                    # Initialize an empty list to store the DataFrames for each sector
-                    sector_data = []
-
-                    # Iterate over the groups
-                    for sector, tickers in sectors_df:
-                        # Select the top 50 tickers for each sector
-                        top_tickers = tickers.head(50)
-                        # Initialize an empty list to store the stock data for each ticker
-                        stock_data = []
-                        # Iterate over the tickers
-                        for ticker in top_tickers['ticker']:
-                            # Get the stock data for the current ticker
-                            stock = yf.Ticker(ticker).info
-                            # Append the stock data to the list
-                            stock_data.append(stock)
-                        # Create a DataFrame from the stock data
-                        sector_df = pd.DataFrame(stock_data)
-                        # Add a column to the DataFrame with the sector name
-                        sector_df['sector'] = sector
-                        # Append the DataFrame to the list
-                        sector_data.append(sector_df)
-
-                    # Concatenate all the DataFrames into one final DataFrame
-                    final_df = pd.concat(sector_data)
-
-                    # Select the columns you want to show in the table
-                    final_df = final_df[['Open','High','Low','Close','sector']]
-
-                    st.write("Stock Data : ")
-                    # Display the final DataFrame in a table using streamlit
-                    st.table(final_df)
-
+                    st.write(f"<b>Grouped tickers by sectors</b>",(sectors_df.groups),unsafe_allow_html=True)
                     
                     
                     
-                    
-                    # Resample ticker data 'Daily' data - Drop Nan values
-                    df_resampled = ticker_df.resample('M').mean().dropna()
-                    st.write(f"<b>Monthly resampled dataframe</b>",unsafe_allow_html=True)
-                    st.write(df_resampled)
-                    st.text(f"Monthly data Resampled ✅")
-                    
-                    # Use metrics like Sharpe ratio to filter out tickers from specific value range
-                    st.write(f"Sharpe ratio value is: <b>{calculate_sharpe_ratio(ticker, start_date, end_date, risk_free_rate=0.03)}</b>",unsafe_allow_html=True)
-                    
-                    # Scale Resampled data
-                    scaler = StandardScaler()
-                    df_scaled = scaler.fit_transform(df_resampled)
-                    st.write(f"<b>Scaled dataframe</b>",unsafe_allow_html=True)
-                    st.write(df_scaled)
-                    st.text(f"Data Scaled ✅")
-                    
-                    # Apply PCA analysis
-                    pca = PCA(n_components=2)
-                    df_pca = pca.fit_transform(df_scaled)
-                    st.write(f"<b>PCA dataframe</b>",unsafe_allow_html=True)
-                    st.write(df_pca)
-                    st.text(f"Applied PCA analysis ✅")
-                    
-                    
-                    st.write("---")
-                    st.write(f"View the 'shape' in tuple (row,column) format for <b>{ticker}</b> data as it goes through data trasformation.",unsafe_allow_html=True)
-                    # Check the shape of the tickers dataframe from the csv
-                    st.write(f"Original <b>tickers</b> dataset data shape: <b>{tickers.shape}</b>",unsafe_allow_html=True)
-                    # Check the shape of the original dataframe from yfinance
-                    st.write(f"Original <b>ticker_df</b> dataset data shape: <b>{ticker_df.shape}</b>",unsafe_allow_html=True)
-                    # Check the shape of the resampled dataframe on ticker_df
-                    st.write(f"Resampled <b>df_resampled</b> dataset data shape: <b>{df_resampled.shape}</b>",unsafe_allow_html=True)
-                    # Check the shape of the resampled dataframe
-                    st.write(f"Scaled <b>df_scaled</b> dataset data shape: <b>{df_scaled.shape}</b>",unsafe_allow_html=True)
-                    # Check the shape of the PCA dataframe
-                    st.write(f"PCA <b>df_pca</b> dataset data shape: <b>{df_pca.shape}</b>",unsafe_allow_html=True)
-                    st.write("---")
-                    
-                    
-                    # Apply K-means to the data
-                    if st.button('Run K-means'):
-                        # Create a slider to select the number of clusters
-                        n_clusters = st.slider("Select number of clusters:", 2, 10, 5)
 
-                        # Apply K-means
-                        kmeans = KMeans(n_clusters=n_clusters)
-                        kmeans.fit(df_pca)
-
-                        # Get explained variance for PC1 and PC2
-                        explained_variance = pca.explained_variance_ratio_
-
-                        # Create an interactive visualization for the clusters
-                        plt.scatter(ticker_df[:, 0], df_pca[:, 1], c=kmeans.labels_, cmap='rainbow')
-                        plt.title("K-Means scatter plot")
-                        plt.xlabel(f"Principal Component 1 (Explained Variance: {explained_variance[0]:.2%})")  # x-label with explained variance
-                        plt.ylabel(f"Principal Component 2 (Explained Variance: {explained_variance[1]:.2%})")  # y-label with explained variance
-                        st.pyplot()
-
-                        # Add Description
-                        st.write(f"<b>Description of the scatter plot</b>",unsafe_allow_html=True)
-                        st.write("The K-means scatter plot above shows the clusters obtained using K-means clustering with the number of clusters selected by the user. Each point represents a stock and is colored according to the cluster it belongs to. The x-axis represents the first principal component and the y-axis represents the second principal component.")
-                        if hasattr(pca, 'explained_variance_ratio_'):
-                            st.write("The x-label and y-label shows the percent of variance explained by each principal component.")
-                        else:
-                            st.write("The x-label and y-label shows the first and second principal component respectively.")
-                    
-                        
-                    # Plot Elbow method for cluster count optimization
-                    if st.button('Determine optimum cluster count using the Elbow method'):
-                        model = KMeans()
-                        visualizer = KElbowVisualizer(model, k=(2,10))
-                        visualizer.fit(df_pca)
-                        visualizer.show()
-                        st.pyplot()
-                    
-
-                    # Apply K-means to the data with optimal number of clusters
-                    if st.button('Re-run K-means with optimal number of clusters'):
-                        optimal_clusters = st.slider("Select the optimal number of clusters:", 2, 10, 4)
-                        st.write(f"Optimum number of clusters: <b>{optimal_clusters}</b>",unsafe_allow_html=True)
-                        kmeans = KMeans(n_clusters=optimal_clusters)
-                        kmeans.fit(df_pca)
-
-                        # Get explained variance for PC1 and PC2
-                        explained_variance = pca.explained_variance_ratio_
-
-                        # Visualize the clusters
-                        plt.scatter(df_pca[:, 0], df_pca[:, 1], c=kmeans.labels_,cmap='rainbow')
-                        plt.xlabel('PC1')
-                        plt.ylabel('PC2')
-                        plt.title(f'Explained variance (PC1, PC2): {explained_variance[0]:.2f}, {explained_variance[1]:.2f}')
-                        st.pyplot()
-
-
-                        # st.write(ticker_df)
-                        st.text("K-means re-analysis complete ✅")
-                    
-
-                    # Apply Monte Carlo simulation with optimal number of clusters
-                    if st.button('Run MC simulation for cluster optimization'):
-
-                        # Create a slider to select the number of simulations
-                        n_simulations = st.slider("Select the number of simulations:", 100, 1000, 250)
-                        
-                        st.warning("Hello, we're still working on this feature.")
-                        
-                        for n_clusters in range(2, 11):
-                                # Define the optimal number of clusters using the elbow method
-                                kmeans = KMeans(n_clusters=n_clusters)
-                                kmeans.fit(df_pca)
-                                simulation_results = []
-
-                                # Run the Monte Carlo simulation
-                                for i in range(n_simulations):
-                                    # Apply random normal perturbation to the PCA transformed data
-                                    df_pca_perturbed = df_pca + np.random.normal(0, 0.1, df_pca.shape)
-                                    kmeans_perturbed = KMeans(n_clusters=n_clusters)
-                                    kmeans_perturbed.fit(df_pca_perturbed)
-                                    # Append the perturbed cluster labels to the simulation results
-                                    simulation_results.append(kmeans_perturbed.labels_)
-
-                                # Compute the probability of each ticker belonging to each cluster
-                                ticker_cluster_prob = np.mean(np.array(simulation_results), axis=0)
-                                ticker_cluster_prob = pd.DataFrame(ticker_cluster_prob, columns=['cluster_' + str(i) for i in range(n_clusters)], index=df_resampled.index)
-
-                                # Display the tickers in each cluster
-                                for i in range(n_clusters):
-                                    st.write(f"<b>Tickers in cluster {i}</b>", unsafe_allow_html=True)
-                                    st.write(ticker_cluster_prob[ticker_cluster_prob['cluster_' + str(i)] > 0.5].index)
-                                    st.write(ticker_cluster_prob)
-                                    st.text(f"Monte Carlo simulation with {n_clusters} clusters complete ✅")
 
             
                     # Save the ticker-cluster probability data to a CSV file
