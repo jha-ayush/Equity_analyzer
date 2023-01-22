@@ -909,20 +909,23 @@ with tab2:
                 col1, col2 = st.columns([4, 1])
                 with col1:
                     # Create a dataframe for the csv file
-                    st.write(f"<b>Ticker symbols dataframe</b>",unsafe_allow_html=True)
                     try:
                         symbols_df = pd.read_csv("./Resources/tickers.csv")
                     except:
                         logging.error('Cannot find the CSV file')
-                    st.write(symbols_df)
+                        
+                        
+                    ticker_df_check_box=st.checkbox(label=f"Display tickers dataframe")
+                    if ticker_df_check_box:
+                        #Display tickers dataframe    
+                        st.write(symbols_df)    
                     
-                    # Add new column "Market Cap"
-                    ticker_df["Market Cap"] = ticker_df["Close"] * ticker_df["Volume"]
+                    # Add new column "Market Cap" to ticker_df also
+                    # ticker_df["Market Cap"] = ticker_df["Close"] * ticker_df["Volume"]
                     # Remove 'Dividends' & 'Stock Splits' from `ticker_df`
-                    ticker_df.drop(columns=["Dividends", "Stock Splits"], inplace=True)
+                    # ticker_df.drop(columns=["Dividends", "Stock Splits"], inplace=True)
                     # Sort the sectors by market capitalization
-                    ticker_df.sort_values(by='Market Cap', ascending=False, inplace=True)
-
+                    # ticker_df.sort_values(by='Market Cap', ascending=False, inplace=True)
                     # Display the sorted data in a table
                     # st.table(ticker_df)
                     
@@ -947,138 +950,143 @@ with tab2:
                     # "XLU" represents the Utilities Select Sector SPDR Fund which tracks the performance of the utilities sector of the S&P 500 index.
                     
                     
-                    sectors = ["XLF - Financials","XLE - Energy","XLK - Information Technology","XLP - Consumer Staples","XLV - Health Care","XLY - Consumer Discretionary","XLC - Communications Services","XLI - Industrials","XLB - Materials","XLRE - Real Estate","XLU - Utilities"]
-                    st.write(f"<b>Sector tickers list</b>",unsafe_allow_html=True)
-                    st.write(sectors)
+                    sectors_check_box=st.checkbox(label=f"Display ticker sectors list")
+                    if sectors_check_box:
+                        #Display ticker sectors     
+                        sectors = ["XLF - Financials","XLE - Energy","XLK - Information Technology","XLP - Consumer Staples","XLV - Health Care","XLY - Consumer Discretionary","XLC - Communications Services","XLI - Industrials","XLB - Materials","XLRE - Real Estate","XLU - Utilities"]
+                        st.write(sectors)
                     
                     # Group the data by sector
                     sectors_df = symbols_df.groupby('sector')
 
-                    st.write(f"<b>Grouped tickers by sectors</b>",(sectors_df.groups),unsafe_allow_html=True)
-
-
-
-                    # Create a dictionary that maps sector names to ticker symbols
-                    sector_ticker_map = {"Financials": "XLF", "Energy": "XLE", "Information Technology": "XLK", "Consumer Staples": "XLP", "Health Care": "XLV", "Consumer Discretionary": "XLY", "Communications Services": "XLC", "Industrials": "XLI", "Materials": "XLB", "Real Estate": "XLRE", "Utilities": "XLU"}
-
-                    # Use the map() function to replace the sector names with the corresponding ticker symbols
-                    symbols_df["sector"] = symbols_df["sector"].map(sector_ticker_map)
                     
-                    # Display dataframe with sector ticker info
-                    st.write(f"<b>Tickers with Market Cap</b>",unsafe_allow_html=True)
-                    st.write(symbols_df)
-                    
-                    # Create a new DataFrame with the sector counts
-                    sectors_df = pd.DataFrame({'sector': sector_counts.index, 'count': sector_counts.values})
-
-                    st.write(f"<b>Sectors and number of companies in each sector</b>",unsafe_allow_html=True)
-                    # Display the new DataFrame in a table using streamlit
-                    st.table(sectors_df)
-                    
-                    # Group the symbols_df DataFrame by the 'sector' column
-                    grouped_df = symbols_df.groupby('sector').size().reset_index(name='counts')
-
-                    # Use the plot() function to create a bar chart of the groups
-                    st.write(f"<b>Number of tickers in each sector</b>",unsafe_allow_html=True)
-                    grouped_df.plot(kind='bar', x='sector', y='counts',color='green')
-
-                    # Show the plot
-                    st.pyplot()
-                    
-                    # Show Top 5 sectors
-                    top_5_sectors = sectors_df.sort_values(by='count', ascending=False).head(5)
-                    st.write(f"<b>Top 5 sectors by number of companies</b>",unsafe_allow_html=True)
-                    st.table(top_5_sectors)
-                    # Find data types/info
-                    # st.write(symbols_df.dtypes)
-                    
-                    # Group the symbols_df dataframe by the 'sector' column
-                    grouped_df = symbols_df.groupby('sector')
-
-                    # Create an empty list to store the top 10 companies from each sector
-                    top_10_companies = []
-
-                    # Conver Market Cap objectype to int
-                    symbols_df["market_cap"] = symbols_df["market_cap"].str.replace(',','')
-                    symbols_df["market_cap"] = symbols_df["market_cap"].str.replace('$','')
-                    
-                    # Convert market_cap to numeric
-                    symbols_df["market_cap"] = pd.to_numeric(symbols_df["market_cap"])
-                    # st.write(symbols_df)
-
-
-
+                    grouped_tickers_check_box=st.checkbox(label=f"Display tickers grouped in sectors")
+                    if grouped_tickers_check_box:
+                        #Display ticker sectors     
+                        st.write(f"<b>Grouped tickers by sectors</b>",(sectors_df.groups),unsafe_allow_html=True)
+                        # Create a dictionary that maps sector names to ticker symbols
+                        sector_ticker_map = {"Financials": "XLF", "Energy": "XLE", "Information Technology": "XLK", "Consumer Staples": "XLP", "Health Care": "XLV", "Consumer Discretionary": "XLY", "Communications Services": "XLC", "Industrials": "XLI", "Materials": "XLB", "Real Estate": "XLRE", "Utilities": "XLU"}
+                        # Use the map() function to replace the sector names with the corresponding ticker symbols
+                        symbols_df["sector"] = symbols_df["sector"].map(sector_ticker_map)
+                        
+                    tickers_markcap_check_box=st.checkbox(label=f"Display tickers with Market cap")
+                    if tickers_markcap_check_box:
+                        # Display dataframe with sector ticker info
+                        st.write(f"<b>Tickers with Market Cap</b>",unsafe_allow_html=True)
+                        st.write(symbols_df)
                     
                     
-                    # Iterate over the sectors
-                    for sector, group in grouped_df:
-                        # Select the top 10 companies from the current sector based on market cap
-                        top_10_companies.append(group.nlargest(10, 'market_cap'))
+                    sector_count_check_box=st.checkbox(label=f"Display ticker counts in each sectors")
+                    if sector_count_check_box:
+                        # Create a new DataFrame with the sector counts
+                        sectors_df = pd.DataFrame({'sector': sector_counts.index, 'count': sector_counts.values})
 
-                    # Concatenate all the top 10 company dataframes into a single dataframe
-                    top_10_companies_df = pd.concat(top_10_companies)
-                    st.write(f"<b>Top 10 companies by Market Cap in each sector</b>",unsafe_allow_html=True)
-                    st.write(f"<b>Total companies: ",{top_10_companies_df.shape},unsafe_allow_html=True)
-                    st.write(top_10_companies_df)
+                        st.write(f"<b>Sectors and number of companies in each sector</b>",unsafe_allow_html=True)
+                        # Display the new DataFrame in a table using streamlit
+                        st.table(sectors_df)
+                    
+                        # Group the symbols_df DataFrame by the 'sector' column
+                        grouped_df = symbols_df.groupby('sector').size().reset_index(name='counts')
+
+                        # Use the plot() function to create a bar chart of the groups
+                        st.write(f"<b>Number of tickers in each sector</b>",unsafe_allow_html=True)
+                        grouped_df.plot(kind='bar', x='sector', y='counts',color='green')
+
+                        # Show the plot
+                        st.pyplot()
+                    
+                        # Show Top 5 sectors
+                        top_5_sectors = sectors_df.sort_values(by='count', ascending=False).head(5)
+                        st.write(f"<b>Top 5 sectors by number of companies</b>",unsafe_allow_html=True)
+                        st.table(top_5_sectors)
+                        # Find data types/info
+                        # st.write(symbols_df.dtypes)
+                    
+                        # Group the symbols_df dataframe by the 'sector' column
+                        grouped_df = symbols_df.groupby('sector')
+
+                        # Create an empty list to store the top 10 companies from each sector
+                        top_10_companies = []
+
+                        # Conver Market Cap objectype to int
+                        symbols_df["market_cap"] = symbols_df["market_cap"].str.replace(',','')
+                        symbols_df["market_cap"] = symbols_df["market_cap"].str.replace('$','')
+
+                        # Convert market_cap to numeric
+                        symbols_df["market_cap"] = pd.to_numeric(symbols_df["market_cap"])
+                        # st.write(symbols_df)
+
+
+                
+                    
+                        # Iterate over the sectors
+                        for sector, group in grouped_df:
+                            # Select the top 10 companies from the current sector based on market cap
+                            top_10_companies.append(group.nlargest(10, 'market_cap'))
+
+                        # Concatenate all the top 10 company dataframes into a single dataframe
+                        top_10_companies_df = pd.concat(top_10_companies)
+                        st.write(f"<b>Top 10 companies by Market Cap in each sector</b>",unsafe_allow_html=True)
+                        st.write(f"<b>Total companies: ",{top_10_companies_df.shape},unsafe_allow_html=True)
+                        st.write(top_10_companies_df)
 
                     
                     
-                    # Shift the market_cap values up by 1 position
-                    top_10_companies_df['market_cap_shifted'] = top_10_companies_df['market_cap'].shift(1)
+                        # Shift the market_cap values up by 1 position
+                        top_10_companies_df['market_cap_shifted'] = top_10_companies_df['market_cap'].shift(1)
 
-                    # Calculate the daily return using the shifted values
-                    top_10_companies_df['daily_return'] = (top_10_companies_df['market_cap'] - top_10_companies_df['market_cap_shifted']) / top_10_companies_df['market_cap_shifted']
+                        # Calculate the daily return using the shifted values
+                        top_10_companies_df['daily_return'] = (top_10_companies_df['market_cap'] - top_10_companies_df['market_cap_shifted']) / top_10_companies_df['market_cap_shifted']
 
-                    # Drop the shifted column
-                    top_10_companies_df.drop(columns=['market_cap_shifted'], inplace=True)
+                        # Drop the shifted column
+                        top_10_companies_df.drop(columns=['market_cap_shifted'], inplace=True)
+
+                        # Drop the rows with missing values
+                        top_10_companies_df.dropna(inplace=True)
+
+                        st.write(f"<b>Total companies with daily returns: ",{top_10_companies_df.shape},unsafe_allow_html=True)
+                        st.write(top_10_companies_df)
+
+
                     
-                    # Drop the rows with missing values
-                    top_10_companies_df.dropna(inplace=True)
-
-                    st.write(f"<b>Total companies with daily returns: ",{top_10_companies_df.shape},unsafe_allow_html=True)
-                    st.write(top_10_companies_df)
-
-
                     
-                    # Select the columns from top_10_companies_df that will be used for clustering
-                    X = top_10_companies_df[['daily_return', 'market_cap']]
+                    # Save the ticker-cluster probability data to a CSV file
+                    if st.button('Optimize & run K-means algorithm'):
+                        
+                        # Select the columns from top_10_companies_df that will be used for clustering
+                        X = top_10_companies_df[['daily_return', 'market_cap']]
 
-                    # Initialize an empty list to store the silhouette scores
-                    silhouette_scores = []
+                        # Initialize an empty list to store the silhouette scores
+                        silhouette_scores = []
 
-                    # Loop through a range of possible number of clusters
-                    for n_clusters in range(2, 11):
-                        # Initialize the KMeans model
-                        kmeans = KMeans(n_clusters=n_clusters)
+                        # Loop through a range of possible number of clusters
+                        for n_clusters in range(2, 11):
+                            # Initialize the KMeans model
+                            kmeans = KMeans(n_clusters=n_clusters)
+                            # Fit the model to the data
+                            kmeans.fit(X)
+                            # Predict the cluster labels for each data point
+                            labels = kmeans.predict(X)
+                            # Append the silhouette score to the list
+                            silhouette_scores.append(silhouette_score(X, labels))
+                            # Find the index of the highest silhouette score
+                            optimal_number_of_clusters = np.argmax(silhouette_scores) + 2
+                            # Show silhouette scores
+                            st.write(silhouette_scores)
+
+
+                        # Re-initialize the model with the optimal number of clusters
+                        kmeans = KMeans(n_clusters=optimal_number_of_clusters)
                         # Fit the model to the data
                         kmeans.fit(X)
-                        # Predict the cluster labels for each data point
-                        labels = kmeans.predict(X)
-                        # Append the silhouette score to the list
-                        silhouette_scores.append(silhouette_score(X, labels))
-                        # Find the index of the highest silhouette score
-                        optimal_number_of_clusters = np.argmax(silhouette_scores) + 2
-                        # Show silhouette scores
-                        st.write(silhouette_scores)
+                        # Assign each company to a cluster
+                        top_10_companies_df['cluster'] = kmeans.predict(X)
 
-                        # Plot the silhouette scores
-                        # plt.plot(range(2, 11), silhouette_scores)
-                        # plt.xlabel('Number of clusters')
-                        # plt.ylabel('Silhouette score')
-                        # plt.show()
-                        
-                    # Re-initialize the model with the optimal number of clusters
-                    kmeans = KMeans(n_clusters=optimal_number_of_clusters)
-                    # Fit the model to the data
-                    kmeans.fit(X)
-                    # Assign each company to a cluster
-                    top_10_companies_df['cluster'] = kmeans.predict(X)
+                        # Create a new DataFrame with the cluster labels
+                        cluster_df = top_10_companies_df[['ticker', 'name', 'cluster']]
 
-                    # Create a new DataFrame with the cluster labels
-                    cluster_df = top_10_companies_df[['ticker', 'name', 'cluster']]
-
-                    # Display the table
-                    st.table(cluster_df)
+                        # Display the table
+                        st.table(cluster_df)
                     
                     
             
@@ -1092,6 +1100,9 @@ with tab2:
                         except Exception as e:
                             st.error("Error saving ticker-cluster probability data to CSV file. ❌ Please try again! ")
                             st.exception(e)
+                            
+                            
+                            
     
                         
                                                  
