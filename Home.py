@@ -925,12 +925,6 @@ with tab2:
                     # Group the data by sector and count the number of companies in each sector
                     sector_counts = symbols_df['sector'].value_counts()
 
-                    # Create a new DataFrame with the sector counts
-                    sectors_df = pd.DataFrame({'sector': sector_counts.index, 'count': sector_counts.values})
-
-                    st.write(f"<b>Sectors and number of companies in each sector</b>",unsafe_allow_html=True)
-                    # Display the new DataFrame in a table using streamlit
-                    st.table(sectors_df)
 
                     # Download symbols data
                     symbols_data = yf.download(ticker, start=start_date, end=end_date) 
@@ -954,8 +948,11 @@ with tab2:
                     st.write(sectors)
                     
                     # Group the data by sector
-                    sectors_df = tickers.groupby('sector')
+                    sectors_df = symbols_df.groupby('sector')
+
                     st.write(f"<b>Grouped tickers by sectors</b>",(sectors_df.groups),unsafe_allow_html=True)
+
+
 
                     # Create a dictionary that maps sector names to ticker symbols
                     sector_ticker_map = {"Financials": "XLF", "Energy": "XLE", "Information Technology": "XLK", "Consumer Staples": "XLP", "Health Care": "XLV", "Consumer Discretionary": "XLY", "Communications Services": "XLC", "Industrials": "XLI", "Materials": "XLB", "Real Estate": "XLRE", "Utilities": "XLU"}
@@ -966,22 +963,24 @@ with tab2:
                     # Display dataframe with sector ticker info
                     st.write(symbols_df)
                     
-                    
+                    # Create a new DataFrame with the sector counts
+                    sectors_df = pd.DataFrame({'sector': sector_counts.index, 'count': sector_counts.values})
+
+                    st.write(f"<b>Sectors and number of companies in each sector</b>",unsafe_allow_html=True)
+                    # Display the new DataFrame in a table using streamlit
+                    st.table(sectors_df)
                     
                     # Group the symbols_df DataFrame by the 'sector' column
                     grouped_df = symbols_df.groupby('sector').size().reset_index(name='counts')
 
                     # Use the plot() function to create a bar chart of the groups
+                    st.text("Visualization of number of tickers in each sector")
                     grouped_df.plot(kind='bar', x='sector', y='counts',color='green')
 
                     # Show the plot
                     st.pyplot()
 
-                    # Display cleaned up dataframe & Added Market Cap
-                    st.write(f"<b>Ticker {ticker} symbol raw dataframe</b>",unsafe_allow_html=True)
-                    st.write(ticker_df)
 
-                    
 
 
 
