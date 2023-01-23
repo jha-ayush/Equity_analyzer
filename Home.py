@@ -768,114 +768,110 @@ with tab1:
     # Display Prophet section
     st.subheader("Time series forecast")
     prophet_check_box=st.checkbox(label=f"Display {ticker} Prophet time series forecast data")
-    if prophet_check_box:
-        with st.container():
-                # 2 columns section:
-                col1, col2 = st.columns([3, 2])
-                with col1:           
-                    # input a streamlit slider with years of prediction values
-                    n_years=st.slider("Select year(s) for time series forecast",1,5)
+    if prophet_check_box:           
+        # input a streamlit slider with years of prediction values
+        n_years=st.slider("Select year(s) for time series forecast",1,5)
 
 
-                    # create a new dataframe from the ticker_df object
-                    df_plot = pd.DataFrame.from_dict(ticker_df, orient='columns')
+        # create a new dataframe from the ticker_df object
+        df_plot = pd.DataFrame.from_dict(ticker_df, orient='columns')
 
-                    # select the 'Close' column
-                    df_plot = df_plot[['Close']]
+        # select the 'Close' column
+        df_plot = df_plot[['Close']]
 
-                    # rename the column to 'y'
-                    df_plot.columns = ['y']
+        # rename the column to 'y'
+        df_plot.columns = ['y']
 
-                    # add a 'ds' column with the dates, converting it to a datetime object and setting the timezone to None
-                    df_plot['ds'] = pd.to_datetime(df_plot.index).tz_localize(None)
+        # add a 'ds' column with the dates, converting it to a datetime object and setting the timezone to None
+        df_plot['ds'] = pd.to_datetime(df_plot.index).tz_localize(None)
 
-                    # Prophet requires a specific column format for the dataframe
-                    df_plot = df_plot[['ds', 'y']]
-
-
-                    # create the Prophet model and fit it to the data
-                    model = Prophet(daily_seasonality=True)
-                    model.fit(df_plot)
-
-                    # create a dataframe with future dates
-                    future_dates = model.make_future_dataframe(periods=365)
-
-                    # make predictions for the future dates
-                    forecast = model.predict(future_dates)
-
-                    # select the relevant columns for the plot
-                    plot_df = forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']]
-
-                    # Display data table
-                    forecast_data_check_box=st.checkbox(label=f"Display {ticker} forecast data & price prediction")
-                    if forecast_data_check_box:
-                        st.subheader(f"{ticker} forecast dataset")
-                        # Show tail of the Forecast data
-                        st.write(forecast.tail())
-                        st.write("---")
-
-                        # create a plotly figure
-                        fig = go.Figure()
-
-                        # add the predicted values to the figure
-                        fig.add_trace(go.Scatter(x=plot_df['ds'], y=plot_df['yhat'], name='Prediction'))
-
-                        # add the uncertainty intervals to the figure
-                        fig.add_shape(
-                                type='rect',
-                                xref='x',
-                                yref='paper',
-                                x0=plot_df['ds'].min(),
-                                y0=0,
-                                x1=plot_df['ds'].max(),
-                                y1=1,
-                                fillcolor='#E8E8E8',
-                                layer='below',
-                                line_width=0
-                            )
-                        fig.add_shape(
-                                type='rect',
-                                xref='x',
-                                yref='y',
-                                x0=plot_df['ds'].min(),
-                                y0=plot_df['yhat_upper'],
-                                x1=plot_df['ds'].max(),
-                                y1=plot_df['yhat_lower'],
-                                fillcolor='#E8E8E8',
-                                layer='below',
-                                line_width=0
-                            )
-
-                        # add the actual values to the figure
-                        fig.add_trace(go.Scatter(x=df_plot['ds'], y=df_plot['y'], name='Actual'))
-
-                        # set the plot's title and labels
-                        fig.update_layout(
-                            title=f"{ticker} stock price prediction",
-                            xaxis_title='Date',
-                            yaxis_title='Price (USD)'
-                        )
-
-                        # show the prediction plot
-                        st.plotly_chart(fig)
-
-                        # Display Prophet tools & components
-                        forecast_component_check_box=st.checkbox(label=f"Display {ticker} Prophet forecast components")
-                        if forecast_component_check_box:
-
-                            # create a plotly figure for the model's components
-                            st.subheader(f"{ticker} plot widget")
-                            fig2 = plot_plotly(model, forecast)
-                            # show the plot
-                            st.plotly_chart(fig2)
+        # Prophet requires a specific column format for the dataframe
+        df_plot = df_plot[['ds', 'y']]
 
 
-                            # show the model's plots
-                            st.subheader(f"{ticker} forecast components")
-                            st.write(model.plot(forecast))
+        # create the Prophet model and fit it to the data
+        model = Prophet(daily_seasonality=True)
+        model.fit(df_plot)
 
-                            # show the model's plot_components
-                            st.write(model.plot_components(forecast))
+        # create a dataframe with future dates
+        future_dates = model.make_future_dataframe(periods=365)
+
+        # make predictions for the future dates
+        forecast = model.predict(future_dates)
+
+        # select the relevant columns for the plot
+        plot_df = forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']]
+
+        # Display data table
+        forecast_data_check_box=st.checkbox(label=f"Display {ticker} forecast data & price prediction")
+        if forecast_data_check_box:
+            st.subheader(f"{ticker} forecast dataset")
+            # Show tail of the Forecast data
+            st.write(forecast.tail())
+            st.write("---")
+
+            # create a plotly figure
+            fig = go.Figure()
+
+            # add the predicted values to the figure
+            fig.add_trace(go.Scatter(x=plot_df['ds'], y=plot_df['yhat'], name='Prediction'))
+
+            # add the uncertainty intervals to the figure
+            fig.add_shape(
+                    type='rect',
+                    xref='x',
+                    yref='paper',
+                    x0=plot_df['ds'].min(),
+                    y0=0,
+                    x1=plot_df['ds'].max(),
+                    y1=1,
+                    fillcolor='#E8E8E8',
+                    layer='below',
+                    line_width=0
+                )
+            fig.add_shape(
+                    type='rect',
+                    xref='x',
+                    yref='y',
+                    x0=plot_df['ds'].min(),
+                    y0=plot_df['yhat_upper'],
+                    x1=plot_df['ds'].max(),
+                    y1=plot_df['yhat_lower'],
+                    fillcolor='#E8E8E8',
+                    layer='below',
+                    line_width=0
+                )
+
+            # add the actual values to the figure
+            fig.add_trace(go.Scatter(x=df_plot['ds'], y=df_plot['y'], name='Actual'))
+
+            # set the plot's title and labels
+            fig.update_layout(
+                title=f"{ticker} stock price prediction",
+                xaxis_title='Date',
+                yaxis_title='Price (USD)'
+            )
+
+            # show the prediction plot
+            st.plotly_chart(fig)
+
+            # Display Prophet tools & components
+            forecast_component_check_box=st.checkbox(label=f"Display {ticker} Prophet forecast components")
+            if forecast_component_check_box:
+
+                # create a plotly figure for the model's components
+                st.subheader(f"{ticker} plot widget")
+                fig2 = plot_plotly(model, forecast)
+                # show the plot
+                st.plotly_chart(fig2)
+
+
+                # show the model's plots
+                st.subheader(f"{ticker} forecast components")
+                st.write(model.plot(forecast))
+
+                # show the model's plot_components
+                st.write(model.plot_components(forecast))
                                 
 #-----------------------------------------------#
 # Download flowchart
@@ -927,208 +923,200 @@ with tab1:
 #------------------------------------------------------------------#                      
 # Tab 2 - Unsupervised Learning                    
 with tab2:
-    with st.container():
-                # 2 columns section:
-                col1, col2 = st.columns([4, 1])
-                with col1:
-                    # Create a dataframe for the csv file
-                    try:
-                        symbols_df = pd.read_csv("./Resources/tickers.csv")
-                    except:
-                        logging.error('Cannot find the CSV file')
-                        
-                        
-                    ticker_df_check_box=st.checkbox(label=f"Display tickers dataframe")
-                    if ticker_df_check_box:
-                        #Display tickers dataframe    
-                        st.write(symbols_df)    
-                    
-                    # Add new column "Market Cap" to ticker_df also
-                    # ticker_df["Market Cap"] = ticker_df["Close"] * ticker_df["Volume"]
-                    # Remove 'Dividends' & 'Stock Splits' from `ticker_df`
-                    # ticker_df.drop(columns=["Dividends", "Stock Splits"], inplace=True)
-                    # Sort the sectors by market capitalization
-                    # ticker_df.sort_values(by='Market Cap', ascending=False, inplace=True)
-                    # Display the sorted data in a table
-                    # st.table(ticker_df)
-                    
-                    # Group the data by sector and count the number of companies in each sector
-                    sector_counts = symbols_df['sector'].value_counts()
+
+    # Create a dataframe for the csv file
+    try:
+        symbols_df = pd.read_csv("./Resources/tickers.csv")
+    except:
+        logging.error('Cannot find the CSV file')
 
 
-                    # Download symbols data
-                    symbols_data = yf.download(ticker, start=start_date, end=end_date) 
+    ticker_df_check_box=st.checkbox(label=f"Display ticker dataframe")
+    if ticker_df_check_box:
+        # Display ticker_df dataframe
+        st.write(f"<b>ticker_df</b> dataframe",unsafe_allow_html=True)
+        st.write(ticker_df)
+        # Display symbols_df dataframe
+        st.write(f"<b>symbols_df</b> dataframe",unsafe_allow_html=True)
+        st.write(symbols_df)
 
-                    # Define the sectors
-                    # "XLF" represents the Financial Select Sector SPDR Fund which tracks the performance of the financial sector of the S&P 500 index.
-                    # "XLE" represents the Energy Select Sector SPDR Fund which tracks the performance of the energy sector of the S&P 500 index.
-                    # "XLK" represents the Technology Select Sector SPDR Fund which tracks the performance of the technology sector of the S&P 500 index.
-                    # "XLP" represents the Consumer Staples Select Sector SPDR Fund which tracks the performance of the consumer staples sector of the S&P 500 index.
-                    # "XLV" represents the Health Care Select Sector SPDR Fund which tracks the performance of the healthcare sector of the S&P 500 index.
-                    # "XLY" represents the Consumer Discretionary Select Sector SPDR Fund which tracks the performance of the consumer discretionary sector of the S&P 500 index.
-                    # "XLC" represents the Communications Services Select Sector SPDR Fund which tracks the performance of the communications services sector of the S&P 500 index.
-                    # "XLI" represents the Industrials Select Sector SPDR Fund which tracks the performance of the industrials sector of the S&P 500 index.
-                    # "XLB" represents the Materials Select Sector SPDR Fund which tracks the performance of the materials sector of the S&P 500 index.
-                    # "XLRE" represents the Real Estate Select Sector SPDR Fund which tracks the performance of the real estate sector of the S&P 500 index.
-                    # "XLU" represents the Utilities Select Sector SPDR Fund which tracks the performance of the utilities sector of the S&P 500 index.
-                    
-                    
-                    sectors_check_box=st.checkbox(label=f"Display ticker sectors list")
-                    if sectors_check_box:
-                        #Display ticker sectors     
-                        sectors = ["XLF - Financials","XLE - Energy","XLK - Information Technology","XLP - Consumer Staples","XLV - Health Care","XLY - Consumer Discretionary","XLC - Communications Services","XLI - Industrials","XLB - Materials","XLRE - Real Estate","XLU - Utilities"]
-                        st.write(sectors)
-                    
-                    # Group the data by sector
-                    sectors_df = symbols_df.groupby('sector')
+    # Add new column "Market Cap" to ticker_df also
+    # ticker_df["Market Cap"] = ticker_df["Close"] * ticker_df["Volume"]
+    # Remove 'Dividends' & 'Stock Splits' from `ticker_df`
+    # ticker_df.drop(columns=["Dividends", "Stock Splits"], inplace=True)
+    # Sort the sectors by market capitalization
+    # ticker_df.sort_values(by='Market Cap', ascending=False, inplace=True)
+    # Display the sorted data in a table
+    # st.table(ticker_df)
 
-                    
-                    grouped_tickers_check_box=st.checkbox(label=f"Display tickers grouped in sectors")
-                    if grouped_tickers_check_box:
-                        #Display ticker sectors     
-                        st.write(f"<b>Grouped tickers (int values) by sectors</b>",(sectors_df.groups),unsafe_allow_html=True)
-                        # Create a dictionary that maps sector names to ticker symbols
-                        sector_ticker_map = {"Financials": "XLF", "Energy": "XLE", "Information Technology": "XLK", "Consumer Staples": "XLP", "Health Care": "XLV", "Consumer Discretionary": "XLY", "Communications Services": "XLC", "Industrials": "XLI", "Materials": "XLB", "Real Estate": "XLRE", "Utilities": "XLU"}
-                        # Use the map() function to replace the sector names with the corresponding ticker symbols
-                        symbols_df["sector"] = symbols_df["sector"].map(sector_ticker_map)
-                        
-                    tickers_markcap_check_box=st.checkbox(label=f"Display tickers with Market cap")
-                    if tickers_markcap_check_box:
-                        # Display dataframe with sector ticker info
-                        st.write(f"<b>Tickers with Market Cap</b>",unsafe_allow_html=True)
-                        st.write(symbols_df)
-                    
-                    
-                    sector_count_check_box=st.checkbox(label=f"Display ticker counts in each sectors")
-                    if sector_count_check_box:
-                        # Create a new DataFrame with the sector counts
-                        sectors_df = pd.DataFrame({'sector': sector_counts.index, 'count': sector_counts.values})
-
-                        st.write(f"<b>Sectors and number of companies in each sector</b>",unsafe_allow_html=True)
-                        # Display the new DataFrame in a table using streamlit
-                        st.table(sectors_df)
-                    
-                        # Group the symbols_df DataFrame by the 'sector' column
-                        grouped_df = symbols_df.groupby('sector').size().reset_index(name='counts')
-
-                        # Use the plot() function to create a bar chart of the groups
-                        st.write(f"<b>Number of tickers in each sector</b>",unsafe_allow_html=True)
-                        grouped_df.plot(kind='bar', x='sector', y='counts',color='green')
-
-                        # Show the plot
-                        st.pyplot()
-                    
-                        # Show Top 5 sectors
-                        top_5_sectors = sectors_df.sort_values(by='count', ascending=False).head(5)
-                        st.write(f"<b>Top 5 sectors by number of companies</b>",unsafe_allow_html=True)
-                        st.table(top_5_sectors)
-                        # Find data types/info
-                        # st.write(symbols_df.dtypes)
-                    
-                        # Group the symbols_df dataframe by the 'sector' column
-                        grouped_df = symbols_df.groupby('sector')
-
-                        # Create an empty list to store the top 10 companies from each sector
-                        top_10_companies = []
-
-                        # Conver Market Cap objectype to int
-                        symbols_df["market_cap"] = symbols_df["market_cap"].str.replace(',','')
-                        symbols_df["market_cap"] = symbols_df["market_cap"].str.replace('$','')
-
-                        # Convert market_cap to numeric
-                        symbols_df["market_cap"] = pd.to_numeric(symbols_df["market_cap"])
-                        # st.write(symbols_df)
+    # Group the data by sector and count the number of companies in each sector
+    sector_counts = symbols_df['sector'].value_counts()
 
 
-                
-                    
-                        # Iterate over the sectors
-                        for sector, group in grouped_df:
-                            # Select the top 10 companies from the current sector based on market cap
-                            top_10_companies.append(group.nlargest(10, 'market_cap'))
+    # Download symbols data
+    symbols_data = yf.download(ticker, start=start_date, end=end_date) 
 
-                        # Concatenate all the top 10 company dataframes into a single dataframe
-                        top_10_companies_df = pd.concat(top_10_companies)
-                        st.write(f"<b>Top 10 companies by Market Cap in each sector</b>",unsafe_allow_html=True)
-                        st.write(f"<b>Total companies: ",{top_10_companies_df.shape},unsafe_allow_html=True)
-                        st.write(top_10_companies_df)
-
-                    
-                    
-                        # Shift the market_cap values up by 1 position
-                        top_10_companies_df['market_cap_shifted'] = top_10_companies_df['market_cap'].shift(1)
-
-                        # Calculate the daily return using the shifted values
-                        top_10_companies_df['daily_return'] = (top_10_companies_df['market_cap'] - top_10_companies_df['market_cap_shifted']) / top_10_companies_df['market_cap_shifted']
-
-                        # Drop the shifted column
-                        top_10_companies_df.drop(columns=['market_cap_shifted'], inplace=True)
-
-                        # Drop the rows with missing values
-                        top_10_companies_df.dropna(inplace=True)
-
-                        st.write(f"<b>Total companies with daily returns: ",{top_10_companies_df.shape},unsafe_allow_html=True)
-                        st.write(top_10_companies_df)
+    # Define the sectors
+    # "XLF" represents the Financial Select Sector SPDR Fund which tracks the performance of the financial sector of the S&P 500 index.
+    # "XLE" represents the Energy Select Sector SPDR Fund which tracks the performance of the energy sector of the S&P 500 index.
+    # "XLK" represents the Technology Select Sector SPDR Fund which tracks the performance of the technology sector of the S&P 500 index.
+    # "XLP" represents the Consumer Staples Select Sector SPDR Fund which tracks the performance of the consumer staples sector of the S&P 500 index.
+    # "XLV" represents the Health Care Select Sector SPDR Fund which tracks the performance of the healthcare sector of the S&P 500 index.
+    # "XLY" represents the Consumer Discretionary Select Sector SPDR Fund which tracks the performance of the consumer discretionary sector of the S&P 500 index.
+    # "XLC" represents the Communications Services Select Sector SPDR Fund which tracks the performance of the communications services sector of the S&P 500 index.
+    # "XLI" represents the Industrials Select Sector SPDR Fund which tracks the performance of the industrials sector of the S&P 500 index.
+    # "XLB" represents the Materials Select Sector SPDR Fund which tracks the performance of the materials sector of the S&P 500 index.
+    # "XLRE" represents the Real Estate Select Sector SPDR Fund which tracks the performance of the real estate sector of the S&P 500 index.
+    # "XLU" represents the Utilities Select Sector SPDR Fund which tracks the performance of the utilities sector of the S&P 500 index.
 
 
-                    
-                    
-                    # Save the ticker-cluster probability data to a CSV file
-                    if st.button('Optimize with Silhouette score & run K-means algorithm'):
-                        
-                        # Select the columns from top_10_companies_df that will be used for clustering
-                        X = top_10_companies_df[['daily_return', 'market_cap']]
+    sectors_check_box=st.checkbox(label=f"Display ticker sectors list")
+    if sectors_check_box:
+        #Display ticker sectors     
+        sectors = ["XLF - Financials","XLE - Energy","XLK - Information Technology","XLP - Consumer Staples","XLV - Health Care","XLY - Consumer Discretionary","XLC - Communications Services","XLI - Industrials","XLB - Materials","XLRE - Real Estate","XLU - Utilities"]
+        st.write(sectors)
 
-                        # Initialize an empty list to store the silhouette scores
-                        silhouette_scores = []
-
-                        # Loop through a range of possible number of clusters
-                        for n_clusters in range(2, 11):
-                            # Initialize the KMeans model
-                            kmeans = KMeans(n_clusters=n_clusters)
-                            # Fit the model to the data
-                            kmeans.fit(X)
-                            # Predict the cluster labels for each data point
-                            labels = kmeans.predict(X)
-                            # Append the silhouette score to the list
-                            silhouette_scores.append(silhouette_score(X, labels))
-                            # Find the index of the highest silhouette score
-                            optimal_number_of_clusters = np.argmax(silhouette_scores) + 2
-                            # Show silhouette scores
-                            # st.write(silhouette_scores)
+    # Group the data by sector
+    sectors_df = symbols_df.groupby('sector')
 
 
-                        # Re-initialize the model with the optimal number of clusters
-                        kmeans = KMeans(n_clusters=optimal_number_of_clusters)
-                        # Fit the model to the data
-                        kmeans.fit(X)
-                        # Assign each company to a cluster
-                        top_10_companies_df['cluster'] = kmeans.predict(X)
+    grouped_tickers_check_box=st.checkbox(label=f"Display tickers grouped in sectors")
+    if grouped_tickers_check_box:
+        #Display ticker sectors     
+        st.write(f"<b>Grouped tickers (int values) by sectors</b>",(sectors_df.groups),unsafe_allow_html=True)
+        # Create a dictionary that maps sector names to ticker symbols
+        sector_ticker_map = {"Financials": "XLF", "Energy": "XLE", "Information Technology": "XLK", "Consumer Staples": "XLP", "Health Care": "XLV", "Consumer Discretionary": "XLY", "Communications Services": "XLC", "Industrials": "XLI", "Materials": "XLB", "Real Estate": "XLRE", "Utilities": "XLU"}
+        # Use the map() function to replace the sector names with the corresponding ticker symbols
+        symbols_df["sector"] = symbols_df["sector"].map(sector_ticker_map)
 
-                        # Create a new DataFrame with the cluster labels
-                        st.write(f"<b>Tickers with cluster labels</b>",unsafe_allow_html=True)
-                        cluster_df = top_10_companies_df[['ticker', 'name', 'cluster']]
+    tickers_markcap_check_box=st.checkbox(label=f"Display tickers with Market cap")
+    if tickers_markcap_check_box:
+        # Display dataframe with sector ticker info
+        st.write(f"<b>Tickers with Market Cap</b>",unsafe_allow_html=True)
+        st.write(symbols_df)
 
-                        # Display the table
-                        st.table(cluster_df)
-                    
-                    
-            
-                    # Save the ticker-cluster probability data to a CSV file
-                    if st.button('Save ticker-cluster probability data'):
-                        try:
-                            # Save to folder 'results'
-                            cluster_df.to_csv('./results/cluster_df.csv', index=False)
-                            st.success("Ticker-cluster probability data saved to CSV file successfully! ✅ ")
-                            st.balloons()
-                        except Exception as e:
-                            st.error("Error saving ticker-cluster probability data to CSV file. ❌ Please try again! ")
-                            st.exception(e)
-                            
-                                                 
-                # Empty 2nd column    
-                with col2:
-                    st.empty()
+
+    sector_count_check_box=st.checkbox(label=f"Display ticker counts in each sectors")
+    if sector_count_check_box:
+        # Create a new DataFrame with the sector counts
+        sectors_df = pd.DataFrame({'sector': sector_counts.index, 'count': sector_counts.values})
+
+        st.write(f"<b>Sectors and number of companies in each sector</b>",unsafe_allow_html=True)
+        # Display the new DataFrame in a table using streamlit
+        st.table(sectors_df)
+
+        # Group the symbols_df DataFrame by the 'sector' column
+        grouped_df = symbols_df.groupby('sector').size().reset_index(name='counts')
+
+        # Use the plot() function to create a bar chart of the groups
+        st.write(f"<b>Number of tickers in each sector</b>",unsafe_allow_html=True)
+        grouped_df.plot(kind='bar', x='sector', y='counts',color='green')
+
+        # Show the plot
+        st.pyplot()
+
+        # Show Top 5 sectors
+        top_5_sectors = sectors_df.sort_values(by='count', ascending=False).head(5)
+        st.write(f"<b>Top 5 sectors by number of companies</b>",unsafe_allow_html=True)
+        st.table(top_5_sectors)
+        # Find data types/info
+        # st.write(symbols_df.dtypes)
+
+        # Group the symbols_df dataframe by the 'sector' column
+        grouped_df = symbols_df.groupby('sector')
+
+        # Create an empty list to store the top 10 companies from each sector
+        top_10_companies = []
+
+        # Conver Market Cap objectype to int
+        symbols_df["market_cap"] = symbols_df["market_cap"].str.replace(',','')
+        symbols_df["market_cap"] = symbols_df["market_cap"].str.replace('$','')
+
+        # Convert market_cap to numeric
+        symbols_df["market_cap"] = pd.to_numeric(symbols_df["market_cap"])
+        # st.write(symbols_df)
+
+
+        # Iterate over the sectors
+        for sector, group in grouped_df:
+            # Select the top 10 companies from the current sector based on market cap
+            top_10_companies.append(group.nlargest(10, 'market_cap'))
+
+        # Concatenate all the top 10 company dataframes into a single dataframe
+        top_10_companies_df = pd.concat(top_10_companies)
+        st.write(f"<b>Top 10 companies by Market Cap in each sector</b>",unsafe_allow_html=True)
+        st.write(f"<b>Total companies: ",{top_10_companies_df.shape},unsafe_allow_html=True)
+        st.write(top_10_companies_df)
+
+
+        # Shift the market_cap values up by 1 position
+        top_10_companies_df['market_cap_shifted'] = top_10_companies_df['market_cap'].shift(1)
+
+        # Calculate the daily return using the shifted values
+        top_10_companies_df['daily_return'] = (top_10_companies_df['market_cap'] - top_10_companies_df['market_cap_shifted']) / top_10_companies_df['market_cap_shifted']
+
+        # Drop the shifted column
+        top_10_companies_df.drop(columns=['market_cap_shifted'], inplace=True)
+
+        # Drop the rows with missing values
+        top_10_companies_df.dropna(inplace=True)
+
+        st.write(f"<b>Total companies with daily returns: ",{top_10_companies_df.shape},unsafe_allow_html=True)
+        st.write(top_10_companies_df)
+
+
+
+    # Save the ticker-cluster probability data to a CSV file
+    if st.button('Optimize with Silhouette score & run K-means algorithm'):
+
+        # Select the columns from top_10_companies_df that will be used for clustering
+        X = top_10_companies_df[['daily_return', 'market_cap']]
+
+        # Initialize an empty list to store the silhouette scores
+        silhouette_scores = []
+
+        # Loop through a range of possible number of clusters
+        for n_clusters in range(2, 11):
+            # Initialize the KMeans model
+            kmeans = KMeans(n_clusters=n_clusters)
+            # Fit the model to the data
+            kmeans.fit(X)
+            # Predict the cluster labels for each data point
+            labels = kmeans.predict(X)
+            # Append the silhouette score to the list
+            silhouette_scores.append(silhouette_score(X, labels))
+            # Find the index of the highest silhouette score
+            optimal_number_of_clusters = np.argmax(silhouette_scores) + 2
+            # Show silhouette scores
+            # st.write(silhouette_scores)
+
+
+        # Re-initialize the model with the optimal number of clusters
+        kmeans = KMeans(n_clusters=optimal_number_of_clusters)
+        # Fit the model to the data
+        kmeans.fit(X)
+        # Assign each company to a cluster
+        top_10_companies_df['cluster'] = kmeans.predict(X)
+
+        # Create a new DataFrame with the cluster labels
+        st.write(f"<b>Tickers with cluster labels</b>",unsafe_allow_html=True)
+        cluster_df = top_10_companies_df[['ticker', 'name', 'cluster']]
+
+        # Display the table
+        st.table(cluster_df)
+
+
+
+    # Save the ticker-cluster probability data to a CSV file
+    if st.button('Save ticker-cluster probability data'):
+        try:
+            # Save to folder 'results'
+            cluster_df.to_csv('./results/cluster_df.csv', index=False)
+            st.success("Ticker-cluster probability data saved to CSV file successfully! ✅ ")
+            st.balloons()
+        except Exception as e:
+            st.error("Error saving ticker-cluster probability data to CSV file. ❌ Please try again! ")
+            st.exception(e)
 
                 
 #-------------------------------------------------------------------#
