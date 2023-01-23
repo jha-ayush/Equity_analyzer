@@ -70,13 +70,11 @@ Use **252 days** for a one year period
 ## Machine Learning models
 
 ### Unsupervised Clustering
-We initially pick at least 2 tickers for data clustering (default ticker in the dropdown menu - S&P 500 `^GSPC` ticker). By grouping the ticker data a user can better understand how the stocks move in conjunction over time. To further improve clustering, we apply the "**Elbow Method**" & "**Silhouette Score**" to find the optimum number of clusters (default is set to **3**).
-Furthermore, we used **Monte Carlo** simulation on resampled data to estimate the probability of different outcomes. By combining the results of **K-means** clustering with Monte Carlo simulation, a user can gain valuable insights into the behavior of a specific stock or portfolio of stocks, and use that information to make more informed investment decisions, although this model cannot predict the future with certainty.
-**DBSCAN** was additionally used along with K-means.
+After gathering ticker information along with their sector & market cap information, we decided to first get the count of each companies in the various sectors. We identified the top 10 companies from each sector via market cap & daily returns calculations. After that, we moved ahead with grouping these companies into clusters using K-means and Silhouette scoring. Once the tickers were clustered, the data is passed through Monte Carlo simulation to better normalize the data.
 
 
 ### Supervised Classifiers
-### Algorithmic Trading
+
 ### Time Series Analysis - Facebook Prophet analysis for baseline ticker prediction
 
 
