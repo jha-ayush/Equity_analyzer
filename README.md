@@ -72,6 +72,11 @@ After gathering ticker information of the various S&P500 companies and their sec
 ### Supervised Classifiers
 After Monte Carlo Simulation we genereated a portfolio dataframe for the group of tickers, calucated returns, multiplied returns and volume with monte carlo weights and also calculated short and long moving averages. We concatenated all data in to a single data frame for the portfolio and did resampling to monthly basis. We used Random Forests, KNN and SVR models to find the better model and predictions after defing X and y variables, training, fitting and predicting values. SVR model had better mean error and r2 values compared to other 2 models.
 
+### Algo Trading
+In this project, the team decided to use algorithmic trading, also known as algo trading, to execute trades in financial markets. The specific strategy chosen is called DMAC (Dual Moving Average Crossover), which uses two moving averages to identify potential buy and sell opportunities. The strategy is based on the idea that short-term market movements are influenced by short-term trends, while long-term market movements are influenced by long-term trends. The strategy generates a buy signal when the fast moving average crosses above the slow moving average and generates a sell signal when it crosses below.
+One of the issues the team faced was in the initial cleaning up of the data. The team used yfinance to download historical data for multiple tickers in portfolios, but due to limitations, they had to create random portfolios. Another issue they faced was with the datetime, which had duplicates, but the team was able to drop the duplicate values with a little research.
+To overcome these issues, the team conducted extensive troubleshooting, including testing the code in sections. The next step for the team is to conduct extensive backtesting to evaluate the performance of the strategy. Overall, the team was able to resolve the issues they faced through a combination of Google searching and troubleshooting.
+
 ### Time Series Analysis
 Facebook Prophet analysis for baseline ticker prediction
 
