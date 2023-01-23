@@ -67,7 +67,7 @@ Library versions:
 ## Machine Learning models
 
 ### Unsupervised Clustering
-After gathering ticker information along with their sector & market cap information, we decided to first get the count of each companies in the various sectors. We identified the top 10 companies from each sector via market cap & daily returns calculations. After that, we moved ahead with grouping these companies into clusters using K-means and Silhouette scoring. Once the tickers were clustered, the data is passed through Monte Carlo simulation to better normalize the data.
+After gathering ticker information of the various S&P500 companies and their sector & market cap information, we decided to first get the count of each companies in the various sectors. We identified the top 10 companies from each sector via market cap & daily returns calculations. After that, we moved ahead with grouping these companies into clusters using K-means and Silhouette scoring. Once the tickers were clustered, the data is passed through Monte Carlo simulation to better normalize the data.
 
 
 ### Supervised Classifiers
