@@ -947,7 +947,9 @@ with tab2:
         # Remove 'Dividends' & 'Stock Splits' from `ticker_df`
         symbols_df.drop(columns=["dividends"], inplace=True)
         
-        st.write(f"<b>symbols_df</b> revamped",unsafe_allow_html=True)
+        st.write(f"<b>symbols_df</b> revamped by Market Cap size",unsafe_allow_html=True)
+        # Sort the sectors by market capitalization
+        symbols_df.sort_values(by='market_cap', ascending=False, inplace=True)
         # st.write(symbols_df.dtypes)
         st.write(symbols_df)
 
@@ -962,7 +964,7 @@ with tab2:
         ticker_df.sort_values(by='Market Cap', ascending=False, inplace=True)
         # Convert Market Cap objectype to int
         # Display the sorted data in a table
-        st.write(f"<b>{ticker} ticker_df</b> dataframe",unsafe_allow_html=True)
+        st.write(f"<b>{ticker} ticker_df</b> dataframe revamped",unsafe_allow_html=True)
         # st.write(ticker_df.dtypes)
         st.write(ticker_df)
 
