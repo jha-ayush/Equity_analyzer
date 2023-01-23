@@ -15,8 +15,7 @@ The business case for the Equity Analyzer is clear, as it empowers investors of 
 Create new environment in Terminal
 - `conda create -n streamlit python=3.9`
 - `conda activate streamlit`
-- `pip install numpy pandas streamlit streamlit_lottie prophet cufflinks yfinance datetime watermark warnings sklearn plotly`
-- OR `pip install requirements.txt` to install all package dependancies
+- `pip install requirements.txt` to install all package dependancies
 
 
 ## Run in localhost
