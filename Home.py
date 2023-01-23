@@ -1028,7 +1028,7 @@ with tab2:
         # Create an empty list to store the top 10 companies from each sector
         top_10_companies = []
 
-        # Conver Market Cap objectype to int
+        # Convert Market Cap objectype to int
         symbols_df["market_cap"] = symbols_df["market_cap"].str.replace(',','')
         symbols_df["market_cap"] = symbols_df["market_cap"].str.replace('$','')
 
