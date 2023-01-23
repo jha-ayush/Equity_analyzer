@@ -934,7 +934,7 @@ with tab2:
     ticker_df_check_box=st.checkbox(label=f"Display ticker dataframe")
     if ticker_df_check_box:
         # Display ticker_df dataframe
-        st.write(f"<b>ticker_df</b> dataframe",unsafe_allow_html=True)
+        st.write(f"<b>{ticker} ticker_df</b> dataframe",unsafe_allow_html=True)
         st.write(ticker_df)
         # Display symbols_df dataframe
         st.write(f"<b>symbols_df</b> dataframe",unsafe_allow_html=True)
