@@ -964,7 +964,7 @@ with tab2:
         ticker_df.sort_values(by='Market Cap', ascending=False, inplace=True)
         # Convert Market Cap objectype to int
         # Display the sorted data in a table
-        st.write(f"<b>{ticker} ticker_df</b> dataframe revamped",unsafe_allow_html=True)
+        st.write(f"<b>{ticker} ticker_df</b> dataframe revamped by Market Cap size",unsafe_allow_html=True)
         # st.write(ticker_df.dtypes)
         st.write(ticker_df)
 
