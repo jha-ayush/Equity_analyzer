@@ -72,7 +72,8 @@ After gathering ticker information along with their sector & market cap informat
 
 ### Supervised Classifiers
 
-### Time Series Analysis - Facebook Prophet analysis for baseline ticker prediction
+### Time Series Analysis
+Facebook Prophet analysis for baseline ticker prediction
 
 
 ## Next Steps
