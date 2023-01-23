@@ -77,7 +77,7 @@ Furthermore, we used **Monte Carlo** simulation on resampled data to estimate th
 
 ### Supervised Classifiers
 ### Algorithmic Trading
-### Time Series Analysis
+### Time Series Analysis - Facebook Prophet analysis for baseline ticker prediction
 
 
 ## Next Steps

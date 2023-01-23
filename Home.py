@@ -130,7 +130,7 @@ except:
 #------------------------------------------------------#
 # Create Navbar tabs
 st.write("###")
-tab1, tab2, tab3, tab4= st.tabs(["Fin ratios", "Unsupervised", "Supervised", "Recommendations"])
+tab1, tab2, tab3, tab4= st.tabs(["Fin ratios", "Unsupervised", "Supervised", "What's next"])
 
 with tab1:
     st.write(f"Select different boxes to view of an individual ticker over the selected period of time.",unsafe_allow_html=True)
@@ -1231,7 +1231,7 @@ with tab3:
             
 #-------------------------------------------------------------------#
 
-# Tab 4 - Recommendations
+# Tab 4 - What's Next
 with tab4:
     st.subheader("Business")
     st.warning("Fix 1")
