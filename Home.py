@@ -1233,11 +1233,11 @@ with tab3:
 
 # Tab 4 - What's Next
 with tab4:
-    st.subheader("Business")
-    st.warning("Fix 1")
+    st.subheader("What's next: Business")
+    st.warning("Optimizing the solution to make it a subscription model with robo advisors")
     st.warning("Fix 2")
     st.warning("Fix 3")
-    st.subheader("Technical")
+    st.subheader("What's next: Technical")
     st.warning("Fix 1")
     st.warning("Fix 2")
     st.warning("Fix 3")
