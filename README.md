@@ -53,17 +53,12 @@ Library versions:
 ## Download data
 - Download stock ticker data from `yfinance`
 - Review data structure & info
+- Map ticker csv to yfinance historical ticker data
+- Define start & end dates
 - Data cleanup by removing "Dividends" & "Stock splits" columns
 - Drop na values
+- Use **252 days** for a one year period
 
-Available columns are:
-- `Open` - the price the stock opened at
-- `High` - the highest price during the day
-- `Low` - the lowest price during the day
-- `Close` - the closing price on the trading day
-- `Volume` - how many shares were traded
-
-Use **252 days** for a one year period
 
 
 
