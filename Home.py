@@ -933,21 +933,38 @@ with tab2:
 
     ticker_df_check_box=st.checkbox(label=f"Display ticker dataframe")
     if ticker_df_check_box:
-        # Display ticker_df dataframe
-        st.write(f"<b>{ticker} ticker_df</b> dataframe",unsafe_allow_html=True)
-        st.write(ticker_df)
         # Display symbols_df dataframe
         st.write(f"<b>symbols_df</b> dataframe",unsafe_allow_html=True)
         st.write(symbols_df)
+        
+        # Convert Market Cap objectype to int
+        symbols_df["market_cap"] = symbols_df["market_cap"].str.replace(',','')
+        symbols_df["market_cap"] = symbols_df["market_cap"].str.replace('$','')
 
-    # Add new column "Market Cap" to ticker_df also
-    # ticker_df["Market Cap"] = ticker_df["Close"] * ticker_df["Volume"]
-    # Remove 'Dividends' & 'Stock Splits' from `ticker_df`
-    # ticker_df.drop(columns=["Dividends", "Stock Splits"], inplace=True)
-    # Sort the sectors by market capitalization
-    # ticker_df.sort_values(by='Market Cap', ascending=False, inplace=True)
-    # Display the sorted data in a table
-    # st.table(ticker_df)
+        # Convert market_cap to numeric
+        symbols_df["market_cap"] = pd.to_numeric(symbols_df["market_cap"])
+
+        # Remove 'Dividends' & 'Stock Splits' from `ticker_df`
+        symbols_df.drop(columns=["dividends"], inplace=True)
+        
+        st.write(f"<b>symbols_df</b> revamped",unsafe_allow_html=True)
+        # st.write(symbols_df.dtypes)
+        st.write(symbols_df)
+
+        # Add new column "Market Cap" to ticker_df
+        ticker_df["Market Cap"] = ticker_df["Close"] * ticker_df["Volume"]
+        # Convert value to integer
+        ticker_df['Market Cap'] = ticker_df['Market Cap'].astype(int)
+
+        # Remove 'Dividends' & 'Stock Splits' from `ticker_df`
+        ticker_df.drop(columns=["Dividends", "Stock Splits"], inplace=True)
+        # Sort the sectors by market capitalization
+        ticker_df.sort_values(by='Market Cap', ascending=False, inplace=True)
+        # Convert Market Cap objectype to int
+        # Display the sorted data in a table
+        st.write(f"<b>{ticker} ticker_df</b> dataframe",unsafe_allow_html=True)
+        # st.write(ticker_df.dtypes)
+        st.write(ticker_df)
 
     # Group the data by sector and count the number of companies in each sector
     sector_counts = symbols_df['sector'].value_counts()
@@ -989,12 +1006,12 @@ with tab2:
         # Use the map() function to replace the sector names with the corresponding ticker symbols
         symbols_df["sector"] = symbols_df["sector"].map(sector_ticker_map)
 
-    tickers_markcap_check_box=st.checkbox(label=f"Display tickers with Market cap")
+    tickers_markcap_check_box=st.checkbox(label=f"Display tickers with sector symbols")
     if tickers_markcap_check_box:
         # Display dataframe with sector ticker info
         st.write(f"<b>Tickers with Market Cap</b>",unsafe_allow_html=True)
         st.write(symbols_df)
-
+        
 
     sector_count_check_box=st.checkbox(label=f"Display ticker counts in each sectors")
     if sector_count_check_box:
@@ -1027,15 +1044,6 @@ with tab2:
 
         # Create an empty list to store the top 10 companies from each sector
         top_10_companies = []
-
-        # Convert Market Cap objectype to int
-        symbols_df["market_cap"] = symbols_df["market_cap"].str.replace(',','')
-        symbols_df["market_cap"] = symbols_df["market_cap"].str.replace('$','')
-
-        # Convert market_cap to numeric
-        symbols_df["market_cap"] = pd.to_numeric(symbols_df["market_cap"])
-        # st.write(symbols_df)
-
 
         # Iterate over the sectors
         for sector, group in grouped_df:
