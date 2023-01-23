@@ -1238,9 +1238,9 @@ with tab4:
     st.warning("Fix 2")
     st.warning("Fix 3")
     st.subheader("What's next: Technical")
-    st.warning("Fix 1")
-    st.warning("Fix 2")
-    st.warning("Fix 3")
+    st.warning("Error handling & user-login for features")
+    st.warning("Use of superior metrics to fit in clustering")
+    st.warning("External API that is more reliable than `yfinance`")
     
     #-----------------------------------------------#
     # Contact Form
