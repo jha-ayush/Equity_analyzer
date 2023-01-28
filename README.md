@@ -26,19 +26,18 @@ Create new environment in Terminal
 ## Technologies
 Library versions:
 
-<sub>plotly   : 5.11.0</sub>
-
-<sub>requests : 2.28.1</sub>
-
-<sub>streamlit: 1.16.0</sub>
-
-<sub>cufflinks: 0.17.3</sub>
-
-<sub>numpy    : 1.21.6</sub>
-
-<sub>pandas   : 1.3.5</sub>
-
-<sub>yfinance : 0.2.3</sub>
+- yfinance         : 0.2.3
+- requests         : 2.28.1
+- numpy            : 1.21.6
+- plotly           : 5.11.0
+- pandas_datareader: 0.10.0
+- sklearn          : 0.0.post1
+- seaborn          : 0.12.1
+- pandas           : 1.3.5
+- matplotlib       : 3.5.3
+- cufflinks        : 0.17.3
+- logging          : 0.5.1.2
+- streamlit        : 1.17.0
 
 
 

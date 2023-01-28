@@ -115,8 +115,8 @@ with st.container():
             st.markdown(f"Our app utilizes advanced algorithms to analyze and predict the performance of your portfolio, providing valuable insights and recommendations to help optimize your investments.",unsafe_allow_html=True)
         with col2:
             # Load asset(s)
-            # st_lottie(lottie_coding,height=150,key="finance")
-            st.empty()
+            st_lottie(lottie_coding,height=150,key="finance")
+            # st.empty()
                  
 #------------------------------------------------------------------#
 
